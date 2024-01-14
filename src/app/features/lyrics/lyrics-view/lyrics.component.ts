@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Title } from "@angular/platform-browser";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { Store } from "@ngxs/store";
@@ -8,16 +8,40 @@ import { LyricsService } from "src/app/core/services/lyrics.service";
 import { SongService } from "src/app/core/services/song.service";
 import { AccountState } from "src/app/core/store/account.state";
 import { LyricAddDialogComponent } from "../lyric-add-dialog/lyric-add-dialog.component";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { Song } from "src/app/core/model/song";
 import { take } from "rxjs";
 import { FormControl } from "@angular/forms";
 import { AuthenticationService } from "src/app/core/services/auth.service";
+import { MatOptionModule } from "@angular/material/core";
+import { MatSelectModule } from "@angular/material/select";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { NgIf, NgFor } from "@angular/common";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatCardModule } from "@angular/material/card";
+import { FlexModule } from "@angular/flex-layout/flex";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
-  selector: "app-lyrics",
-  templateUrl: "./lyrics.component.html",
-  styleUrls: ["./lyrics.component.css"],
+    selector: "app-lyrics",
+    templateUrl: "./lyrics.component.html",
+    styleUrls: ["./lyrics.component.css"],
+    standalone: true,
+    imports: [
+        FlexModule,
+        MatCardModule,
+        MatToolbarModule,
+        MatProgressSpinnerModule,
+        MatButtonModule,
+        MatIconModule,
+        NgIf,
+        MatFormFieldModule,
+        MatSelectModule,
+        NgFor,
+        MatOptionModule,
+    ],
 })
 export class LyricsComponent {
   accountId?: string;
@@ -30,6 +54,7 @@ export class LyricsComponent {
   lyrics: Lyric[];
   lyricVersions = new FormControl("");
   currentUser: any;
+  loading = false;
 
   constructor(
     private activeRoute: ActivatedRoute,
@@ -60,6 +85,7 @@ export class LyricsComponent {
   }
 
   private initLyrics() {
+    this.loading = true;
     const accountId = this.activeRoute.snapshot.paramMap.get("accountid");
     const songId = this.activeRoute.snapshot.paramMap.get("songid");
     this.lyricId = this.activeRoute.snapshot.paramMap.get("lyricid") || undefined;
@@ -86,7 +112,7 @@ export class LyricsComponent {
               (lyric) => lyric.id === this.lyricId
             );
           }
-
+          this.loading = false;
           this.lyricVersionValue = this.selectedLyric?.id || "add";
         });
     }

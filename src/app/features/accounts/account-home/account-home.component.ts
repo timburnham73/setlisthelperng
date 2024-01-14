@@ -6,19 +6,37 @@ import { AuthenticationService } from "src/app/core/services/auth.service";
 import { AccountService } from "src/app/core/services/account.service";
 import { Observable, from } from "rxjs";
 import { Account } from "src/app/core/model/account";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { EditAccountDialogComponent } from "../edit-account-dialog/edit-account-dialog.component";
 import { Firestore, collection, collectionData } from "@angular/fire/firestore";
 import { Store } from "@ngxs/store";
 import { AccountActions } from "src/app/core/store/account.state";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { UserService } from "src/app/core/services/user.service";
 import { AccountUsersComponent } from "../account-users/account-users.component";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatCardModule } from "@angular/material/card";
+import { NgIf, NgFor, AsyncPipe } from "@angular/common";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { FlexModule } from "@angular/flex-layout/flex";
 
 @Component({
-  selector: "app-account-home",
-  templateUrl: "./account-home.component.html",
-  styleUrls: ["./account-home.component.css"],
+    selector: "app-account-home",
+    templateUrl: "./account-home.component.html",
+    styleUrls: ["./account-home.component.css"],
+    standalone: true,
+    imports: [
+        FlexModule,
+        MatButtonModule,
+        MatIconModule,
+        NgIf,
+        NgFor,
+        MatCardModule,
+        MatDividerModule,
+        RouterLink,
+        AsyncPipe,
+    ],
 })
 export class AccountHomeComponent implements OnInit {
   currentUser: any;
