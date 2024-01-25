@@ -18,7 +18,6 @@ import { SongService } from 'src/app/core/services/song.service';
 import { AccountState } from 'src/app/core/store/account.state';
 import { LyricAddDialogComponent } from '../../lyrics/lyric-add-dialog/lyric-add-dialog.component';
 import { Lyric } from 'src/app/core/model/lyric';
-import { ExtendedModule } from '@angular/flex-layout/extended';
 import { NgIf, NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,14 +27,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { FlexModule } from '@angular/flex-layout/flex';
 
 @Component({
     selector: 'app-setlist-songs-list',
     templateUrl: './setlist-songs-list.component.html',
     styleUrls: ['./setlist-songs-list.component.css'],
     standalone: true,
-    imports: [FlexModule, MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass, ExtendedModule]
+    imports: [MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass]
 })
 export class SetlistSongsListComponent {
   @Select(AccountState.selectedAccount) 

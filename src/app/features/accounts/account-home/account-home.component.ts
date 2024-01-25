@@ -19,7 +19,6 @@ import { MatCardModule } from "@angular/material/card";
 import { NgIf, NgFor, AsyncPipe } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
-import { FlexModule } from "@angular/flex-layout/flex";
 
 @Component({
     selector: "app-account-home",
@@ -27,7 +26,6 @@ import { FlexModule } from "@angular/flex-layout/flex";
     styleUrls: ["./account-home.component.css"],
     standalone: true,
     imports: [
-        FlexModule,
         MatButtonModule,
         MatIconModule,
         NgIf,

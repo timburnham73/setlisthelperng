@@ -38,8 +38,8 @@ body {
   margin-left: unset !important;
 }
 
-.mat-list-item,
-.mat-menu-item {
+.mat-mdc-list-item,
+.mat-mdc-menu-item {
   font-size: 14px !important;
 }
 
@@ -48,35 +48,35 @@ body {
   margin-bottom: 5px;
 }
 
-.mat-dialog-title {
+.mat-mdc-dialog-title {
   margin: 0 !important;
 }
 
-.mat-column-actions {
+.mat-mdc-column-actions {
   flex: 0 0 60px;
 }
 
-.mat-table .mat-row:hover {
+.mat-mdc-table .mat-mdc-row:hover {
   background-color: rgba(0, 0, 0, 0.075);
 }
 
-.mat-table td.mat-cell a:hover {
+.mat-mdc-table td.mat-mdc-cell a:hover {
   text-decoration: underline;
 }
 
-.mat-table td.mat-cell:first-child,
-.mat-table td.mat-footer-cell:first-child,
-.mat-table th.mat-header-cell:first-child {
+.mat-mdc-table td.mat-mdc-cell:first-child,
+.mat-mdc-table td.mat-mdc-footer-cell:first-child,
+.mat-mdc-table th.mat-mdc-header-cell:first-child {
   padding-left: 20px !important;
 }
 
-.mat-table td.mat-cell:last-child,
-.mat-table td.mat-footer-cell:last-child,
-.mat-table th.mat-header-cell:last-child {
+.mat-mdc-table td.mat-mdc-cell:last-child,
+.mat-mdc-table td.mat-mdc-footer-cell:last-child,
+.mat-mdc-table th.mat-mdc-header-cell:last-child {
   padding-right: 10px !important;
 }
 
-.mat-table .mat-cell a {
+.mat-mdc-table .mat-mdc-cell a {
   color: inherit;
   text-decoration: none;
 }
@@ -90,23 +90,23 @@ body {
   margin-top: 8px !important;
 }
 
-.no-records .mat-icon {
+.no-records .mat-mdc-icon {
   width: 130px;
   height: 130px;
   font-size: 130px;
   color: #c7c7c7;
 }
 
-p .mat-icon {
+p .mat-mdc-icon {
   vertical-align: middle;
 }
 
-.mat-slide-toggle.full-width {
+.mat-mdc-slide-toggle.full-width {
   margin-top: 15px;
   margin-bottom: 15px;
 }
 
-.mat-tooltip {
+.mat-mdc-tooltip {
   font-size: 14px;
 }
 
@@ -117,9 +117,9 @@ p .mat-icon {
 }
 
 /* Highlight on hover */
-.submitted-timesheet-day:not(.mat-calendar-body-disabled):hover>.mat-calendar-body-cell-content:not(.mat-calendar-body-selected),
+.submitted-timesheet-day:not(.mat-mdc-calendar-body-disabled):hover>.mat-mdc-calendar-body-cell-content:not(.mat-mdc-calendar-body-selected),
 /* Highlight */
-.submitted-timesheet-day>div:not(.mat-calendar-body-selected) {
+.submitted-timesheet-day>div:not(.mat-mdc-calendar-body-selected) {
   border-radius: 999px;
   background-color: rgba(14, 152, 5, 0.25);
 }
@@ -166,7 +166,7 @@ p .mat-icon {
   width: 100%;
 }
 
-.mat-row {
+.mat-mdc-row {
   min-height: 65px;
   
   &.selected {

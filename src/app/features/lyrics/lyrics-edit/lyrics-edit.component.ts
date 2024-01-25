@@ -17,7 +17,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { FlexModule } from '@angular/flex-layout/flex';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
 
@@ -26,7 +25,7 @@ import { NgIf } from '@angular/common';
     templateUrl: './lyrics-edit.component.html',
     styleUrls: ['./lyrics-edit.component.css'],
     standalone: true,
-    imports: [FlexModule, MatCardModule, MatToolbarModule, MatButtonModule, MatIconModule, FormsModule, ReactiveFormsModule, MatProgressSpinnerModule, NgIf]
+    imports: [MatCardModule, MatToolbarModule, MatButtonModule, MatIconModule, FormsModule, ReactiveFormsModule, MatProgressSpinnerModule, NgIf]
 })
 export class LyricsEditComponent implements OnInit {
   @ViewChild('lyrics') lyricsInput: ElementRef;

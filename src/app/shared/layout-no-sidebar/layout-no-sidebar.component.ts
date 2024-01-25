@@ -14,7 +14,6 @@ import { SpinnerService } from "../../core/services/spinner.service";
 import { UserService } from "src/app/core/services/user.service";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { NgIf, AsyncPipe } from "@angular/common";
-import { ExtendedModule } from "@angular/flex-layout/extended";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
@@ -35,7 +34,6 @@ import { MatToolbarModule } from "@angular/material/toolbar";
         MatMenuModule,
         MatIconModule,
         MatBadgeModule,
-        ExtendedModule,
         NgIf,
         MatProgressBarModule,
         RouterOutlet,
