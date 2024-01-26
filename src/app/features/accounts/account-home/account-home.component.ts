@@ -19,6 +19,7 @@ import { MatCardModule } from "@angular/material/card";
 import { NgIf, NgFor, AsyncPipe } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
+import { FlexLayoutModule } from "ngx-flexible-layout";
 
 @Component({
     selector: "app-account-home",
@@ -28,6 +29,7 @@ import { MatButtonModule } from "@angular/material/button";
     imports: [
         MatButtonModule,
         MatIconModule,
+        FlexLayoutModule,
         NgIf,
         NgFor,
         MatCardModule,
