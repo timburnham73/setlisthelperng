@@ -21,7 +21,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
-import { FlexModule } from "@angular/flex-layout/flex";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
@@ -30,7 +29,6 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     styleUrls: ["./lyrics.component.css"],
     standalone: true,
     imports: [
-        FlexModule,
         MatCardModule,
         MatToolbarModule,
         MatProgressSpinnerModule,

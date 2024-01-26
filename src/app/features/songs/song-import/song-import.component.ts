@@ -4,7 +4,6 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, RequiredValid
 import {ActivatedRoute, Router} from '@angular/router';
 import { Song, SongHelper } from 'src/app/core/model/song';
 import { SongService } from 'src/app/core/services/song.service';
-import { FlexModule } from '@angular/flex-layout/flex';
 import { MatButtonModule } from '@angular/material/button';
 import { NgIf, NgFor, JsonPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -20,7 +19,7 @@ import { SongAttribute } from 'src/app/core/viewModel/song-attribute';
     templateUrl: './song-import.component.html',
     styleUrls: ['song-import.component.css'],
     standalone: true,
-    imports: [MatCardModule, FormsModule, ReactiveFormsModule, NgIf, MatButtonModule, FlexModule, NgFor, MatSelectModule, MatOptionModule, JsonPipe]
+    imports: [MatCardModule, FormsModule, ReactiveFormsModule, NgIf, MatButtonModule, NgFor, MatSelectModule, MatOptionModule, JsonPipe]
 })
 export class SongImportComponent implements OnInit {
   public stepNumber = 1;

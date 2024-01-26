@@ -15,7 +15,6 @@ import { AccountSetlist } from "src/app/core/model/account-setlist";
 import { Setlist } from "src/app/core/model/setlist";
 import { SetlistSongsService } from "src/app/core/services/setlist-songs.service";
 import { SetlistSong } from "src/app/core/model/setlist-song";
-import { ExtendedModule } from "@angular/flex-layout/extended";
 import { NgIf, NgClass, NgFor, DatePipe } from "@angular/common";
 import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -24,7 +23,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
-import { FlexModule } from "@angular/flex-layout/flex";
 
 @Component({
     selector: "app-setlist-list",
@@ -32,7 +30,6 @@ import { FlexModule } from "@angular/flex-layout/flex";
     styleUrls: ["./setlist-list.component.css"],
     standalone: true,
     imports: [
-        FlexModule,
         MatCardModule,
         MatToolbarModule,
         MatButtonModule,
@@ -44,7 +41,6 @@ import { FlexModule } from "@angular/flex-layout/flex";
         MatSortModule,
         NgIf,
         NgClass,
-        ExtendedModule,
         NgFor,
         DatePipe,
     ],

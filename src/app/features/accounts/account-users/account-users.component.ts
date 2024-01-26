@@ -19,7 +19,6 @@ import { NgIf, NgFor } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
-import { FlexModule } from "@angular/flex-layout/flex";
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -42,7 +41,6 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     styleUrls: ["./account-users.component.css"],
     standalone: true,
     imports: [
-        FlexModule,
         MatDialogModule,
         MatButtonModule,
         MatIconModule,

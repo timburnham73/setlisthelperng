@@ -27,14 +27,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { FlexModule } from '@angular/flex-layout/flex';
 
 @Component({
     selector: 'app-song-list',
     templateUrl: './song-list.component.html',
     styleUrls: ['./song-list.component.css'],
     standalone: true,
-    imports: [FlexModule, MatCardModule, MatToolbarModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, NgIf, MatProgressSpinnerModule, MatTableModule, MatSortModule]
+    imports: [MatCardModule, MatToolbarModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, NgIf, MatProgressSpinnerModule, MatTableModule, MatSortModule]
 })
 export class SongListComponent implements OnInit {
   @Select(AccountState.selectedAccount) 
