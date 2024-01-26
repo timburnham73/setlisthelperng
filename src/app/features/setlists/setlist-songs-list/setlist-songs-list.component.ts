@@ -27,20 +27,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
+import { FlexLayoutModule } from 'ngx-flexible-layout';
 
 @Component({
     selector: 'app-setlist-songs-list',
     templateUrl: './setlist-songs-list.component.html',
     styleUrls: ['./setlist-songs-list.component.css'],
     standalone: true,
-    imports: [MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass]
+    imports: [FlexLayoutModule,MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass]
 })
 export class SetlistSongsListComponent {
   @Select(AccountState.selectedAccount) 
   selectedAccount$!: Observable<Account>;
   currentUser: BaseUser;
   displayedSongColumns: string[] = [ 'name', 'artist'];
-  displayedColumns: string[] = [ 'name', 'artist', 'genre', 'key', 'tempo', 'timeSignature', 'songLength', 'lyrics'];
+  displayedColumns: string[] = [ 'sequence','name', 'artist', 'genre', 'key', 'tempo', 'timeSignature', 'songLength', 'lyrics'];
   dsSetlistSongs =  new MatTableDataSource();
   dsSongs = new MatTableDataSource<Song>();
   accountId?: string;
