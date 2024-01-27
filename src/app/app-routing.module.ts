@@ -7,6 +7,7 @@ import {
   ExtraOptions,
   provideRouter,
   withDebugTracing,
+  withViewTransitions,
 } from "@angular/router";
 import {
   AngularFireAuthGuard,
@@ -60,6 +61,6 @@ export const routingConfiguration: ExtraOptions = {
 @NgModule({
   imports: [RouterModule.forRoot(appRoutes, routingConfiguration)],
   exports: [RouterModule],
-  providers: [ provideRouter(appRoutes)],
+  providers: [ provideRouter(appRoutes, withViewTransitions())],
 })
 export class AppRoutingModule {}
