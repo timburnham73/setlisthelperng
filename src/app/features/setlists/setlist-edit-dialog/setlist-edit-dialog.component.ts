@@ -61,11 +61,15 @@ export class SetlistEditDialogComponent {
   onSave(): void {
     this.saving = true;
     
+    //If the Date is modified do some manipulation with moment. 
     const modifiedSetlist = this.setlistForm.value as Setlist;
-    if(this.setlistForm.value.gigDatePicker){
-      const gigDate = this.setlistForm.value.gigDatePicker as unknown as moment.Moment;
-      modifiedSetlist.gigDate = Timestamp.fromDate(gigDate.toDate());
+    if(this.setlistForm.get('gigDatePicker')?.dirty && this.setlistForm.value.gigDatePicker){
+      modifiedSetlist.gigDate = this.convertMomentDateToDate(this.setlistForm.value.gigDatePicker as unknown as moment.Moment);
     }
+    else{
+      modifiedSetlist.gigDate = this.data.setlist?.gigDate;
+    }
+
     if(this.data.setlist?.id && this.data.accountId){
       this.setlistService.updateSetlist(this.data.accountId, this.data.setlist?.id, modifiedSetlist, this.currentUser);
     }else if(this.data.accountId){
@@ -74,4 +78,9 @@ export class SetlistEditDialogComponent {
     this.dialogRef.close(modifiedSetlist);
   }
 
+
+  private convertMomentDateToDate(momentDate: moment.Moment) : Timestamp{
+    const gigDate = momentDate;
+    return Timestamp.fromDate(gigDate.toDate());
+  }
 }

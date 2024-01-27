@@ -23,6 +23,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
+import { FlexLayoutModule } from "ngx-flexible-layout";
 
 @Component({
     selector: "app-setlist-list",
@@ -30,6 +31,7 @@ import { MatCardModule } from "@angular/material/card";
     styleUrls: ["./setlist-list.component.css"],
     standalone: true,
     imports: [
+        FlexLayoutModule,
         MatCardModule,
         MatToolbarModule,
         MatButtonModule,
@@ -49,7 +51,7 @@ export class SetlistListComponent implements OnInit {
   @Select(AccountState.selectedAccount)
   selectedAccount$!: Observable<Account>;
 
-  displayedColumns: string[] = ["name", "gigLocation", "gigDate"];
+  displayedColumns: string[] = ["name", "gigLocation", "gigDate", "setlistedit"];
   dataSource = new MatTableDataSource();
   accountId?: string;
   selectedSetlist?: Setlist;
@@ -101,14 +103,16 @@ export class SetlistListComponent implements OnInit {
     });
   }
 
-  onEditSetlist(row: any) {
+  onEditSetlist(event, row: any) {
+    event.preventDefault();
     const dialogRef = this.dialog.open(SetlistEditDialogComponent, {
       data: { accountId: this.accountId, setlist: row } as AccountSetlist,
       panelClass: "dialog-responsive",
     });
   }
 
-  onViewSetlistSongs(row: any) {
+  onViewSetlistSongs(event, row: any) {
+    event?.preventDefault();
     this.router.navigate([row.id + '/songs'], { relativeTo: this.route } );
   }
 
@@ -117,11 +121,11 @@ export class SetlistListComponent implements OnInit {
   }
 
   selectRow(row) {
-    this.setlistSongs = [];
-    this.displaySequence = 1;
-      this.setlistBreakCount = 0;
-
+    
     if (this.selectedSetlist === undefined || this.selectedSetlist?.id !== row.id) {
+      this.setlistSongs = [];
+      this.displaySequence = 1;
+      this.setlistBreakCount = 0;
       this.selectedSetlist = row;
       this.setlistSongsService
         .getSetlistSongs(this.accountId!, this.selectedSetlist!.id!)

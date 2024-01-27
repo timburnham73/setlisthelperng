@@ -34,7 +34,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
     templateUrl: './setlist-songs-list.component.html',
     styleUrls: ['./setlist-songs-list.component.scss'],
     standalone: true,
-    imports: [FlexLayoutModule,MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass]
+    imports: [FlexLayoutModule, MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass]
 })
 export class SetlistSongsListComponent {
   @Select(AccountState.selectedAccount) 

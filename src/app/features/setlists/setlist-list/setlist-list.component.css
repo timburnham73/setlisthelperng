@@ -6,6 +6,9 @@ th.mat-sort-header-sorted {
     color: black;
 }
 
+.setlist-row{
+    cursor: pointer;
+}
 .spacer {
     flex: 1 1 auto;
   }
