@@ -32,7 +32,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 @Component({
     selector: 'app-setlist-songs-list',
     templateUrl: './setlist-songs-list.component.html',
-    styleUrls: ['./setlist-songs-list.component.css'],
+    styleUrls: ['./setlist-songs-list.component.scss'],
     standalone: true,
     imports: [FlexLayoutModule,MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass]
 })
