@@ -172,6 +172,7 @@ export class SetlistSongsListComponent {
   }
 
   getSequenceNumber(rowIndex: number){
+    //Reset the break count with the first row.
     if(rowIndex === 0){
       this.setlistBreakCount = 0;
     }
@@ -186,7 +187,11 @@ export class SetlistSongsListComponent {
     return this.displaySequence + 1;
   }
 
-  incrementSetBreakCount(){
+  incrementSetBreakCount(rowIndex: number){
+    //Reset the break count with the first row.
+    if(rowIndex === 0){
+      this.setlistBreakCount = 0;
+    }
     this.setlistBreakCount += 1;
     return '';
   }
