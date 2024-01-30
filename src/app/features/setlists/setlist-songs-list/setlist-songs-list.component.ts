@@ -6,7 +6,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Select, Store } from '@ngxs/store';
 import { NGXLogger } from 'ngx-logger';
-import { Observable } from 'rxjs';
+import { Observable, concat, first } from 'rxjs';
 import { Account } from 'src/app/core/model/account';
 import { SetlistSong } from 'src/app/core/model/setlist-song';
 import { Song } from 'src/app/core/model/song';
@@ -28,13 +28,15 @@ import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import {CdkDragDrop, DragDropModule} from '@angular/cdk/drag-drop';
+import { drop } from 'lodash-es';
 
 @Component({
     selector: 'app-setlist-songs-list',
     templateUrl: './setlist-songs-list.component.html',
     styleUrls: ['./setlist-songs-list.component.scss'],
     standalone: true,
-    imports: [FlexLayoutModule, MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass]
+    imports: [FlexLayoutModule, MatCardModule, MatToolbarModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatButtonModule, MatIconModule, NgIf, NgClass, DragDropModule]
 })
 export class SetlistSongsListComponent {
   @Select(AccountState.selectedAccount) 
@@ -42,7 +44,7 @@ export class SetlistSongsListComponent {
   currentUser: BaseUser;
   displayedSongColumns: string[] = [ 'name', 'artist'];
   displayedColumns: string[] = [ 'sequence','name', 'artist', 'genre', 'key', 'tempo', 'timeSignature', 'songLength', 'lyrics'];
-  dsSetlistSongs =  new MatTableDataSource();
+  dsSetlistSongs =  new MatTableDataSource<SetlistSong>();
   dsSongs = new MatTableDataSource<Song>();
   accountId?: string;
   setlistId?: string;
@@ -94,7 +96,9 @@ export class SetlistSongsListComponent {
     }
    }
 
-  onAddSetlistSong(row: Song): void {
+   //Events ////////////////
+   //Adds a song after the selected row. If no row is selected
+  onAddSetlistSong(row: Song, sequenceNumberToInsert?: Number): void {
     const sequenceNumber = this.getSequenceNumberForAddOrUpdate();
     const setlistSong = {displaySequenceNumber: sequenceNumber, sequenceNumber: sequenceNumber, songId: row.id!, isBreak: false, ...row};
     this.setlistSongsService.addSetlistSong(this.accountId!, this.setlistId!, setlistSong, this.currentUser)
@@ -128,6 +132,43 @@ export class SetlistSongsListComponent {
         this.router.navigate([row.id + `/lyrics/${result.id}/edit`], { relativeTo: this.route });
       }
     });
+  }
+
+  onListDrop(event: CdkDragDrop<SetlistSong[]>){
+    const droppedSetlistSong = event.item.data as SetlistSong;
+    const sequenceNumberToInsert = event.currentIndex;
+    
+    if(event.previousIndex > event.currentIndex){
+      const subscription = this.setlistSongsService.insertSetlistSong(droppedSetlistSong, sequenceNumberToInsert + 1, this.accountId!, this.setlistId!, this.currentUser)
+                              .pipe(first())
+                              .subscribe()
+      
+    }
+    
+    
+  }
+
+  //TODO: remove this function if I don't use it. 
+  //Helper functions
+  //setlistSongToMove is the SetlistSong to move
+  //sequenceNumberToInsert is a 1 based sequence not 0
+  moveSetlistSongUpTo(setlistSongToMove: SetlistSong, sequenceNumberToInsert: number): void {
+    const setlistSongToDisplace = this.dsSetlistSongs.data[sequenceNumberToInsert - 1];
+    const setlistSongToInsert = {...setlistSongToMove, songId: setlistSongToMove.id! };
+
+    if(setlistSongToDisplace?.sequenceNumber){
+      //first increment the sequence of the song that is displaced.
+      setlistSongToDisplace.sequenceNumber += .01;
+      //Set the sequence number for the song to insert
+      setlistSongToInsert.sequenceNumber = setlistSongToDisplace.sequenceNumber - .01;
+      
+      concat( 
+        //Update the displaced song
+        this.setlistSongsService.updateSetlistSong(setlistSongToDisplace?.id!, this.accountId!, this.setlistId!, setlistSongToDisplace, this.currentUser),
+        //Update the song to insert
+        this.setlistSongsService.updateSetlistSong(setlistSongToInsert.id!, this.accountId!, this.setlistId!, setlistSongToInsert, this.currentUser)
+      );
+    }
   }
 
   getSequenceNumber(rowIndex: number){
