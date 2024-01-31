@@ -122,6 +122,7 @@ export class SetlistSongsListComponent {
           .subscribe((setlistSongs) => {
             this.dsSetlistSongs = new MatTableDataSource(setlistSongs);
             this.setlistSongCount = this.dsSetlistSongs.filteredData.length;
+            console.log(this.dsSetlistSongs.data.map(song => `${song.sequenceNumber} ${song.name}`))
           });
       }
     }
@@ -161,7 +162,10 @@ export class SetlistSongsListComponent {
     );
   }
 
-  onEditSong(row): void {}
+  onEditSong(row): void {
+    //TODO: implement this.
+
+  }
 
   onViewLyrics(event, row: any) {
     event.preventDefault();
@@ -193,8 +197,27 @@ export class SetlistSongsListComponent {
     const droppedSetlistSong = event.item.data as SetlistSong;
     const sequenceNumberToInsert = event.currentIndex;
     if (event.previousIndex > event.currentIndex) {
-      const subscription = this.setlistSongsService
+      const countOfSongsToReorder = event.previousIndex - event.currentIndex;
+      console.log(countOfSongsToReorder);
+      //User has moved the song up in the setlist
+      this.setlistSongsService
         .moveUpSetlistSong(
+          droppedSetlistSong,
+          sequenceNumberToInsert + 1,
+          countOfSongsToReorder,
+          this.accountId!,
+          this.setlistId!,
+          this.currentUser
+        )
+        .pipe(first())
+        .subscribe();
+    }
+    else{
+      const songsToReorder =  event.currentIndex - event.previousIndex;
+      console.log(songsToReorder);
+      //Moved down in the setlist.
+      this.setlistSongsService
+        .moveDownSetlistSong(
           droppedSetlistSong,
           sequenceNumberToInsert + 1,
           this.accountId!,
