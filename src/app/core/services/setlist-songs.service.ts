@@ -3,7 +3,7 @@ import {
   AngularFirestore,
   AngularFirestoreCollection,
 } from "@angular/fire/compat/firestore";
-import { Observable, concat, concatMap, from, map } from "rxjs";
+import { Observable, concat, concatMap, from, map, tap } from "rxjs";
 import { Song } from "../model/song";
 import { SetlistSong, SetlistSongHelper } from "../model/setlist-song";
 import { SetlistBreak, SetlistBreakHelper } from "../model/setlist-break";
@@ -59,25 +59,21 @@ export class SetlistSongsService {
     
     //return a concat observable with the increment and add combined.
     if(shouldInsert){
-      return concat(
-        this.incrementSequenceOfSongs(songForAdd.sequenceNumber, accountId, setlistId, editingUser),
-        //from(setlistSongsRef.add(songForAdd))
-        );
+      return this.incrementSequenceOfSongs(songForAdd.sequenceNumber, songForAdd, accountId, setlistId, editingUser);
     }
-
-    //Just add the song to the end if we are not inserting.
-    return from(setlistSongsRef.add(songForAdd));
     
   }
-
-  incrementSequenceOfSongs(startingSequenceNumber: number, accountId: string, setlistId: string, editingUser: BaseUser){
+  //startingSequenceNumber is the currently selected song. All songs after the startingSequence should be incremented. 
+  //The new songs sequece should be startingSequenceNumber + 1.
+  incrementSequenceOfSongs(startingSequenceNumber: number, songToAdd:SetlistSong, accountId: string, setlistId: string, editingUser: BaseUser){
     const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
     return this.getSetlistSongs(accountId, setlistId).pipe(
       concatMap((results: SetlistSong[]) => {
         const setlistSongs = results;
         const batch = this.db.firestore.batch();
-        for (const setlistSong of setlistSongs) {
+        setlistSongs.forEach((setlistSong, index) => {
+          if(index >= startingSequenceNumber){
             this.setSetlistSongSequenceNumberForBatch(
               (setlistSong.sequenceNumber = setlistSong.sequenceNumber + 1),
               setlistSongsRef,
@@ -85,13 +81,14 @@ export class SetlistSongsService {
               editingUser,
               batch
             );
-        }
+          }
+        }); 
+        songToAdd.sequenceNumber = startingSequenceNumber + 1;
+        batch.set(setlistSongsRef.doc().ref, songToAdd);
         //Batch commit incrementing the setlist song sequence number.
         return from(batch.commit());
       })
-    );
-
-                  
+    );           
   }
 
   updateSetlistSong(

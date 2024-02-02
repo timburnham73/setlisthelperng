@@ -122,7 +122,7 @@ export class SetlistSongsListComponent {
           .subscribe((setlistSongs) => {
             this.dsSetlistSongs = new MatTableDataSource(setlistSongs);
             this.setlistSongCount = this.dsSetlistSongs.filteredData.length;
-            console.log(this.dsSetlistSongs.data.map(song => `${song.sequenceNumber} ${song.name}`))
+            console.log(JSON.stringify(this.dsSetlistSongs.data.map(song => `${song.sequenceNumber} ${song.name}`)));
           });
       }
     }
