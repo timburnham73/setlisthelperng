@@ -140,11 +140,14 @@ export class SetlistSongsListComponent {
       ...row,
     };
     this.setlistSongsService.addSetlistSong(
+      setlistSong,
+      this.selectedRowSequence != -1 && this.setlistSongCount !== this.selectedRowSequence, //Insert in the middle if a song is selected.
       this.accountId!,
       this.setlistId!,
-      setlistSong,
       this.currentUser
-    );
+    )
+    .pipe(first())
+    .subscribe();
   }
 
   onAddBreak() {
@@ -198,7 +201,6 @@ export class SetlistSongsListComponent {
     const sequenceNumberToInsert = event.currentIndex;
     if (event.previousIndex > event.currentIndex) {
       const countOfSongsToReorder = event.previousIndex - event.currentIndex;
-      console.log(countOfSongsToReorder);
       //User has moved the song up in the setlist
       this.setlistSongsService
         .moveUpSetlistSong(
@@ -214,7 +216,6 @@ export class SetlistSongsListComponent {
     }
     else{
       const songsToReorder =  event.currentIndex - event.previousIndex;
-      console.log(songsToReorder);
       //Moved down in the setlist.
       this.setlistSongsService
         .moveDownSetlistSong(
@@ -264,10 +265,11 @@ export class SetlistSongsListComponent {
     }
   }
 
+  //If there is not a selected song add it at the end.
   private getSequenceNumberForAddOrUpdate() {
     let sequenceNumber = this.setlistSongCount + 1;
     if (this.selectedRowSequence !== -1) {
-      sequenceNumber = this.selectedRowSequence + 0.01;
+      sequenceNumber = this.selectedRowSequence;
     }
     return sequenceNumber;
   }

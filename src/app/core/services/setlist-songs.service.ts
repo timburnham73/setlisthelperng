@@ -9,6 +9,7 @@ import { SetlistSong, SetlistSongHelper } from "../model/setlist-song";
 import { SetlistBreak, SetlistBreakHelper } from "../model/setlist-break";
 import { BaseUser } from "../model/user";
 import { convertSnaps } from "./db-utils";
+import { DocumentReference, WriteBatch } from "firebase/firestore";
 
 @Injectable({
   providedIn: "root",
@@ -46,16 +47,51 @@ export class SetlistSongsService {
   }
 
   addSetlistSong(
+    setlistSong: SetlistSong,
+    shouldInsert: boolean,
     accountId: string,
     setlistId: string,
-    setlistSong: SetlistSong,
     editingUser: BaseUser
   ): any {
     const songForAdd = SetlistSongHelper.getForUpdate(setlistSong, editingUser);
     const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
+    
+    //return a concat observable with the increment and add combined.
+    if(shouldInsert){
+      return concat(
+        this.incrementSequenceOfSongs(songForAdd.sequenceNumber, accountId, setlistId, editingUser),
+        //from(setlistSongsRef.add(songForAdd))
+        );
+    }
 
-    return setlistSongsRef.add(songForAdd);
+    //Just add the song to the end if we are not inserting.
+    return from(setlistSongsRef.add(songForAdd));
+    
+  }
+
+  incrementSequenceOfSongs(startingSequenceNumber: number, accountId: string, setlistId: string, editingUser: BaseUser){
+    const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
+    const setlistSongsRef = this.db.collection(dbPath);
+    return this.getSetlistSongs(accountId, setlistId).pipe(
+      concatMap((results: SetlistSong[]) => {
+        const setlistSongs = results;
+        const batch = this.db.firestore.batch();
+        for (const setlistSong of setlistSongs) {
+            this.setSetlistSongSequenceNumberForBatch(
+              (setlistSong.sequenceNumber = setlistSong.sequenceNumber + 1),
+              setlistSongsRef,
+              setlistSong,
+              editingUser,
+              batch
+            );
+        }
+        //Batch commit incrementing the setlist song sequence number.
+        return from(batch.commit());
+      })
+    );
+
+                  
   }
 
   updateSetlistSong(
