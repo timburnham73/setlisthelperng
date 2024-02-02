@@ -133,7 +133,7 @@ export class SetlistSongsService {
             (isUpdating && setlistSong.id !== setlistSongToInsert.id)
           ) {
             this.setSetlistSongSequenceNumberForBatch(
-              (setlistSong.sequenceNumber = moveUp ? setlistSong.sequenceNumber + 1 : setlistSong.sequenceNumber + 1),
+              (setlistSong.sequenceNumber = moveUp ? setlistSong.sequenceNumber + 1 : setlistSong.sequenceNumber - 1),
               setlistSongsRef,
               setlistSong,
               editingUser,
@@ -152,107 +152,6 @@ export class SetlistSongsService {
             break;
           }
           index = moveUp ? index + 1: index - 1;
-        }
-        //Batch commit incrementing the setlist song sequence number.
-        return from(batch.commit());
-      })
-    );
-  }
-
-  //When you move down a setlist songs all songs above need to be reordered.
-  moveUpSetlistSong(
-    setlistSongToInsert,
-    startingSequenceNumber: number,
-    countOfSongsToReorder: number,
-    accountId: string,
-    setlistId: string,
-    editingUser: BaseUser
-  ): any {
-    const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
-    const setlistSongsRef = this.db.collection(dbPath);
-    return this.getSetlistSongs(accountId, setlistId).pipe(
-      concatMap((results: SetlistSong[]) => {
-        const setlistSongs = results;
-        const batch = this.db.firestore.batch();
-        //Once the starting sequence number is found set this to true so the others can be incremented after.
-        let isUpdating = false;
-        let index = 1;
-        for (const setlistSong of setlistSongs) {
-          //Decrement the sequence number if the sequenceNumber === startingSequenceNumber or it is updating.
-          if (
-            index === startingSequenceNumber ||
-            (isUpdating && setlistSong.id !== setlistSongToInsert.id)
-          ) {
-            this.setSetlistSongSequenceNumberForBatch(
-              (setlistSong.sequenceNumber += 1),
-              setlistSongsRef,
-              setlistSong,
-              editingUser,
-              batch
-            );
-
-            isUpdating = true;
-          } else if (isUpdating && setlistSong.id === setlistSongToInsert.id) {
-            this.setSetlistSongSequenceNumberForBatch(
-              (setlistSong.sequenceNumber = startingSequenceNumber),
-              setlistSongsRef,
-              setlistSong,
-              editingUser,
-              batch
-            );
-            break;
-          }
-          index++
-        }
-        //Batch commit incrementing the setlist song sequence number.
-        return from(batch.commit());
-      })
-    );
-  }
-
-  //When you move down a setlist songs all songs above need to be reordered.
-  moveDownSetlistSong(
-    setlistSongToInsert,
-    startingSequenceNumber: number,
-    accountId: string,
-    setlistId: string,
-    editingUser: BaseUser
-  ): any {
-    const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
-    const setlistSongsRef = this.db.collection(dbPath);
-    return this.getSetlistSongs(accountId, setlistId).pipe(
-      concatMap((results: SetlistSong[]) => {
-        const batch = this.db.firestore.batch();
-        //Once the starting sequence number is found set this to true so the others can be incremented after.
-        const setlistSongs = results.reverse();
-        let isUpdating = false;
-        let index = setlistSongs.length;
-        for (const setlistSong of setlistSongs) {
-          //Decrement the sequence number if the sequenceNumber === startingSequenceNumber or it is updating.
-          if (
-            index === startingSequenceNumber ||
-            (isUpdating && setlistSong.id !== setlistSongToInsert.id)
-          ) {
-            this.setSetlistSongSequenceNumberForBatch(
-              (setlistSong.sequenceNumber -= 1),
-              setlistSongsRef,
-              setlistSong,
-              editingUser,
-              batch
-            );
-
-            isUpdating = true;
-          } else if (setlistSong.id === setlistSongToInsert.id) {
-            this.setSetlistSongSequenceNumberForBatch(
-              (setlistSong.sequenceNumber = startingSequenceNumber),
-              setlistSongsRef,
-              setlistSong,
-              editingUser,
-              batch
-            );
-            break;
-          }
-          index--
         }
         //Batch commit incrementing the setlist song sequence number.
         return from(batch.commit());

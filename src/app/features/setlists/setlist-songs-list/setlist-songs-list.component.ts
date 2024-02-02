@@ -203,13 +203,13 @@ export class SetlistSongsListComponent {
       const countOfSongsToReorder = event.previousIndex - event.currentIndex;
       //User has moved the song up in the setlist
       this.setlistSongsService
-        .moveUpSetlistSong(
+        .moveSetlistSong(
           droppedSetlistSong,
           sequenceNumberToInsert + 1,
-          countOfSongsToReorder,
           this.accountId!,
           this.setlistId!,
-          this.currentUser
+          this.currentUser,
+          true
         )
         .pipe(first())
         .subscribe();
@@ -218,12 +218,13 @@ export class SetlistSongsListComponent {
       const songsToReorder =  event.currentIndex - event.previousIndex;
       //Moved down in the setlist.
       this.setlistSongsService
-        .moveDownSetlistSong(
+        .moveSetlistSong(
           droppedSetlistSong,
           sequenceNumberToInsert + 1,
           this.accountId!,
           this.setlistId!,
-          this.currentUser
+          this.currentUser,
+          false
         )
         .pipe(first())
         .subscribe();
