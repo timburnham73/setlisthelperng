@@ -58,9 +58,10 @@ export class SetlistSongsService {
     const setlistSongsRef = this.db.collection(dbPath);
     
     //return a concat observable with the increment and add combined.
-    if(shouldInsert){
+    //if(shouldInsert){ //TODO: SEE IF I NEED THIS IF STATEMENT
       return this.incrementSequenceOfSongs(songForAdd.sequenceNumber, songForAdd, accountId, setlistId, editingUser);
-    }
+    //}
+    
     
   }
   //startingSequenceNumber is the currently selected song. All songs after the startingSequence should be incremented. 

@@ -130,8 +130,8 @@ export class SetlistSongsListComponent {
 
   //Events ////////////////
   //Adds a song after the selected row. If no row is selected
-  onAddSetlistSong(row: Song, sequenceNumberToInsert?: Number): void {
-    const sequenceNumber = this.getSequenceNumberForAddOrUpdate();
+  onAddSetlistSong(row: Song, sequenceNumberToInsert?: number): void {
+    const sequenceNumber = sequenceNumberToInsert ? sequenceNumberToInsert : this.getSequenceNumberForAddOrUpdate();
     const setlistSong = {
       displaySequenceNumber: sequenceNumber,
       sequenceNumber: sequenceNumber,
@@ -196,38 +196,45 @@ export class SetlistSongsListComponent {
     });
   }
 
-  onListDrop(event: CdkDragDrop<SetlistSong[]>) {
-    const droppedSetlistSong = event.item.data as SetlistSong;
+  onListDrop(event: CdkDragDrop<Song[] | SetlistSong[]>) {
     const sequenceNumberToInsert = event.currentIndex;
-    if (event.previousIndex > event.currentIndex) {
-      const countOfSongsToReorder = event.previousIndex - event.currentIndex;
-      //User has moved the song up in the setlist
-      this.setlistSongsService
-        .moveSetlistSong(
-          droppedSetlistSong,
-          sequenceNumberToInsert + 1,
-          this.accountId!,
-          this.setlistId!,
-          this.currentUser,
-          true
-        )
-        .pipe(first())
-        .subscribe();
+    if(!event.item.data.sequenceNumber){
+      //Add from the song list
+      this.onAddSetlistSong(event.item.data, sequenceNumberToInsert);
     }
     else{
-      const songsToReorder =  event.currentIndex - event.previousIndex;
-      //Moved down in the setlist.
-      this.setlistSongsService
-        .moveSetlistSong(
-          droppedSetlistSong,
-          sequenceNumberToInsert + 1,
-          this.accountId!,
-          this.setlistId!,
-          this.currentUser,
-          false
-        )
-        .pipe(first())
-        .subscribe();
+      //Move around the setlist song list.
+      const droppedSetlistSong = event.item.data as SetlistSong;
+      if (event.previousIndex > event.currentIndex) {
+        const countOfSongsToReorder = event.previousIndex - event.currentIndex;
+        //User has moved the song up in the setlist
+        this.setlistSongsService
+          .moveSetlistSong(
+            droppedSetlistSong,
+            sequenceNumberToInsert + 1,
+            this.accountId!,
+            this.setlistId!,
+            this.currentUser,
+            true
+          )
+          .pipe(first())
+          .subscribe();
+      }
+      else{
+        const songsToReorder =  event.currentIndex - event.previousIndex;
+        //Moved down in the setlist.
+        this.setlistSongsService
+          .moveSetlistSong(
+            droppedSetlistSong,
+            sequenceNumberToInsert + 1,
+            this.accountId!,
+            this.setlistId!,
+            this.currentUser,
+            false
+          )
+          .pipe(first())
+          .subscribe();
+      }
     }
   }
 

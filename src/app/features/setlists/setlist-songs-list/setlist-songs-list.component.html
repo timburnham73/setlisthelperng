@@ -14,7 +14,7 @@
           </form>
         </mat-toolbar>
         <div class="table-container">
-          <table mat-table [dataSource]="dsSongs" matSort>
+          <table cdkDropList [cdkDropListData]="dsSongs.data" [cdkDropListConnectedTo]="[setlistSongList]" mat-table [dataSource]="dsSongs" matSort #songList="cdkDropList">
             <!-- Name Column -->
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
@@ -33,6 +33,8 @@
 
             <tr mat-header-row *matHeaderRowDef="displayedSongColumns; sticky: true"></tr>
             <tr
+              cdkDrag 
+              [cdkDragData]="row"
               mat-row
               (dblclick)="onAddSetlistSong(row)"
               *matRowDef="let row; columns: displayedSongColumns"
@@ -53,7 +55,7 @@
           </button>
         </mat-toolbar>
         <div class="table-container">
-          <table mat-table cdkDropList (cdkDropListDropped)="onListDrop($event)" [dataSource]="dsSetlistSongs" matSort>
+          <table mat-table cdkDropList (cdkDropListDropped)="onListDrop($event)" [dataSource]="dsSetlistSongs" matSort #setlistSongList="cdkDropList">
             <ng-container matColumnDef="sequence">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Num. </th>
               <td mat-cell *matCellDef="let element;">

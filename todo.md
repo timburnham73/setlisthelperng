@@ -11,3 +11,4 @@ Show and edit Time is Setlist Edit #Setlists
 Add confirm delete dialog #Songs #Setlists #SetlistSongs
 Add edit song #SetlistSongs
 Add option to save to master song when editing song #SetlistSongs
+Add remove toolbar button that will show checkboxes and a trash can. #setlistsongs
