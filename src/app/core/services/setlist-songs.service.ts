@@ -36,19 +36,19 @@ export class SetlistSongsService {
   addSetlistBreak(
     accountId: string,
     setlistId: string,
-    setlistSong: SetlistBreak
+    setlistBreak: Partial<SetlistBreak>,
+    editingUser: BaseUser
   ): any {
-    const songForAdd =
-      SetlistBreakHelper.getSetlistBreakForAddOrUpdate(setlistSong);
+    const breakForAdd =
+      SetlistBreakHelper.getSetlistBreakForAddOrUpdate(setlistBreak, editingUser);
     const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
 
-    return setlistSongsRef.add(songForAdd);
+    return setlistSongsRef.add(breakForAdd);
   }
 
   addSetlistSong(
     setlistSong: SetlistSong,
-    shouldInsert: boolean,
     accountId: string,
     setlistId: string,
     editingUser: BaseUser
@@ -58,9 +58,8 @@ export class SetlistSongsService {
     const setlistSongsRef = this.db.collection(dbPath);
     
     //return a concat observable with the increment and add combined.
-    //if(shouldInsert){ //TODO: SEE IF I NEED THIS IF STATEMENT
-      return this.incrementSequenceOfSongs(songForAdd.sequenceNumber, songForAdd, accountId, setlistId, editingUser);
-    //}
+    return this.incrementSequenceOfSongs(songForAdd.sequenceNumber, songForAdd, accountId, setlistId, editingUser);
+    
     
     
   }

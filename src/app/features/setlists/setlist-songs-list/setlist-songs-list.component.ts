@@ -141,7 +141,6 @@ export class SetlistSongsListComponent {
     };
     this.setlistSongsService.addSetlistSong(
       setlistSong,
-      this.selectedRowSequence != -1 && this.setlistSongCount !== this.selectedRowSequence, //Insert in the middle if a song is selected.
       this.accountId!,
       this.setlistId!,
       this.currentUser
@@ -161,7 +160,8 @@ export class SetlistSongsListComponent {
     this.setlistSongsService.addSetlistBreak(
       this.accountId!,
       this.setlistId!,
-      setlistSong
+      setlistSong,
+      this.currentUser,
     );
   }
 
