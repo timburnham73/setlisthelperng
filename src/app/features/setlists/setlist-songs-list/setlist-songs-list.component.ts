@@ -162,7 +162,9 @@ export class SetlistSongsListComponent {
       this.setlistId!,
       setlistSong,
       this.currentUser,
-    );
+    )
+    .pipe(first())
+    .subscribe();
   }
 
   onEditSong(row): void {

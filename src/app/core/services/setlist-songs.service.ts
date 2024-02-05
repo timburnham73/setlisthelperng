@@ -44,7 +44,8 @@ export class SetlistSongsService {
     const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
 
-    return setlistSongsRef.add(breakForAdd);
+    //return a concat observable with the increment and add combined.
+    return this.incrementSequenceOfSongs(breakForAdd.sequenceNumber, breakForAdd, accountId, setlistId, editingUser);
   }
 
   addSetlistSong(
@@ -65,7 +66,7 @@ export class SetlistSongsService {
   }
   //startingSequenceNumber is the currently selected song. All songs after the startingSequence should be incremented. 
   //The new songs sequece should be startingSequenceNumber + 1.
-  incrementSequenceOfSongs(startingSequenceNumber: number, songToAdd:SetlistSong, accountId: string, setlistId: string, editingUser: BaseUser){
+  incrementSequenceOfSongs(startingSequenceNumber: number, songToAdd: SetlistSong | SetlistBreak, accountId: string, setlistId: string, editingUser: BaseUser){
     const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
     return this.getSetlistSongs(accountId, setlistId).pipe(
