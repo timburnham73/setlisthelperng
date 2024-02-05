@@ -84,7 +84,18 @@ export class SetlistSongsService {
             );
           }
         }); 
-        songToAdd.sequenceNumber = startingSequenceNumber + 1;
+        //Don't increment if the song is added to the end.
+        if(setlistSongs.length === 0){
+          songToAdd.sequenceNumber = 1;
+        }
+        else if(startingSequenceNumber >= setlistSongs.length){
+          //Don't incremnet if there are no songs.
+          songToAdd.sequenceNumber = setlistSongs.length + 1;
+        }
+        else{
+          songToAdd.sequenceNumber = startingSequenceNumber + 1;
+        }
+        
         batch.set(setlistSongsRef.doc().ref, songToAdd);
         //Batch commit incrementing the setlist song sequence number.
         return from(batch.commit());
