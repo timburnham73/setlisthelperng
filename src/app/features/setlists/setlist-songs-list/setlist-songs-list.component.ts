@@ -70,12 +70,15 @@ export class SetlistSongsListComponent {
     "timeSignature",
     "songLength",
     "lyrics",
+    "remove"
   ];
   dsSetlistSongs = new MatTableDataSource<SetlistSong>();
   dsSongs = new MatTableDataSource<Song>();
   accountId?: string;
   setlistId?: string;
   setlistSongCount: number;
+
+  showRemove = false;
 
   displaySequence = 1;
   //Used for numbering the rows to skip the
@@ -167,8 +170,16 @@ export class SetlistSongsListComponent {
     .subscribe();
   }
 
+  onEnableDeleteMode(){
+    this.showRemove = !this.showRemove;
+  }
+
   onEditSong(row): void {
     //TODO: implement this.
+
+  }
+
+  onRemoveSong($event, element){
 
   }
 
