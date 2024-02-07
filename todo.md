@@ -16,3 +16,5 @@ Add option to save to master song when editing song #SetlistSongs
 Add remove toolbar button that will show checkboxes and a trash can. #SetlistSongs
 Search for songs in the songs list. #SetlistSongs
 Add button should have a dropdown for Add Break and Add New Song. If on mobile Add From Catalog. #SetlistSongs
+Create duplicate setlist function #setlist
+Adjust the selected song after delete and reorder. #SetlistSongs

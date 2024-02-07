@@ -128,7 +128,7 @@ export class SetlistListComponent implements OnInit {
       this.setlistBreakCount = 0;
       this.selectedSetlist = row;
       this.setlistSongsService
-        .getSetlistSongs(this.accountId!, this.selectedSetlist!.id!)
+        .getOrderedSetlistSongs(this.accountId!, this.selectedSetlist!.id!)
         .subscribe((setlistSongs) => {
           this.setlistSongs = setlistSongs.map((song, index) => {
             let breakCount = setlistSongs.slice(0, index).filter(song => song.isBreak === true).length;;

@@ -121,7 +121,7 @@ export class SetlistSongsListComponent {
       if (setlistId) {
         this.setlistId = setlistId;
         this.setlistSongsService
-          .getSetlistSongs(this.accountId, this.setlistId)
+          .getOrderedSetlistSongs(this.accountId, this.setlistId)
           .subscribe((setlistSongs) => {
             this.dsSetlistSongs = new MatTableDataSource(setlistSongs);
             this.setlistSongCount = this.dsSetlistSongs.filteredData.length;
@@ -179,8 +179,13 @@ export class SetlistSongsListComponent {
 
   }
 
-  onRemoveSong($event, element){
-
+  onRemoveSong(event, element){
+    event.preventDefault();
+    //TODO: Add an "Are you user message".
+    this.setlistSongsService
+      .removeSetlistSong(element, this.accountId!, this.setlistId!, this.currentUser)
+      .pipe(first())
+      .subscribe();
   }
 
   onViewLyrics(event, row: any) {
