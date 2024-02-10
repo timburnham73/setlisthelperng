@@ -32,11 +32,17 @@ export class SongService {
 
   getSongs(accountId: string, sortOrder: OrderByDirection = 'asc', pageNumber = 0, pageSize = 10): Observable<Song[]> {
     const dbPath = `/accounts/${accountId}/songs`;
-    const songsRef = this.db.collection(dbPath, ref => ref.orderBy("name", sortOrder)
-                                                          .limit(pageSize)
-                                                          .startAfter(pageNumber * pageSize));
-    return songsRef.get().pipe(
-      map(results => convertSnaps<Song>(results))
+    const songsRef = this.db.collection(dbPath, ref => ref.orderBy("name", sortOrder));
+                                                          //.limit(pageSize)
+                                                          //.startAfter(pageNumber * pageSize));
+    return songsRef.snapshotChanges().pipe(
+      map((changes) =>
+      changes.map((c) => {
+        const song = c.payload.doc.data() as Song;
+        song.id = c.payload.doc.id;
+        return song;
+      })
+    )
     );
   }
 
