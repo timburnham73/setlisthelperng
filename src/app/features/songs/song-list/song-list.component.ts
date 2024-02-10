@@ -11,7 +11,7 @@ import { Song } from 'src/app/core/model/song';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SongEditDialogComponent } from '../song-edit-dialog/song-edit-dialog.component';
 import { MatDialog as MatDialog } from '@angular/material/dialog';
-import { AccountSong } from 'src/app/core/model/account-song';
+import { SongEdit } from 'src/app/core/model/account-song';
 import { Select, Store } from '@ngxs/store';
 import { AccountActions, AccountState } from 'src/app/core/store/account.state';
 import { Account } from 'src/app/core/model/account';
@@ -98,7 +98,7 @@ export class SongListComponent implements OnInit {
 
   onAddSong(){
     const dialogRef = this.dialog.open(SongEditDialogComponent, {
-      data: { accountId: this.accountId} as AccountSong,
+      data: { accountId: this.accountId, song: null},
       panelClass: "dialog-responsive",
     });
   }
@@ -109,8 +109,12 @@ export class SongListComponent implements OnInit {
 
   onEditSong(row: any){
     const dialogRef = this.dialog.open(SongEditDialogComponent, {
-      data: { accountId: this.accountId, song: row} as AccountSong,
+      data: { accountId: this.accountId, song: row},
       panelClass: "dialog-responsive",
+    })
+    .afterClosed().subscribe((data) => {
+      let songToUpdate = this.dataSource.find((song) => song.id === data.id);
+      songToUpdate = {...data};
     });
   }
 

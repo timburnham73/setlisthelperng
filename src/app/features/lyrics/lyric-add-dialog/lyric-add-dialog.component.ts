@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatDialogRef as MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog";
-import { AccountSong } from "src/app/core/model/account-song";
+import { SongEdit } from "src/app/core/model/account-song";
 import { Song } from "src/app/core/model/song";
 import { SongService } from "src/app/core/services/song.service";
 import { SongEditDialogComponent } from "../../songs/song-edit-dialog/song-edit-dialog.component";

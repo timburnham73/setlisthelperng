@@ -33,6 +33,8 @@ import { MatCardModule } from "@angular/material/card";
 import { FlexLayoutModule } from "ngx-flexible-layout";
 import { CdkDragDrop, DragDropModule } from "@angular/cdk/drag-drop";
 import { drop } from "lodash-es";
+import { SongEditDialogComponent } from "../../songs/song-edit-dialog/song-edit-dialog.component";
+import { SongEdit } from "src/app/core/model/account-song";
 
 @Component({
   selector: "app-setlist-songs-list",
@@ -53,6 +55,7 @@ import { drop } from "lodash-es";
     NgIf,
     NgClass,
     DragDropModule,
+    SongEditDialogComponent
   ],
 })
 export class SetlistSongsListComponent {
@@ -175,7 +178,10 @@ export class SetlistSongsListComponent {
   }
 
   onEditSong(row): void {
-    //TODO: implement this.
+    const dialogRef = this.dialog.open(SongEditDialogComponent, {
+      data: { accountId: this.accountId, song: row} as SongEdit,
+      panelClass: "dialog-responsive",
+    });
 
   }
 

@@ -176,8 +176,8 @@
             </ng-container>
 
             <ng-container matColumnDef="lyrics">
-              <th mat-header-cell *matHeaderCellDef>Lyrics</th>
-              <td mat-cell *matCellDef="let element">
+              <th mat-header-cell [hidden]="showRemove" *matHeaderCellDef>Lyrics</th>
+              <td mat-cell [hidden]="showRemove" *matCellDef="let element">
                 <a
                   href="#"
                   *ngIf="!element.isBreak"
@@ -206,6 +206,7 @@
             <tr
               mat-row
               cdkDrag
+              class="setlist-song-row"
               [cdkDragData]="row"
               cdkDragLockAxis="y"
               (dblclick)="onEditSong(row)"

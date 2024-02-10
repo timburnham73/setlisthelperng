@@ -1,7 +1,8 @@
 import { Song } from "./song";
+import { SetlistSong } from "./setlist-song";
 
-export interface AccountSong {
+export interface SongEdit {
   accountId?: string;
-  song : Song;
+  song : Song | SetlistSong;
   
 }

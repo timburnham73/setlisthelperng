@@ -2,8 +2,8 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef as MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { catchError, tap, throwError } from 'rxjs';
-import { AccountSong } from 'src/app/core/model/account-song';
+import { catchError, first, tap, throwError } from 'rxjs';
+import { SongEdit } from 'src/app/core/model/account-song';
 import { Song } from 'src/app/core/model/song';
 import { BaseUser, UserHelper } from 'src/app/core/model/user';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
+import { SetlistSong } from 'src/app/core/model/setlist-song';
 
 @Component({
     selector: 'app-song-edit-dialog',
@@ -29,41 +30,46 @@ export class SongEditDialogComponent {
   currentUser: BaseUser;
   saving = false;
   isNew = true;
+  song: Song | SetlistSong | undefined;
+  accountId: string | undefined;
+  songForm: FormGroup;
   get name() { return this.songForm.get('name'); }
 
   constructor(
     public dialogRef: MatDialogRef<SongEditDialogComponent>,
     private songService: SongService,
     private authService: AuthenticationService,
-    private afs: AngularFirestore,
-    @Inject(MAT_DIALOG_DATA) public data: AccountSong,
+    @Inject(MAT_DIALOG_DATA) public data: SongEdit,
   ) { 
     
-    if(Object.keys(this.data).length){
+    if(this.data && Object.keys(this.data.song).length){
+      this.song = this.data.song;
       this.isNew = false;
     }
+
+    this.accountId = this.data.accountId;
 
     this.authService.user$.subscribe((user) => {
       if (user && user.uid) {
         this.currentUser = UserHelper.getForUpdate(user);
       }
     });
-  }
 
-  songForm = new FormGroup({
-    name: new FormControl(this.data.song?.name || '', Validators.required),
-    artist: new FormControl(this.data.song?.artist || ''),
-    genre: new FormControl(this.data.song?.genre || ''),
-    key: new FormControl(this.data.song?.key || 'C'),
-    tempo: new FormControl(this.data.song?.tempo || 120, [Validators.min(0), Validators.max(400)] ),
-    lengthMin: new FormControl(this.data.song?.lengthMin || 3, [Validators.min(0), Validators.max(59)] ),
-    lengthSec: new FormControl(this.data.song?.lengthSec || 0, [Validators.min(0), Validators.max(59)] ),
-    beatValue: new FormControl(this.data.song?.beatValue || 4, [Validators.min(1), Validators.max(12)] ),
-    noteValue: new FormControl(this.data.song?.noteValue || 4, [Validators.min(1), Validators.max(12)] ),
-    notes: new FormControl(this.data.song?.notes || ''),
-    other: new FormControl(this.data.song?.other || ''),
-    deactivated: new FormControl(this.data.song?.deactivated || false),
-  });
+    this.songForm = new FormGroup({
+      name: new FormControl(this.song?.name || '', Validators.required),
+      artist: new FormControl(this.song?.artist || ''),
+      genre: new FormControl(this.song?.genre || ''),
+      key: new FormControl(this.song?.key || 'C'),
+      tempo: new FormControl(this.song?.tempo || 120, [Validators.min(0), Validators.max(400)] ),
+      lengthMin: new FormControl(this.song?.lengthMin || 3, [Validators.min(0), Validators.max(59)] ),
+      lengthSec: new FormControl(this.song?.lengthSec || 0, [Validators.min(0), Validators.max(59)] ),
+      beatValue: new FormControl(this.song?.beatValue || 4, [Validators.min(1), Validators.max(12)] ),
+      noteValue: new FormControl(this.song?.noteValue || 4, [Validators.min(1), Validators.max(12)] ),
+      notes: new FormControl(this.song?.notes || ''),
+      other: new FormControl(this.song?.other || ''),
+      deactivated: new FormControl(this.song?.deactivated || false),
+    });
+  }
 
   onNoClick(): void {
     this.dialogRef.close()
@@ -71,9 +77,9 @@ export class SongEditDialogComponent {
 
   onSave(): void {
     this.saving = true;
-    const modifiedSong = {...this.data.song, ...this.songForm.value} as Song;
-    if(this.data.song?.id && this.data.accountId){
-      this.songService.updateSong(this.data.accountId, this.data.song?.id, modifiedSong, this.currentUser)
+    const modifiedSong = {...this.song, ...this.songForm.value} as Song;
+    if(this.song?.id && this.accountId){
+      this.songService.updateSong(this.accountId, this.song?.id, modifiedSong, this.currentUser)
       .pipe(
         tap((result) => this.dialogRef.close(modifiedSong)),
         catchError((err) => {
@@ -82,9 +88,10 @@ export class SongEditDialogComponent {
           return throwError(() => new Error(err));
         })
       )
+      .pipe(first())
       .subscribe();
-    }else if(this.data.accountId){
-      this.songService.addSong(this.data.accountId, modifiedSong, this.currentUser)
+    }else if(this.accountId){
+      this.songService.addSong(this.accountId, modifiedSong, this.currentUser)
       .pipe(
         tap((result) => this.dialogRef.close(modifiedSong)),
         catchError((err) => {
@@ -93,6 +100,7 @@ export class SongEditDialogComponent {
           return throwError(() => new Error(err));
         })
       )
+      .pipe(first())
       .subscribe();
     }
     
