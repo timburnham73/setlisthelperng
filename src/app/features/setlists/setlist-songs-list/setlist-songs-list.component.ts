@@ -179,7 +179,7 @@ export class SetlistSongsListComponent {
 
   onEditSong(row): void {
     const dialogRef = this.dialog.open(SongEditDialogComponent, {
-      data: { accountId: this.accountId, song: row} as SongEdit,
+      data: { accountId: this.accountId, setlistId: this.setlistId, song: row} as SongEdit,
       panelClass: "dialog-responsive",
     });
 

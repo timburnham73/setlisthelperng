@@ -66,7 +66,7 @@ export class SongListComponent implements OnInit {
     const selectedAccount = this.store.selectSnapshot(AccountState.selectedAccount);
     const id = this.route.snapshot.paramMap.get('accountid');
     if(id){
-      this.loading = true;
+      this.loading = false;
       this.accountId = id;
       this.songService.getSongs(this.accountId)
         .pipe(

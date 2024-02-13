@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
 import { SetlistSong } from 'src/app/core/model/setlist-song';
+import { SetlistSongsService } from 'src/app/core/services/setlist-songs.service';
 
 @Component({
     selector: 'app-song-edit-dialog',
@@ -32,12 +33,14 @@ export class SongEditDialogComponent {
   isNew = true;
   song: Song | SetlistSong | undefined;
   accountId: string | undefined;
+  setlistId: string | undefined;
   songForm: FormGroup;
   get name() { return this.songForm.get('name'); }
 
   constructor(
     public dialogRef: MatDialogRef<SongEditDialogComponent>,
     private songService: SongService,
+    private setlistSongService: SetlistSongsService,
     private authService: AuthenticationService,
     @Inject(MAT_DIALOG_DATA) public data: SongEdit,
   ) { 
@@ -48,6 +51,7 @@ export class SongEditDialogComponent {
     }
 
     this.accountId = this.data.accountId;
+    this.setlistId = this.data.setlistId;
 
     this.authService.user$.subscribe((user) => {
       if (user && user.uid) {
@@ -77,9 +81,35 @@ export class SongEditDialogComponent {
 
   onSave(): void {
     this.saving = true;
-    const modifiedSong = {...this.song, ...this.songForm.value} as Song;
-    if(this.song?.id && this.accountId){
-      this.songService.updateSong(this.accountId, this.song?.id, modifiedSong, this.currentUser)
+    
+    if(this.song?.id){
+      if((this.song as SetlistSong)?.sequenceNumber && this.setlistId){
+        this.updateSetlistSong()
+            .pipe(first())
+            .subscribe();
+      }
+      else{
+        this.updateSong()
+            .pipe(first())
+            .subscribe();
+      }
+    } else{
+      if((this.song as SetlistSong)?.sequenceNumber){
+        this.addSong()
+            .pipe(first())
+            .subscribe();
+      }
+      else{
+        this.addSetlistSong()
+          .pipe(first())
+          .subscribe();
+      }
+    }
+  }
+
+  updateSetlistSong(){
+    const modifiedSong = {...this.song, ...this.songForm.value} as SetlistSong;
+    return this.setlistSongService.updateSetlistSong(this.song?.id!, this.accountId!, this.setlistId!, modifiedSong, this.currentUser)
       .pipe(
         tap((result) => this.dialogRef.close(modifiedSong)),
         catchError((err) => {
@@ -87,23 +117,45 @@ export class SongEditDialogComponent {
           alert('Could not update song');
           return throwError(() => new Error(err));
         })
-      )
-      .pipe(first())
-      .subscribe();
-    }else if(this.accountId){
-      this.songService.addSong(this.accountId, modifiedSong, this.currentUser)
+      );
+  }
+
+  updateSong(){
+    const modifiedSong = {...this.song, ...this.songForm.value} as Song;
+    return this.songService.updateSong(this.accountId!, this.song?.id!, modifiedSong, this.currentUser)
       .pipe(
         tap((result) => this.dialogRef.close(modifiedSong)),
         catchError((err) => {
           console.log(err);
-          alert('Could not add song.');
+          alert('Could not update song');
           return throwError(() => new Error(err));
         })
-      )
-      .pipe(first())
-      .subscribe();
-    }
-    
+      );
   }
 
+  addSetlistSong(){
+    const modifiedSong = {...this.song, ...this.songForm.value} as SetlistSong;
+    return this.setlistSongService.addSetlistSong(modifiedSong, this.accountId!, this.setlistId!, this.currentUser)
+    .pipe(
+      tap((result) => this.dialogRef.close(modifiedSong)),
+      catchError((err) => {
+        console.log(err);
+        alert('Could not add song.');
+        return throwError(() => new Error(err));
+      })
+    ); 
+  }
+
+  addSong(){
+    const modifiedSong = {...this.song, ...this.songForm.value} as Song;
+    return this.songService.addSong(this.accountId!, modifiedSong, this.currentUser)
+    .pipe(
+      tap((result) => this.dialogRef.close(modifiedSong)),
+      catchError((err) => {
+        console.log(err);
+        alert('Could not add song.');
+        return throwError(() => new Error(err));
+      })
+    ); 
+  }
 }
