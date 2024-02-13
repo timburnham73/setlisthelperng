@@ -17,4 +17,10 @@ export class SetlistSongHelper{
           ...SongHelper.getForUpdate(setlistSong, userUpdating)
        };
      }
+
+   static getSongFromSetlistSong(setlistSong: SetlistSong){
+      let songForReturn: Song = {...setlistSong};
+      songForReturn.id = setlistSong.songId;
+      return songForReturn;
+   }
  }

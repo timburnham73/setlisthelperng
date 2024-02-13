@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef as MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { catchError, first, tap, throwError } from 'rxjs';
+import { catchError, concat, first, tap, throwError } from 'rxjs';
 import { SongEdit } from 'src/app/core/model/account-song';
 import { Song } from 'src/app/core/model/song';
 import { BaseUser, UserHelper } from 'src/app/core/model/user';
@@ -17,7 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
-import { SetlistSong } from 'src/app/core/model/setlist-song';
+import { SetlistSong, SetlistSongHelper } from 'src/app/core/model/setlist-song';
 import { SetlistSongsService } from 'src/app/core/services/setlist-songs.service';
 
 @Component({
@@ -84,8 +84,10 @@ export class SongEditDialogComponent {
     
     if(this.song?.id){
       if((this.song as SetlistSong)?.sequenceNumber && this.setlistId){
-        this.updateSetlistSong()
-            .pipe(first())
+        const updateSetlistSong$ = this.updateSetlistSong();
+        const updateSong$ = this.updateSong();
+        concat([updateSong$, updateSetlistSong$])
+            .pipe(first(),tap((result) => this.dialogRef.close()),)
             .subscribe();
       }
       else{
@@ -121,8 +123,12 @@ export class SongEditDialogComponent {
   }
 
   updateSong(){
-    const modifiedSong = {...this.song, ...this.songForm.value} as Song;
-    return this.songService.updateSong(this.accountId!, this.song?.id!, modifiedSong, this.currentUser)
+    let modifiedSong = {...this.song, ...this.songForm.value} as Song;
+    const setlistSong = modifiedSong as SetlistSong;
+    if(setlistSong?.sequenceNumber && this.setlistId){
+      modifiedSong = SetlistSongHelper.getSongFromSetlistSong(modifiedSong as SetlistSong); 
+    }
+    return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser)
       .pipe(
         tap((result) => this.dialogRef.close(modifiedSong)),
         catchError((err) => {
