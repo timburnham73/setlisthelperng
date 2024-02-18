@@ -19,13 +19,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
 import { SetlistSong, SetlistSongHelper } from 'src/app/core/model/setlist-song';
 import { SetlistSongsService } from 'src/app/core/services/setlist-songs.service';
+import { MatDivider } from '@angular/material/divider';
 
 @Component({
     selector: 'app-song-edit-dialog',
     templateUrl: './song-edit-dialog.component.html',
     styleUrls: ['./song-edit-dialog.component.css'],
     standalone: true,
-    imports: [FormsModule, ReactiveFormsModule, MatDialogModule, NgIf, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule]
+    imports: [FormsModule, ReactiveFormsModule, MatDialogModule, NgIf, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatButtonModule, MatIconModule,MatDivider, MatProgressSpinnerModule]
 })
 export class SongEditDialogComponent {
   currentUser: BaseUser;
@@ -71,6 +72,7 @@ export class SongEditDialogComponent {
       noteValue: new FormControl(this.song?.noteValue || 4, [Validators.min(1), Validators.max(12)] ),
       notes: new FormControl(this.song?.notes || ''),
       other: new FormControl(this.song?.other || ''),
+      saveSourceSong: new FormControl((this.song as SetlistSong)?.saveChangesToRepertoire || true),
       deactivated: new FormControl(this.song?.deactivated || false),
     });
   }
@@ -85,8 +87,12 @@ export class SongEditDialogComponent {
     if(this.song?.id){
       if((this.song as SetlistSong)?.sequenceNumber && this.setlistId){
         const updateSetlistSong$ = this.updateSetlistSong();
-        const updateSong$ = this.updateSong();
-        concat([updateSong$, updateSetlistSong$])
+        const observableArr: any[] = [updateSetlistSong$];
+        if((this.song as SetlistSong)?.saveChangesToRepertoire){
+          const updateSong$ = this.updateSong();
+          observableArr.push(updateSong$);
+        }
+        concat(observableArr)
             .pipe(first(),tap((result) => this.dialogRef.close()),)
             .subscribe();
       }
@@ -163,5 +169,13 @@ export class SongEditDialogComponent {
         return throwError(() => new Error(err));
       })
     ); 
+  }
+  
+  //If the song is a Setlist song then show the checkbox
+  showChangesToRepertoire(){
+    if((this.song as SetlistSong)?.sequenceNumber){
+      return true;
+    }
+    return false;
   }
 }
