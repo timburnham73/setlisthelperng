@@ -35,6 +35,7 @@ import { CdkDragDrop, DragDropModule } from "@angular/cdk/drag-drop";
 import { drop } from "lodash-es";
 import { SongEditDialogComponent } from "../../songs/song-edit-dialog/song-edit-dialog.component";
 import { SongEdit } from "src/app/core/model/account-song";
+import { MatMenuModule } from "@angular/material/menu";
 
 @Component({
   selector: "app-setlist-songs-list",
@@ -48,6 +49,7 @@ import { SongEdit } from "src/app/core/model/account-song";
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatMenuModule,
     MatTableModule,
     MatSortModule,
     MatButtonModule,
@@ -153,6 +155,10 @@ export class SetlistSongsListComponent {
     )
     .pipe(first())
     .subscribe();
+  }
+
+  onAddSong() {
+
   }
 
   onAddBreak() {
