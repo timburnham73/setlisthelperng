@@ -72,9 +72,13 @@ export class SongEditDialogComponent {
       noteValue: new FormControl(this.song?.noteValue || 4, [Validators.min(1), Validators.max(12)] ),
       notes: new FormControl(this.song?.notes || ''),
       other: new FormControl(this.song?.other || ''),
-      saveSourceSong: new FormControl((this.song as SetlistSong)?.saveChangesToRepertoire || true),
-      deactivated: new FormControl(this.song?.deactivated || false),
+      saveChangesToRepertoire: new FormControl((this.song as SetlistSong)?.saveChangesToRepertoire),
+      deactivated: new FormControl(this.song?.deactivated),
     });
+  }
+
+  saveChangesToRepertoire(){
+    return this.songForm.get('saveChangesToRepertoire');
   }
 
   onNoClick(): void {
@@ -88,7 +92,7 @@ export class SongEditDialogComponent {
       if((this.song as SetlistSong)?.sequenceNumber && this.setlistId){
         const updateSetlistSong$ = this.updateSetlistSong();
         const observableArr: any[] = [updateSetlistSong$];
-        if((this.song as SetlistSong)?.saveChangesToRepertoire){
+        if(this.saveChangesToRepertoire()?.value === true){
           const updateSong$ = this.updateSong();
           observableArr.push(updateSong$);
         }

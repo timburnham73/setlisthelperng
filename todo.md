@@ -22,3 +22,4 @@ Fix the loading indicator #Songs
 Add Edit Break dialog #SetlistSongs
 Add options to update All Seltist Songs when songs change #SongService
 Make sure the showChangesToRepertoire variable is saved during edit #SetlistSongs
+Drag and Drop to position 1 of the setlist is broke #SetlistSongs
