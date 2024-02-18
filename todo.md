@@ -12,7 +12,7 @@ Make readonly Seltist Songs view a component #SetlistSongsReadonly
 Show and edit Time is Setlist Edit #Setlists
 Add confirm delete dialog #Songs #Setlists #SetlistSongs
 Add edit song #SetlistSongs {cm:2024-02-13}
-Add option to save to master song when editing song #SetlistSongs
+Add option to save to master song when editing song #SetlistSongs {cm:2024-02-16}
 Add remove toolbar button that will show checkboxes and a trash can. #SetlistSongs
 Search for songs in the songs list. #SetlistSongs
 Add button should have a dropdown for Add Break and Add New Song. If on mobile Add From Catalog. #SetlistSongs
@@ -21,3 +21,4 @@ Adjust the selected song after delete and reorder. #SetlistSongs
 Fix the loading indicator #Songs
 Add Edit Break dialog #SetlistSongs
 Add options to update All Seltist Songs when songs change #SongService
+Make sure the showChangesToRepertoire variable is saved during edit #SetlistSongs

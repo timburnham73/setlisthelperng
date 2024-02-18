@@ -145,6 +145,7 @@ export class SetlistSongsListComponent {
       sequenceNumber: sequenceNumber,
       songId: row.id!,
       isBreak: false,
+      saveChangesToRepertoire: true,
       ...row,
     };
     this.setlistSongsService.addSetlistSong(
