@@ -106,15 +106,16 @@ export class SongEditDialogComponent {
             .subscribe();
       }
     } else{
+      //If this is a seltist song a seuqence number will be passed in with no songId. 
       if((this.song as SetlistSong)?.sequenceNumber){
+        concat(this.addSetlistSong(), this.addSong())
+          .pipe(first())
+          .subscribe();
+      }
+      else{
         this.addSong()
             .pipe(first())
             .subscribe();
-      }
-      else{
-        this.addSetlistSong()
-          .pipe(first())
-          .subscribe();
       }
     }
   }
