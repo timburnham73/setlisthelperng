@@ -139,9 +139,8 @@ export class SetlistSongsListComponent {
   //Events ////////////////
   //Adds a song after the selected row. If no row is selected
   onAddSetlistSong(row: Song, sequenceNumberToInsert?: number): void {
-    const sequenceNumber = sequenceNumberToInsert ? sequenceNumberToInsert : this.getSequenceNumberForAddOrUpdate();
+    const sequenceNumber = sequenceNumberToInsert !== undefined ? sequenceNumberToInsert! : this.getSequenceNumberForAddOrUpdate();
     const setlistSong = {
-      displaySequenceNumber: sequenceNumber,
       sequenceNumber: sequenceNumber,
       songId: row.id!,
       isBreak: false,
@@ -184,7 +183,7 @@ export class SetlistSongsListComponent {
     this.showRemove = !this.showRemove;
   }
 
-  onEditSong(row): void {
+    onEditSong(row): void {
     const dialogRef = this.dialog.open(SongEditDialogComponent, {
       data: { accountId: this.accountId, setlistId: this.setlistId, song: row} as SongEdit,
       panelClass: "dialog-responsive",

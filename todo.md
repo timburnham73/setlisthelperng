@@ -13,13 +13,13 @@ Show and edit Time is Setlist Edit #Setlists
 Add confirm delete dialog #Songs #Setlists #SetlistSongs
 Add edit song #SetlistSongs {cm:2024-02-13}
 Add option to save to master song when editing song #SetlistSongs {cm:2024-02-16}
-Add remove toolbar button that will show checkboxes and a trash can. #SetlistSongs
+Add remove toolbar button that will show checkboxes and a trash can. #SetlistSongs {cm:2024-02-18}
 Search for songs in the songs list. #SetlistSongs
-Add button should have a dropdown for Add Break and Add New Song. If on mobile Add From Catalog. #SetlistSongs
+Add button should have a dropdown for Add Break and Add New Song. If on mobile Add From Catalog. #SetlistSongs {cm:2024-02-18}
 Create duplicate setlist function #setlist
-Adjust the selected song after delete and reorder. #SetlistSongs
+Adjust the selected song after delete and reorder. #SetlistSongs {cm:2024-02-18}
 Fix the loading indicator #Songs
 Add Edit Break dialog #SetlistSongs
 Add options to update All Seltist Songs when songs change #SongService
-Make sure the showChangesToRepertoire variable is saved during edit #SetlistSongs
-Drag and Drop to position 1 of the setlist is broke #SetlistSongs
+Make sure the showChangesToRepertoire variable is saved during edit #SetlistSongs {cm:2024-02-18}
+Drag and Drop to position 1 of the setlist is broke #SetlistSongs {cm:2024-02-18}
