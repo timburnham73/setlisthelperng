@@ -158,7 +158,13 @@ export class SetlistSongsListComponent {
   }
 
   onAddSong() {
-
+    const sequenceNumber = this.getSequenceNumberForAddOrUpdate();
+    const partialSong = {sequenceNumber: sequenceNumber, isBreak: false} as SetlistSong;
+    const dialogRef = this.dialog.open(SongEditDialogComponent, {
+      
+      data: { accountId: this.accountId, setlistId: this.setlistId, song: sequenceNumber},
+      panelClass: "dialog-responsive",
+    });
   }
 
   onAddBreak() {
