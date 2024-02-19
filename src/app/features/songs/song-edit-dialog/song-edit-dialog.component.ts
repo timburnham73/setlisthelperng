@@ -97,24 +97,36 @@ export class SongEditDialogComponent {
           observableArr.push(updateSong$);
         }
         concat(observableArr)
-            .pipe(first(),tap((result) => this.dialogRef.close()),)
+            .pipe(
+              first(), 
+              tap((result) => this.dialogRef.close(result))
+            )
             .subscribe();
       }
       else{
         this.updateSong()
-            .pipe(first())
+           .pipe(
+              first(), 
+              tap((result) => this.dialogRef.close(result))
+            )
             .subscribe();
       }
     } else{
       //If this is a seltist song a seuqence number will be passed in with no songId. 
       if((this.song as SetlistSong)?.sequenceNumber){
         concat(this.addSetlistSong(), this.addSong())
-          .pipe(first())
-          .subscribe();
+            .pipe(
+              first(), 
+              tap((result) => this.dialogRef.close(result))
+            )
+            .subscribe();
       }
       else{
         this.addSong()
-            .pipe(first())
+            .pipe(
+                  first(), 
+                  tap((result) => this.dialogRef.close(result))
+            )
             .subscribe();
       }
     }
@@ -124,7 +136,6 @@ export class SongEditDialogComponent {
     const modifiedSong = {...this.song, ...this.songForm.value} as SetlistSong;
     return this.setlistSongService.updateSetlistSong(this.song?.id!, this.accountId!, this.setlistId!, modifiedSong, this.currentUser)
       .pipe(
-        tap((result) => this.dialogRef.close(modifiedSong)),
         catchError((err) => {
           console.log(err);
           alert('Could not update song');
@@ -141,7 +152,6 @@ export class SongEditDialogComponent {
     }
     return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser)
       .pipe(
-        tap((result) => this.dialogRef.close(modifiedSong)),
         catchError((err) => {
           console.log(err);
           alert('Could not update song');
@@ -154,7 +164,6 @@ export class SongEditDialogComponent {
     const modifiedSong = {...this.song, ...this.songForm.value} as SetlistSong;
     return this.setlistSongService.addSetlistSong(modifiedSong, this.accountId!, this.setlistId!, this.currentUser)
     .pipe(
-      tap((result) => this.dialogRef.close(modifiedSong)),
       catchError((err) => {
         console.log(err);
         alert('Could not add song.');
@@ -167,7 +176,6 @@ export class SongEditDialogComponent {
     const modifiedSong = {...this.song, ...this.songForm.value} as Song;
     return this.songService.addSong(this.accountId!, modifiedSong, this.currentUser)
     .pipe(
-      tap((result) => this.dialogRef.close(modifiedSong)),
       catchError((err) => {
         console.log(err);
         alert('Could not add song.');
@@ -182,5 +190,12 @@ export class SongEditDialogComponent {
       return true;
     }
     return false;
+  }
+
+  isAddingNewSong(){
+    if(this.song?.id){
+      return false;
+    }
+    return true;
   }
 }

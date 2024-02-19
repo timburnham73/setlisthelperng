@@ -87,15 +87,17 @@
       <mat-label>Other</mat-label>
       <input matInput formControlName="other" />
     </mat-form-field>
-    @if(showChangesToRepertoire()){
+    @if(showChangesToRepertoire() && !isAddingNewSong()){
     <div>
       <mat-checkbox formControlName="saveChangesToRepertoire">Save these changes to the song in your repertoire.</mat-checkbox>
     </div>
     }
+    @if(!isAddingNewSong()){
     <mat-divider></mat-divider>
     <div>
       <mat-checkbox formControlName="deactivated"> Deactivate </mat-checkbox>
     </div>
+    }
   </div>
   <div mat-dialog-actions>
     <button mat-button (click)="onNoClick()">Cancel</button>
