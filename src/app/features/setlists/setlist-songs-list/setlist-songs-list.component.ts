@@ -15,7 +15,7 @@ import { SetlistSong } from "src/app/core/model/setlist-song";
 import { Song } from "src/app/core/model/song";
 import { BaseUser, UserHelper } from "src/app/core/model/user";
 import { AuthenticationService } from "src/app/core/services/auth.service";
-import { SetlistSongsService } from "src/app/core/services/setlist-songs.service";
+import { SetlistSongService } from "src/app/core/services/setlist-songs.service";
 import { SetlistService } from "src/app/core/services/setlist.service";
 import { SongService } from "src/app/core/services/song.service";
 import { AccountState } from "src/app/core/store/account.state";
@@ -36,6 +36,7 @@ import { drop } from "lodash-es";
 import { SongEditDialogComponent } from "../../songs/song-edit-dialog/song-edit-dialog.component";
 import { SongEdit } from "src/app/core/model/account-song";
 import { MatMenuModule } from "@angular/material/menu";
+import { MatDivider } from "@angular/material/divider";
 
 @Component({
   selector: "app-setlist-songs-list",
@@ -46,6 +47,7 @@ import { MatMenuModule } from "@angular/material/menu";
     FlexLayoutModule,
     MatCardModule,
     MatToolbarModule,
+    MatDivider,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -96,7 +98,7 @@ export class SetlistSongsListComponent {
     private logger: NGXLogger,
     private route: ActivatedRoute,
     private titleService: Title,
-    private setlistSongsService: SetlistSongsService,
+    private setlistSongsService: SetlistSongService,
     private songService: SongService,
     private store: Store,
     private authService: AuthenticationService,
@@ -147,6 +149,7 @@ export class SetlistSongsListComponent {
       saveChangesToRepertoire: true,
       ...row,
     };
+
     this.setlistSongsService.addSetlistSong(
       setlistSong,
       this.accountId!,
@@ -185,6 +188,10 @@ export class SetlistSongsListComponent {
     .subscribe();
   }
 
+  onPrintSetlist(){
+
+  }
+  
   onEnableDeleteMode(){
     this.showRemove = !this.showRemove;
   }

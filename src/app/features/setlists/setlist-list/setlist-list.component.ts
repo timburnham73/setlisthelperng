@@ -13,7 +13,7 @@ import { Account } from "src/app/core/model/account";
 import { SetlistService } from "src/app/core/services/setlist.service";
 import { AccountSetlist } from "src/app/core/model/account-setlist";
 import { Setlist } from "src/app/core/model/setlist";
-import { SetlistSongsService } from "src/app/core/services/setlist-songs.service";
+import { SetlistSongService } from "src/app/core/services/setlist-songs.service";
 import { SetlistSong } from "src/app/core/model/setlist-song";
 import { NgIf, NgClass, NgFor, DatePipe } from "@angular/common";
 import { MatInputModule } from "@angular/material/input";
@@ -70,7 +70,7 @@ export class SetlistListComponent implements OnInit {
     private route: ActivatedRoute,
     private titleService: Title,
     private setlistService: SetlistService,
-    private setlistSongsService: SetlistSongsService,
+    private setlistSongsService: SetlistSongService,
     private store: Store,
     private router: Router,
     public dialog: MatDialog

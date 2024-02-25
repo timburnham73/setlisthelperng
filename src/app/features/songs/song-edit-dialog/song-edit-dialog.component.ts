@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef as MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { catchError, concat, first, tap, throwError } from 'rxjs';
+import { catchError, concat, first, mergeMap, tap, throwError, zip } from 'rxjs';
 import { SongEdit } from 'src/app/core/model/account-song';
 import { Song } from 'src/app/core/model/song';
 import { BaseUser, UserHelper } from 'src/app/core/model/user';
@@ -18,7 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
 import { SetlistSong, SetlistSongHelper } from 'src/app/core/model/setlist-song';
-import { SetlistSongsService } from 'src/app/core/services/setlist-songs.service';
+import { SetlistSongService } from 'src/app/core/services/setlist-songs.service';
 import { MatDivider } from '@angular/material/divider';
 
 @Component({
@@ -41,7 +41,7 @@ export class SongEditDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<SongEditDialogComponent>,
     private songService: SongService,
-    private setlistSongService: SetlistSongsService,
+    private setlistSongService: SetlistSongService,
     private authService: AuthenticationService,
     @Inject(MAT_DIALOG_DATA) public data: SongEdit,
   ) { 
@@ -89,19 +89,25 @@ export class SongEditDialogComponent {
     this.saving = true;
     
     if(this.song?.id){
+      //Update setlist song
       if((this.song as SetlistSong)?.sequenceNumber && this.setlistId){
-        const updateSetlistSong$ = this.updateSetlistSong();
-        const observableArr: any[] = [updateSetlistSong$];
         if(this.saveChangesToRepertoire()?.value === true){
-          const updateSong$ = this.updateSong();
-          observableArr.push(updateSong$);
+          //This is for a setlist song when editing only. 
+          //When the song is updated in the function below
+          //all setlist songs will be updated if they do not have the attribute saveChangesToRepertoire 
+          this.updateSong().pipe(
+            tap((result) => this.dialogRef.close(result))
+          )
+          .subscribe();
         }
-        concat(observableArr)
+        else{
+          const updateSetlistSong$ = this.updateSetlistSong();
+          updateSetlistSong$
             .pipe(
-              first(), 
               tap((result) => this.dialogRef.close(result))
             )
             .subscribe();
+        }
       }
       else{
         this.updateSong()
@@ -144,20 +150,20 @@ export class SongEditDialogComponent {
       );
   }
 
+  updateSetlistSongAll(){
+    const modifiedSong = {...this.song, ...this.songForm.value} as SetlistSong;
+    return this.setlistSongService.updateSetlistSongsBySongId(modifiedSong.id!, modifiedSong, this.currentUser);
+  }
+
   updateSong(){
     let modifiedSong = {...this.song, ...this.songForm.value} as Song;
     const setlistSong = modifiedSong as SetlistSong;
+    //If we are updating a setlist song then the master song needs updating. 
     if(setlistSong?.sequenceNumber && this.setlistId){
       modifiedSong = SetlistSongHelper.getSongFromSetlistSong(modifiedSong as SetlistSong); 
     }
-    return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser)
-      .pipe(
-        catchError((err) => {
-          console.log(err);
-          alert('Could not update song');
-          return throwError(() => new Error(err));
-        })
-      );
+    
+    return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser);  
   }
 
   addSetlistSong(){

@@ -113,8 +113,6 @@ export class SongListComponent implements OnInit {
       panelClass: "dialog-responsive",
     })
     .afterClosed().subscribe((data) => {
-      let songToUpdate = this.dataSource.find((song) => song.id === data.id);
-      songToUpdate = {...data};
     });
   }
 

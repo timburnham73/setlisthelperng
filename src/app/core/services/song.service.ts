@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
-import { from, map, Observable, of } from "rxjs";
+import { from, map, mergeMap, Observable, of, switchMap } from "rxjs";
 import { Timestamp } from "@angular/fire/firestore";
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 import { Song, SongHelper } from '../model/song';
 import { BaseUser } from '../model/user';
 import { OrderByDirection } from 'firebase/firestore';
-import { convertSnaps } from './db-utils';
+import { SetlistSongService } from './setlist-songs.service';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class SongService {
 
-  constructor(private db: AngularFirestore) {
+  constructor(private db: AngularFirestore,
+              private setlistSongService: SetlistSongService) {
     
   }
 
@@ -65,11 +67,13 @@ export class SongService {
     );
   }
 
-  updateSong(accountId: string, songId: string, song: Song, editingUser: BaseUser): Observable<void> {
+  updateSong(accountId: string, songId: string, song: Song, editingUser: BaseUser): Observable<any> {
     const songForUpdate = SongHelper.getForUpdate(song, editingUser);
     const dbPath = `/accounts/${accountId}/songs`;
     const songsRef = this.db.collection(dbPath);
     
-    return from(songsRef.doc(songId).update(songForUpdate));
+    return from(songsRef.doc(songId).update(songForUpdate)).pipe(
+      switchMap(() => this.setlistSongService.updateSetlistSongsBySongId(song.id!, song, editingUser))
+    );
   }
 }

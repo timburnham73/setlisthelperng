@@ -1,9 +1,4 @@
-<div
-  class="container"
-  fxLayoutGap="5px grid"
-  fxLayout="row"
-  fxLayoutAlign="center none"
->
+<div class="container" fxLayoutGap="5px grid" fxLayout="row" fxLayoutAlign="center none">
   <!-- Songs Grid -->
   <div fxFlex="24%">
     <mat-card>
@@ -18,15 +13,8 @@
           </form>
         </mat-toolbar>
         <div class="table-container">
-          <table
-            cdkDropList
-            [cdkDropListData]="dsSongs.data"
-            [cdkDropListConnectedTo]="[setlistSongList]"
-            mat-table
-            [dataSource]="dsSongs"
-            matSort
-            #songList="cdkDropList"
-          >
+          <table cdkDropList [cdkDropListData]="dsSongs.data" [cdkDropListConnectedTo]="[setlistSongList]" mat-table
+            [dataSource]="dsSongs" matSort #songList="cdkDropList">
             <!-- Name Column -->
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
@@ -41,17 +29,9 @@
               </td>
             </ng-container>
 
-            <tr
-              mat-header-row
-              *matHeaderRowDef="displayedSongColumns; sticky: true"
-            ></tr>
-            <tr
-              cdkDrag
-              [cdkDragData]="row"
-              mat-row
-              (dblclick)="onAddSetlistSong(row)"
-              *matRowDef="let row; columns: displayedSongColumns"
-            ></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedSongColumns; sticky: true"></tr>
+            <tr cdkDrag [cdkDragData]="row" mat-row (dblclick)="onAddSetlistSong(row)"
+              *matRowDef="let row; columns: displayedSongColumns"></tr>
           </table>
         </div>
       </mat-card-content>
@@ -64,63 +44,59 @@
       <mat-card-content class="card-content">
         <mat-toolbar>
           @if(showRemove === false) {
-            <button mat-button aria-label="Add Song or Break" [matMenuTriggerFor]="addSong">
-              <mat-icon>add</mat-icon>
-              <span fxShow fxHide.xs>
-                Add
-              </span>
-            </button>
-            <mat-menu #addSong="matMenu" xPosition="after" yPosition="above" [overlapTrigger]="false">
+          <button mat-button aria-label="Add Song or Break" [matMenuTriggerFor]="addSong">
+            <mat-icon>add</mat-icon>
+            <span fxShow fxHide.xs>
+              Add
+            </span>
+          </button>
+          <mat-menu #addSong="matMenu" xPosition="after" yPosition="above" [overlapTrigger]="false">
 
-              <a mat-menu-item (click)="onAddSong()">
-                <span>Add New Song</span>
-              </a>
-        
-              <a mat-menu-item (click)="onAddBreak()">
-                <span>Add Break</span>
-              </a>
-        
-            </mat-menu>
-          <span class="example-spacer"></span>
-          <button
-            mat-button
-            aria-label="Remove Song"
-            (click)="onEnableDeleteMode()"
-          >
+            <a mat-menu-item (click)="onAddSong()">
+              <span>Add New Song</span>
+            </a>
+
+            <a mat-menu-item (click)="onAddBreak()">
+              <span>Add Break</span>
+            </a>
+
+          </mat-menu>
+
+          
+          <button mat-button aria-label="Print Setlist" (click)="onPrintSetlist()">
+            <mat-icon>print</mat-icon>
+            <span>Print</span>
+          </button>
+
+          <button mat-button aria-label="Remove Song" (click)="onEnableDeleteMode()">
             <mat-icon>delete</mat-icon>
             <span>Delete</span>
           </button>
-        
+
           } @else {
-          <button
-            mat-icon-button
-            aria-label="Stop Remove Song"
-            (click)="onEnableDeleteMode()"
-          >
+          <button mat-icon-button aria-label="Stop Remove Song" (click)="onEnableDeleteMode()">
             <mat-icon>arrow_back</mat-icon>
           </button>
           }
+          <span class="spacer"></span>
+          <div class="header-container">
+            <h2 style="float: left;">{{selectedSetlist?.name}}</h2><span style="float: left;margin-left: 15px;">{{selectedSetlist?.gigLocation}}</span>
+          </div>
         </mat-toolbar>
         <div class="table-container">
-          <table
-            mat-table
-            cdkDropList
-            (cdkDropListDropped)="onListDrop($event)"
-            [dataSource]="dsSetlistSongs"
-            matSort
-            #setlistSongList="cdkDropList"
-          >
+          <table mat-table cdkDropList (cdkDropListDropped)="onListDrop($event)" [dataSource]="dsSetlistSongs" matSort
+            #setlistSongList="cdkDropList">
             <ng-container matColumnDef="sequence">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Num.</th>
               <td mat-cell *matCellDef="let element">
                 {{
-                  element.isBreak === false
-                    ? getSequenceNumber(
-                        dsSetlistSongs.filteredData.indexOf(element)
-                      )
-                    : incrementSetBreakCount(
-                        dsSetlistSongs.filteredData.indexOf(element)
-                      )
+                element.isBreak === false
+                ? getSequenceNumber(
+                dsSetlistSongs.filteredData.indexOf(element)
+                )
+                : incrementSetBreakCount(
+                dsSetlistSongs.filteredData.indexOf(element)
+                )
                 }}
               </td>
             </ng-container>
@@ -169,9 +145,9 @@
               </th>
               <td mat-cell *matCellDef="let element">
                 {{
-                  element.beatValue && !element.isBreak
-                    ? element.beatValue + "/" + element.noteValue
-                    : ""
+                element.beatValue && !element.isBreak
+                ? element.beatValue + "/" + element.noteValue
+                : ""
                 }}
               </td>
             </ng-container>
@@ -183,11 +159,11 @@
               </th>
               <td mat-cell *matCellDef="let element">
                 {{
-                  element.lengthMin && !element.isBreak
-                    ? element.lengthMin +
-                      ":" +
-                      element.lengthSec?.toString().padStart(2, "0")
-                    : ""
+                element.lengthMin && !element.isBreak
+                ? element.lengthMin +
+                ":" +
+                element.lengthSec?.toString().padStart(2, "0")
+                : ""
                 }}
               </td>
             </ng-container>
@@ -195,12 +171,7 @@
             <ng-container matColumnDef="lyrics">
               <th mat-header-cell [hidden]="showRemove" *matHeaderCellDef>Lyrics</th>
               <td mat-cell [hidden]="showRemove" *matCellDef="let element">
-                <a
-                  href="#"
-                  *ngIf="!element.isBreak"
-                  (click)="onViewLyrics($event, element)"
-                  >View</a
-                >
+                <a href="#" *ngIf="!element.isBreak" (click)="onViewLyrics($event, element)">View</a>
               </td>
             </ng-container>
 
@@ -209,30 +180,16 @@
                 Remove
               </th>
               <td mat-cell [hidden]="!showRemove" *matCellDef="let element">
-                <a href="#" (click)="onRemoveSong($event, element)"
-                  ><mat-icon>delete</mat-icon></a
-                >
+                <a href="#" (click)="onRemoveSong($event, element)"><mat-icon>delete</mat-icon></a>
               </td>
             </ng-container>
 
-            <tr
-              mat-header-row
-              *matHeaderRowDef="displayedColumns; sticky: true"
-            ></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
 
-            <tr
-              mat-row
-              cdkDrag
-              class="setlist-song-row"
-              [cdkDragData]="row"
-              cdkDragLockAxis="y"
-              (dblclick)="onEditSong(row)"
-              *matRowDef="let row; columns: displayedColumns"
-              [ngClass]="{
+            <tr mat-row cdkDrag class="setlist-song-row" [cdkDragData]="row" cdkDragLockAxis="y"
+              (dblclick)="onEditSong(row)" *matRowDef="let row; columns: displayedColumns" [ngClass]="{
                 selected: selectedRowSequence == row.sequenceNumber
-              }"
-              (click)="selectRow(row)"
-            ></tr>
+              }" (click)="selectRow(row)"></tr>
           </table>
         </div>
       </mat-card-content>
