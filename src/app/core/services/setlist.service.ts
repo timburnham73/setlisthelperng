@@ -14,6 +14,20 @@ export class SetlistService {
   constructor(private db: AngularFirestore) { }
 
 
+  getSetlist(accountId: string, setlistId: string): Observable<any> {
+    const dbPath = `/accounts/${accountId}/setlists`;
+    const setlistsRef = this.db.collection(dbPath).doc(setlistId);
+    return setlistsRef.snapshotChanges().pipe(
+      map((resultSetlist) =>
+          {
+            const setlist = resultSetlist.payload.data() as Setlist;
+            setlist.id = setlistId;
+            return setlist;
+          }
+      )
+    );
+  }
+
   getSetlists(accountId: string): Observable<any> {
     const dbPath = `/accounts/${accountId}/setlists`;
     const setlistsRef = this.db.collection(dbPath);

@@ -44,7 +44,11 @@
       <mat-card-content class="card-content">
         <mat-toolbar>
           @if(showRemove === false) {
-          <button mat-button aria-label="Add Song or Break" [matMenuTriggerFor]="addSong">
+            <div class="header-container">
+              <h2 style="float: left;">{{this.setlist?.name}}</h2>
+            </div>
+            <span class="vl"></span>
+            <button mat-button aria-label="Add Song or Break" [matMenuTriggerFor]="addSong">
             <mat-icon>add</mat-icon>
             <span fxShow fxHide.xs>
               Add
@@ -61,27 +65,21 @@
             </a>
 
           </mat-menu>
-
-          
           <button mat-button aria-label="Print Setlist" (click)="onPrintSetlist()">
             <mat-icon>print</mat-icon>
             <span>Print</span>
           </button>
-
+          <span class="vl"></span>
           <button mat-button aria-label="Remove Song" (click)="onEnableDeleteMode()">
             <mat-icon>delete</mat-icon>
             <span>Delete</span>
           </button>
-
+          
           } @else {
           <button mat-icon-button aria-label="Stop Remove Song" (click)="onEnableDeleteMode()">
             <mat-icon>arrow_back</mat-icon>
           </button>
           }
-          <span class="spacer"></span>
-          <div class="header-container">
-            <h2 style="float: left;">{{selectedSetlist?.name}}</h2><span style="float: left;margin-left: 15px;">{{selectedSetlist?.gigLocation}}</span>
-          </div>
         </mat-toolbar>
         <div class="table-container">
           <table mat-table cdkDropList (cdkDropListDropped)="onListDrop($event)" [dataSource]="dsSetlistSongs" matSort

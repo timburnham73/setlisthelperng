@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef as MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { catchError, concat, first, mergeMap, tap, throwError, zip } from 'rxjs';
+import { catchError, concat, first, mergeMap, switchMap, tap, throwError, zip } from 'rxjs';
 import { SongEdit } from 'src/app/core/model/account-song';
 import { Song } from 'src/app/core/model/song';
 import { BaseUser, UserHelper } from 'src/app/core/model/user';
@@ -22,11 +22,11 @@ import { SetlistSongService } from 'src/app/core/services/setlist-songs.service'
 import { MatDivider } from '@angular/material/divider';
 
 @Component({
-    selector: 'app-song-edit-dialog',
-    templateUrl: './song-edit-dialog.component.html',
-    styleUrls: ['./song-edit-dialog.component.css'],
-    standalone: true,
-    imports: [FormsModule, ReactiveFormsModule, MatDialogModule, NgIf, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatButtonModule, MatIconModule,MatDivider, MatProgressSpinnerModule]
+  selector: 'app-song-edit-dialog',
+  templateUrl: './song-edit-dialog.component.html',
+  styleUrls: ['./song-edit-dialog.component.css'],
+  standalone: true,
+  imports: [FormsModule, ReactiveFormsModule, MatDialogModule, NgIf, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatButtonModule, MatIconModule, MatDivider, MatProgressSpinnerModule]
 })
 export class SongEditDialogComponent {
   currentUser: BaseUser;
@@ -44,9 +44,9 @@ export class SongEditDialogComponent {
     private setlistSongService: SetlistSongService,
     private authService: AuthenticationService,
     @Inject(MAT_DIALOG_DATA) public data: SongEdit,
-  ) { 
-    
-    if(this.data && Object.keys(this.data.song).length){
+  ) {
+
+    if (this.data && Object.keys(this.data.song).length) {
       this.song = this.data.song;
       this.isNew = false;
     }
@@ -65,11 +65,11 @@ export class SongEditDialogComponent {
       artist: new FormControl(this.song?.artist || ''),
       genre: new FormControl(this.song?.genre || ''),
       key: new FormControl(this.song?.key || 'C'),
-      tempo: new FormControl(this.song?.tempo || 120, [Validators.min(0), Validators.max(400)] ),
-      lengthMin: new FormControl(this.song?.lengthMin || 3, [Validators.min(0), Validators.max(59)] ),
-      lengthSec: new FormControl(this.song?.lengthSec || 0, [Validators.min(0), Validators.max(59)] ),
-      beatValue: new FormControl(this.song?.beatValue || 4, [Validators.min(1), Validators.max(12)] ),
-      noteValue: new FormControl(this.song?.noteValue || 4, [Validators.min(1), Validators.max(12)] ),
+      tempo: new FormControl(this.song?.tempo || 120, [Validators.min(0), Validators.max(400)]),
+      lengthMin: new FormControl(this.song?.lengthMin || 3, [Validators.min(0), Validators.max(59)]),
+      lengthSec: new FormControl(this.song?.lengthSec || 0, [Validators.min(0), Validators.max(59)]),
+      beatValue: new FormControl(this.song?.beatValue || 4, [Validators.min(1), Validators.max(12)]),
+      noteValue: new FormControl(this.song?.noteValue || 4, [Validators.min(1), Validators.max(12)]),
       notes: new FormControl(this.song?.notes || ''),
       other: new FormControl(this.song?.other || ''),
       saveChangesToRepertoire: new FormControl((this.song as SetlistSong)?.saveChangesToRepertoire),
@@ -77,7 +77,7 @@ export class SongEditDialogComponent {
     });
   }
 
-  saveChangesToRepertoire(){
+  saveChangesToRepertoire() {
     return this.songForm.get('saveChangesToRepertoire');
   }
 
@@ -87,20 +87,11 @@ export class SongEditDialogComponent {
 
   onSave(): void {
     this.saving = true;
-    
-    if(this.song?.id){
+
+    if (this.song?.id) {
       //Update setlist song
-      if((this.song as SetlistSong)?.sequenceNumber && this.setlistId){
-        if(this.saveChangesToRepertoire()?.value === true){
-          //This is for a setlist song when editing only. 
-          //When the song is updated in the function below
-          //all setlist songs will be updated if they do not have the attribute saveChangesToRepertoire 
-          this.updateSong().pipe(
-            tap((result) => this.dialogRef.close(result))
-          )
-          .subscribe();
-        }
-        else{
+      if ((this.song as SetlistSong)?.sequenceNumber && this.setlistId) {
+        if (this.saveChangesToRepertoire()?.value === false) {
           const updateSetlistSong$ = this.updateSetlistSong();
           updateSetlistSong$
             .pipe(
@@ -108,38 +99,51 @@ export class SongEditDialogComponent {
             )
             .subscribe();
         }
+        else {
+
+          //This is for a setlist song when editing only. 
+          //When the song is updated in the function below
+          //all setlist songs will be updated if they do not have the attribute saveChangesToRepertoire 
+          const updateSetlistSong$ = this.updateSetlistSong();
+          updateSetlistSong$.pipe(
+            switchMap(() =>
+              this.updateSong().pipe(
+                tap((result) => this.dialogRef.close(result))
+              )))
+            .subscribe();
+        }
       }
-      else{
+      else {
         this.updateSong()
-           .pipe(
-              first(), 
-              tap((result) => this.dialogRef.close(result))
-            )
-            .subscribe();
+          .pipe(
+            first(),
+            tap((result) => this.dialogRef.close(result))
+          )
+          .subscribe();
       }
-    } else{
+    } else {
       //If this is a seltist song a seuqence number will be passed in with no songId. 
-      if((this.song as SetlistSong)?.sequenceNumber){
+      if ((this.song as SetlistSong)?.sequenceNumber) {
         concat(this.addSetlistSong(), this.addSong())
-            .pipe(
-              first(), 
-              tap((result) => this.dialogRef.close(result))
-            )
-            .subscribe();
+          .pipe(
+            first(),
+            tap((result) => this.dialogRef.close(result))
+          )
+          .subscribe();
       }
-      else{
+      else {
         this.addSong()
-            .pipe(
-                  first(), 
-                  tap((result) => this.dialogRef.close(result))
-            )
-            .subscribe();
+          .pipe(
+            first(),
+            tap((result) => this.dialogRef.close(result))
+          )
+          .subscribe();
       }
     }
   }
 
-  updateSetlistSong(){
-    const modifiedSong = {...this.song, ...this.songForm.value} as SetlistSong;
+  updateSetlistSong() {
+    const modifiedSong = { ...this.song, ...this.songForm.value } as SetlistSong;
     return this.setlistSongService.updateSetlistSong(this.song?.id!, this.accountId!, this.setlistId!, modifiedSong, this.currentUser)
       .pipe(
         catchError((err) => {
@@ -150,56 +154,56 @@ export class SongEditDialogComponent {
       );
   }
 
-  updateSetlistSongAll(){
-    const modifiedSong = {...this.song, ...this.songForm.value} as SetlistSong;
+  updateSetlistSongAll() {
+    const modifiedSong = { ...this.song, ...this.songForm.value } as SetlistSong;
     return this.setlistSongService.updateSetlistSongsBySongId(modifiedSong.id!, modifiedSong, this.currentUser);
   }
 
-  updateSong(){
-    let modifiedSong = {...this.song, ...this.songForm.value} as Song;
+  updateSong() {
+    let modifiedSong = { ...this.song, ...this.songForm.value } as Song;
     const setlistSong = modifiedSong as SetlistSong;
     //If we are updating a setlist song then the master song needs updating. 
-    if(setlistSong?.sequenceNumber && this.setlistId){
-      modifiedSong = SetlistSongHelper.getSongFromSetlistSong(modifiedSong as SetlistSong); 
+    if (setlistSong?.sequenceNumber && this.setlistId) {
+      modifiedSong = SetlistSongHelper.getSongFromSetlistSong(modifiedSong as SetlistSong);
     }
-    
-    return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser);  
+
+    return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser);
   }
 
-  addSetlistSong(){
-    const modifiedSong = {...this.song, ...this.songForm.value} as SetlistSong;
+  addSetlistSong() {
+    const modifiedSong = { ...this.song, ...this.songForm.value } as SetlistSong;
     return this.setlistSongService.addSetlistSong(modifiedSong, this.accountId!, this.setlistId!, this.currentUser)
-    .pipe(
-      catchError((err) => {
-        console.log(err);
-        alert('Could not add song.');
-        return throwError(() => new Error(err));
-      })
-    ); 
+      .pipe(
+        catchError((err) => {
+          console.log(err);
+          alert('Could not add song.');
+          return throwError(() => new Error(err));
+        })
+      );
   }
 
-  addSong(){
-    const modifiedSong = {...this.song, ...this.songForm.value} as Song;
+  addSong() {
+    const modifiedSong = { ...this.song, ...this.songForm.value } as Song;
     return this.songService.addSong(this.accountId!, modifiedSong, this.currentUser)
-    .pipe(
-      catchError((err) => {
-        console.log(err);
-        alert('Could not add song.');
-        return throwError(() => new Error(err));
-      })
-    ); 
+      .pipe(
+        catchError((err) => {
+          console.log(err);
+          alert('Could not add song.');
+          return throwError(() => new Error(err));
+        })
+      );
   }
-  
+
   //If the song is a Setlist song then show the checkbox
-  showChangesToRepertoire(){
-    if((this.song as SetlistSong)?.sequenceNumber){
+  showChangesToRepertoire() {
+    if ((this.song as SetlistSong)?.sequenceNumber) {
       return true;
     }
     return false;
   }
 
-  isAddingNewSong(){
-    if(this.song?.id){
+  isAddingNewSong() {
+    if (this.song?.id) {
       return false;
     }
     return true;

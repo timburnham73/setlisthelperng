@@ -37,6 +37,7 @@ import { SongEditDialogComponent } from "../../songs/song-edit-dialog/song-edit-
 import { SongEdit } from "src/app/core/model/account-song";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatDivider } from "@angular/material/divider";
+import { Setlist } from "src/app/core/model/setlist";
 
 @Component({
   selector: "app-setlist-songs-list",
@@ -83,6 +84,7 @@ export class SetlistSongsListComponent {
   dsSongs = new MatTableDataSource<Song>();
   accountId?: string;
   setlistId?: string;
+  setlist?: Setlist;
   setlistSongCount: number;
 
   showRemove = false;
@@ -99,6 +101,7 @@ export class SetlistSongsListComponent {
     private route: ActivatedRoute,
     private titleService: Title,
     private setlistSongsService: SetlistSongService,
+    private setlistService: SetlistService,
     private songService: SongService,
     private store: Store,
     private authService: AuthenticationService,
@@ -127,12 +130,15 @@ export class SetlistSongsListComponent {
       //Get the setlist songs
       if (setlistId) {
         this.setlistId = setlistId;
+        this.setlistService
+          .getSetlist(this.accountId, this.setlistId)
+          .subscribe((setlist) => this.setlist = setlist);
+
         this.setlistSongsService
           .getOrderedSetlistSongs(this.accountId, this.setlistId)
           .subscribe((setlistSongs) => {
             this.dsSetlistSongs = new MatTableDataSource(setlistSongs);
             this.setlistSongCount = this.dsSetlistSongs.filteredData.length;
-            console.log(JSON.stringify(this.dsSetlistSongs.data.map(song => `${song.sequenceNumber} ${song.name}`)));
           });
       }
     }
@@ -156,16 +162,16 @@ export class SetlistSongsListComponent {
       this.setlistId!,
       this.currentUser
     )
-    .pipe(first())
-    .subscribe();
+      .pipe(first())
+      .subscribe();
   }
 
   onAddSong() {
     const sequenceNumber = this.getSequenceNumberForAddOrUpdate();
-    const partialSong = {sequenceNumber: sequenceNumber, isBreak: false, saveChangesToRepertoire: true} as SetlistSong;
+    const partialSong = { sequenceNumber: sequenceNumber, isBreak: false, saveChangesToRepertoire: true } as SetlistSong;
     const dialogRef = this.dialog.open(SongEditDialogComponent, {
-      
-      data: { accountId: this.accountId, setlistId: this.setlistId, song: partialSong},
+
+      data: { accountId: this.accountId, setlistId: this.setlistId, song: partialSong },
       panelClass: "dialog-responsive",
     });
   }
@@ -184,27 +190,27 @@ export class SetlistSongsListComponent {
       setlistSong,
       this.currentUser,
     )
-    .pipe(first())
-    .subscribe();
+      .pipe(first())
+      .subscribe();
   }
 
-  onPrintSetlist(){
+  onPrintSetlist() {
 
   }
-  
-  onEnableDeleteMode(){
+
+  onEnableDeleteMode() {
     this.showRemove = !this.showRemove;
   }
 
-    onEditSong(row): void {
+  onEditSong(row): void {
     const dialogRef = this.dialog.open(SongEditDialogComponent, {
-      data: { accountId: this.accountId, setlistId: this.setlistId, song: row} as SongEdit,
+      data: { accountId: this.accountId, setlistId: this.setlistId, song: row } as SongEdit,
       panelClass: "dialog-responsive",
     });
 
   }
 
-  onRemoveSong(event, element){
+  onRemoveSong(event, element) {
     event.preventDefault();
     //TODO: Add an "Are you user message".
     this.setlistSongsService
@@ -241,11 +247,11 @@ export class SetlistSongsListComponent {
 
   onListDrop(event: CdkDragDrop<Song[] | SetlistSong[]>) {
     const sequenceNumberToInsert = event.currentIndex;
-    if(!event.item.data.sequenceNumber){
+    if (!event.item.data.sequenceNumber) {
       //Add from the song list
       this.onAddSetlistSong(event.item.data, sequenceNumberToInsert);
     }
-    else{
+    else {
       //Move around the setlist song list.
       const droppedSetlistSong = event.item.data as SetlistSong;
       if (event.previousIndex > event.currentIndex) {
@@ -263,8 +269,8 @@ export class SetlistSongsListComponent {
           .pipe(first())
           .subscribe();
       }
-      else{
-        const songsToReorder =  event.currentIndex - event.previousIndex;
+      else {
+        const songsToReorder = event.currentIndex - event.previousIndex;
         //Moved down in the setlist.
         this.setlistSongsService
           .moveSetlistSong(

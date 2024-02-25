@@ -24,3 +24,4 @@ Add options to update All Seltist Songs when songs change #SongService
 Make sure the showChangesToRepertoire variable is saved during edit #SetlistSongs {cm:2024-02-18}
 Drag and Drop to position 1 of the setlist is broke #SetlistSongs {cm:2024-02-18}
 Add duplicate button #Setlists
+Caculate the setlist time #SetlistSongs
