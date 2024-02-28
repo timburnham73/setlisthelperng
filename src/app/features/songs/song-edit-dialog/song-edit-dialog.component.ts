@@ -46,7 +46,7 @@ export class SongEditDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: SongEdit,
   ) { 
     
-    if(this.data && Object.keys(this.data.song).length){
+    if(this.data.song && Object.keys(this.data.song).length){
       this.song = this.data.song;
       this.isNew = false;
     }
