@@ -19,17 +19,61 @@ import { SharedModule } from './app/shared/shared.module';
 import { CoreModule } from './app/core/core.module';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
+import { getFirestore, initializeFirestore, persistentLocalCache, provideFirestore } from '@angular/fire/firestore';
+import { getApp, provideFirebaseApp } from '@angular/fire/app';
+import { connectFunctionsEmulator, getFunctions, provideFunctions } from '@angular/fire/functions'; 
+import { connectAuthEmulator, getAuth, provideAuth } from "@angular/fire/auth";
+import { connectFirestoreEmulator } from '@angular/fire/firestore';
 
 if (environment.production) {
   enableProdMode();
+}
+else{
+    console.log(environment.production)
 }
 
 bootstrapApplication(AppComponent, {
     providers: [
         importProvidersFrom(
-        //provideFirestore(() => getFirestore()),
-        //provideFirebaseApp(() => initializeApp(environment.firebase)),
-        BrowserModule, CoreModule, SharedModule, CustomMaterialModule.forRoot(), AppRoutingModule, AccountStateModule, LoggerModule.forRoot({
+            AngularFireModule.initializeApp(environment.firebase), 
+            AngularFirestoreModule,
+        provideFunctions(() => {
+            const functions = getFunctions();
+            functions.region = "us-central1";
+            if (!environment.production) {
+                connectFunctionsEmulator(functions, "localhost", 5001);
+            }
+            return functions;
+            }),
+        
+        provideAuth(() => {
+            const auth = getAuth();
+            if (!environment.production) {
+                connectAuthEmulator(auth, "http://localhost:9099", {
+                disableWarnings: false,
+                });
+            }
+            return auth;
+            }),
+        
+        provideFirestore(() => {
+            const firestore = initializeFirestore(getApp(), {
+                localCache: persistentLocalCache({
+                
+                }),
+            });
+            if (!environment.production) {
+                connectFirestoreEmulator(firestore, "localhost", 8080);
+            }
+            return firestore;
+        }),
+        BrowserModule, 
+        CoreModule, 
+        SharedModule, 
+        CustomMaterialModule.forRoot(), 
+        AppRoutingModule, 
+        AccountStateModule, 
+        LoggerModule.forRoot({
             serverLoggingUrl: `http://my-api/logs`,
             level: environment.logLevel,
             serverLogLevel: environment.serverLogLevel
@@ -37,7 +81,7 @@ bootstrapApplication(AppComponent, {
             selectorOptions: {
                 injectContainerState: false
             }
-        }), AngularFireModule.initializeApp(environment.firebase), AngularFirestoreModule, // for firestore
+        }), 
         MatCardModule, MatDividerModule, MatButtonModule, MatProgressBarModule),
         provideAnimations()
     ]

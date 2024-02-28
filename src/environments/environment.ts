@@ -6,8 +6,8 @@ import { NgxLoggerLevel } from 'ngx-logger';
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false,
-  useEmulators: false,
+  production: true,
+  useEmulators: true,
   firebase: {
     projectId: 'setlisthelperfirebase',
     appId: '1:1090429457023:web:46b62263a22fc5efad254a',
