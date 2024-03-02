@@ -7,13 +7,27 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import {db} from "./init";
+
+import * as functions from "firebase-functions";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 
-export const helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello from Firebase!");
-});
+export const onAddLyricsUpdateSongLyricsCount = 
+  functions
+    .runWith({
+      timeoutSeconds:300,
+      memory: "128MB"
+    })
+    .firestore.document("accounts/{accountId}/songs/{songId}/lyrics/{lyricId}")
+    .onCreate(async (snap, context) => {
+      functions.logger.debug(`Running the add lyrics trigger ${context.params.lyricId}`)
+      const lyricsRef = db.collection(`/accounts/${context.params.accountId}/songs/${context.params.songId}/lyrics`);
+      const songsRef = db.doc(`/accounts/${context.params.accountId}/songs/${context.params.songId}`);
+      const lyricCountSnap = await lyricsRef.count().get();
+      
+      songsRef.update({countOfLyrics: lyricCountSnap.data().count});
+      functions.logger.debug(`Update lyrics count for song ${context.params.songId}:${lyricCountSnap.data().count}`)
+    
+    });
