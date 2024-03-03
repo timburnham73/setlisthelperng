@@ -169,7 +169,7 @@
             <ng-container matColumnDef="lyrics">
               <th mat-header-cell [hidden]="showRemove" *matHeaderCellDef>Lyrics</th>
               <td mat-cell [hidden]="showRemove" *matCellDef="let element">
-                <a href="#" *ngIf="!element.isBreak" (click)="onViewLyrics($event, element)">View</a>
+                <a href="#" *ngIf="!element.isBreak" (click)="onViewLyrics($event, element)">{{element.countOfLyrics}} Lyrics</a>
               </td>
             </ng-container>
 
