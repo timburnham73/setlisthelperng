@@ -4,7 +4,7 @@ import { Title } from "@angular/platform-browser";
 import { NGXLogger } from "ngx-logger";
 import { AuthenticationService } from "src/app/core/services/auth.service";
 import { AccountService } from "src/app/core/services/account.service";
-import { Observable, from } from "rxjs";
+import { Observable, catchError, from, throwError } from "rxjs";
 import { Account } from "src/app/core/model/account";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { EditAccountDialogComponent } from "../edit-account-dialog/edit-account-dialog.component";
@@ -20,6 +20,8 @@ import { NgIf, NgFor, AsyncPipe } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { FlexLayoutModule } from "ngx-flexible-layout";
+import { HttpClient } from "@angular/common/http";
+import { environment } from "src/environments/environment";
 
 @Component({
     selector: "app-account-home",
@@ -52,7 +54,8 @@ export class AccountHomeComponent implements OnInit {
     private accountService: AccountService,
     public dialog: MatDialog,
     private userService: UserService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private http: HttpClient
   ) {
     this.authService.user$.subscribe((user) => {
       if(user && user.uid){
@@ -81,6 +84,20 @@ export class AccountHomeComponent implements OnInit {
     dialogRef.afterClosed().subscribe((data) => {
       this.accounts$ = this.accountService.getAccounts(this.currentUser.uid);
     }); 
+  }
+
+  onImportAccount(account: Account) {
+    this.http.post(environment.api.loginToSetlistHelper, {})
+      .pipe(
+        catchError(err => {
+          console.log(err);
+          alert("Could not login");
+          return throwError(() => err);
+        })
+      )
+      .subscribe(() =>
+        alert("User created successfully")
+      );
   }
 
   onEditAccount(account: Account) {

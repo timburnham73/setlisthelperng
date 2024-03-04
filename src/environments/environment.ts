@@ -20,7 +20,7 @@ export const environment = {
     measurementId: 'G-WH7XCFGF5V',
   },
   api: {
-      createUser: "http://localhost:5001/fir-course-recording-c7f3e/us-central1/createUser"
+      loginToSetlistHelper: "http://127.0.0.1:5001/setlisthelperfirebase/us-central1/loginToSetlistHelper"
   },
   logLevel: NgxLoggerLevel.TRACE,
   serverLogLevel: NgxLoggerLevel.OFF

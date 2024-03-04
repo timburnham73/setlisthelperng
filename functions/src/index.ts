@@ -8,9 +8,12 @@
  */
 
 import * as functions from "firebase-functions";
+import { getSetlistHelperToken } from "./sync-slh-data/sync-slh-data";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
+
+export const loginToSetlistHelper = functions.https.onRequest(getSetlistHelperToken);
 
 export const onAddLyrics_UpdateSongLyricsCount =
   functions

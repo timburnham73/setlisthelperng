@@ -29,6 +29,7 @@
           <button mat-button (click)="onAddOrRemoveAccountUsers(account)">Users</button>
           <button mat-button (click)="onEditAccount(account)">Edit</button>
           <button mat-button [routerLink]="[account.id + '/songs']">View</button>
+          <button mat-button (click)="onImportAccount(account)">Import</button>
         </mat-card-actions>
         
       </mat-card>
