@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "startem": "firebase emulators:start --import sample-data",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "lint": "ng lint",
