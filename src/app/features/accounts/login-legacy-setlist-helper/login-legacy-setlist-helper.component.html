@@ -1,0 +1,33 @@
+<form class="dialog-form" [formGroup]="loginForm">
+    <div mat-dialog-content>
+      <p>Login To Setlist Helper</p>
+      <p>
+        <mat-form-field appearance="outline" class="dialog-input-full-width">
+          <mat-label>User Name</mat-label>
+          <input matInput formControlName="username" />
+        </mat-form-field>
+      </p>
+      <p>
+        <mat-form-field appearance="outline" class="dialog-input-full-width">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" />
+        </mat-form-field>
+      </p>
+    </div>
+    <div mat-dialog-actions>
+      <button mat-button (click)="onNoClick()">Cancel</button>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onLogin()"
+        [disabled]="!loginForm.valid || !loginForm.dirty"
+        cdkFocusInitial
+      >
+        Save
+        <mat-icon *ngIf="saving"
+          ><mat-spinner color="accent" diameter="20"> </mat-spinner
+        ></mat-icon>
+      </button>
+    </div>
+  </form>
+  

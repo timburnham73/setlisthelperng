@@ -22,6 +22,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { FlexLayoutModule } from "ngx-flexible-layout";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
+import { LoginLegacySetlistHelperComponent } from "../login-legacy-setlist-helper/login-legacy-setlist-helper.component";
 
 @Component({
     selector: "app-account-home",
@@ -87,7 +88,7 @@ export class AccountHomeComponent implements OnInit {
   }
 
   onImportAccount(account: Account) {
-    this.http.post(environment.api.loginToSetlistHelper, {})
+    /*this.http.post(environment.api.loginToSetlistHelper, {})
       .pipe(
         catchError(err => {
           console.log(err);
@@ -97,7 +98,15 @@ export class AccountHomeComponent implements OnInit {
       )
       .subscribe(() =>
         alert("User created successfully")
-      );
+      );*/
+      const dialogRef = this.dialog.open(LoginLegacySetlistHelperComponent, {
+        data: account,
+        panelClass: "dialog-responsive",
+      });
+  
+      dialogRef.afterClosed().subscribe((data) => {
+        
+      });
   }
 
   onEditAccount(account: Account) {
