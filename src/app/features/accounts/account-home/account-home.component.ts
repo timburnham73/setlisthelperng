@@ -88,19 +88,9 @@ export class AccountHomeComponent implements OnInit {
   }
 
   onImportAccount(account: Account) {
-    /*this.http.post(environment.api.loginToSetlistHelper, {})
-      .pipe(
-        catchError(err => {
-          console.log(err);
-          alert("Could not login");
-          return throwError(() => err);
-        })
-      )
-      .subscribe(() =>
-        alert("User created successfully")
-      );*/
+    
       const dialogRef = this.dialog.open(LoginLegacySetlistHelperComponent, {
-        data: account,
+        data: account.id,
         panelClass: "dialog-responsive",
       });
   

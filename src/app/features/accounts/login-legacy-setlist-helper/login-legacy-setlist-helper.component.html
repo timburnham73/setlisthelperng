@@ -13,6 +13,9 @@
           <input matInput type="password" formControlName="password" />
         </mat-form-field>
       </p>
+      @if(couldNotLogin === true){
+        <mat-error >Could not log in. Verify that your username and password are correct.</mat-error>  
+      }
     </div>
     <div mat-dialog-actions>
       <button mat-button (click)="onNoClick()">Cancel</button>

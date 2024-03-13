@@ -20,7 +20,7 @@ export const environment = {
     measurementId: 'G-WH7XCFGF5V',
   },
   api: {
-      loginToSetlistHelper: "http://127.0.0.1:5001/setlisthelperfirebase/us-central1/loginToSetlistHelper"
+    syncSetlistHelperData: "http://127.0.0.1:5001/setlisthelperfirebase/us-central1/syncSetlistHelper"
   },
   logLevel: NgxLoggerLevel.TRACE,
   serverLogLevel: NgxLoggerLevel.OFF

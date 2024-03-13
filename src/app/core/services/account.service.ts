@@ -40,6 +40,20 @@ export class AccountService {
       );
   }
 
+  getAccount(accountId: string): Observable<any> {
+    const dbPath = `/accounts`;
+    const accountRef = this.db.collection(dbPath).doc(accountId);
+    return accountRef.snapshotChanges().pipe(
+      map((resultSong) =>
+          {
+            const account = resultSong.payload.data() as Account;
+            account.id = accountId;
+            return account;
+          }
+      )
+    );
+  }
+
   addAccount(account: Account, userAddingTheAccount: BaseUser, userToAdd: AccountUser): Observable<Account> {
     const accountToAdd = AccountHelper.getForAdd(userAddingTheAccount, account);
     accountToAdd.dateCreated = Timestamp.fromDate(new Date());

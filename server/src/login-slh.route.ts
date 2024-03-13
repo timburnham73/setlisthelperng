@@ -33,12 +33,39 @@ export async function getToken(req: Request, res: Response) {
     headers: headers,
     // Convert the user object to JSON and pass it as the body
     body: formBodyForPost
-  })
+  });
 
   // Send the request and print the response
   const response = await fetch(request);
   const data = await response.json();
   console.log(data);
-  res.send(data);
+  const songs = getSongs(data.access_token);
+  res.send(songs);
     
+}
+
+async function getSongs(accessToken: string){
+  const actionUrl = "https://setlisthelper.azurewebsites.net/api/v2.0/Song";
+  const startIndex = 0;
+  const numberOfSongsToGet = 100;
+  const orderByColumnName = 'name';
+  const orderByColumDirection = "asc";
+  const jwt = accessToken;
+  const songsUrl = actionUrl //+ `?start=${startIndex}&records=${numberOfSongsToGet}&orderbycol=${orderByColumnName}&orderbydirection=${orderByColumDirection}`;
+  
+  const headers: Headers = new Headers()
+  headers.set('Content-Type', 'application/json')
+  headers.set('Authorization',  'Bearer ' + jwt,)
+  
+  const request: RequestInfo = new Request(songsUrl, {
+    // We need to set the `method` to `POST` and assign the headers
+    method: 'GET',
+    headers: headers,
+  });
+
+  // Send the request and print the response
+  const response = await fetch(request);
+  const data = await response.json();
+  console.log("Songs response", data);
+  return data;
 }

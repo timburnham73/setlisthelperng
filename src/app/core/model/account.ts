@@ -7,6 +7,7 @@ export interface Account extends Base{
     description?: string;
     users?: string[];
     ownerUser: any;
+    importToken: string; 
 }
 
 export class AccountHelper{
@@ -28,7 +29,8 @@ export class AccountHelper{
           createdByUser: data.createdByUser ?? "",
           dateCreated: data.dateCreated ?? "",
           lastEdit: Timestamp.fromDate(new Date()),
-          lastUpdatedByUser: user
+          lastUpdatedByUser: user,
+          importToken: data.importToken ?? ""
         };
       }
 }
