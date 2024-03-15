@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import {SLHSong} from './model/SLHSong'
+import {SLHSong, SLHSongHelper} from './model/SLHSong'
 
 export async function getToken(req: Request, res: Response) {
   const responseBody = req.body;
@@ -39,7 +39,7 @@ export async function getToken(req: Request, res: Response) {
   const response = await fetch(request);
   const data = await response.json();
   console.log(data);
-  const songs = getSongs(data.access_token);
+  const songs = await getSongs(data.access_token);
   res.send(songs);
     
 }
@@ -66,9 +66,14 @@ async function getSongs(accessToken: string){
   // Send the request and print the response
   const response = await fetch(request);
   const data = await response.json();
-  data.forEach((song: SLHSong) => {
+  data.forEach((slhSong: SLHSong) => {
+    const song = SLHSongHelper.slhSongToSong(slhSong, {
+                  uid: "testuid",
+                  displayName: "tim burnham",
+                  email: "timburnham73@getMaxListeners.com",
+                  photoUrl: "httsp://wwww.setlisthelepr.com"
+                });
     console.log("Songs response", song);  
   })
-  console.log("Songs response", data);
   return data;
 }

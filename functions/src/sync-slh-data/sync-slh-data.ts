@@ -20,7 +20,6 @@ syncSetlistHelperData.post("/", async (req, res)=> {
         const accountRef = db.doc(`/accounts/${accountid}`);
         const accountSnap = await accountRef.get();
         const account = accountSnap.data();
-        functions.logger.debug(`Account name ${account.importToken}`);
         const songs = await getSongs(account.importToken);
         functions.logger.debug(`Account name ${songs}`);
         res.status(200).json(songs);
