@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-
+import {SLHSong} from './model/SLHSong'
 
 export async function getToken(req: Request, res: Response) {
   const responseBody = req.body;
@@ -66,6 +66,9 @@ async function getSongs(accessToken: string){
   // Send the request and print the response
   const response = await fetch(request);
   const data = await response.json();
+  data.forEach((song: SLHSong) => {
+    console.log("Songs response", song);  
+  })
   console.log("Songs response", data);
   return data;
 }
