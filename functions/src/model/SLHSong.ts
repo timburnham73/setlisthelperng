@@ -2,6 +2,11 @@ import { Timestamp } from "firebase-admin/firestore";
 import { Song } from "./song"
 import { BaseUser, UserHelper } from "./user"
 
+export enum SongType {
+  Song,
+  Break
+}
+
 export interface SLHArtist {
     ArtistId: number
     Name: string
@@ -28,7 +33,7 @@ export interface SLHSong {
     Artist: SLHArtist
     Genre: SLHGenre
     SongId: number
-    SongType: number
+    SongType: SongType
     Name: string
     GenreId: number
     ArtistId: number

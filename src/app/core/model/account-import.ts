@@ -5,8 +5,6 @@ import { Base } from "./base";
 export interface AccountImport extends Base {
     username: string;
     jwtToken: string;
-    importLog : [];
-    
   }
 
   export class AccountImportHelper{
@@ -25,7 +23,6 @@ export interface AccountImport extends Base {
             lastEdit: Timestamp.fromDate(new Date()),
             lastUpdatedByUser: user,
             jwtToken: data.jwtToken ?? "",
-            importLog: data.importLog ?? []
           };
         }
   }
