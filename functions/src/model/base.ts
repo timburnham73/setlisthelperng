@@ -1,4 +1,4 @@
-import { Timestamp } from "@angular/fire/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 
 export interface Base {
     id?: string,

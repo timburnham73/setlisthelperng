@@ -30,3 +30,19 @@ export const onAddLyrics_UpdateSongLyricsCount =
         await import("./lyrics-count-trigger/on-add-lyrics"))
         .default(snap, context);
     });
+
+    export const onAddAccoutImport_StartSLHSync =
+  functions
+    .runWith({
+      timeoutSeconds: 300,
+      memory: "128MB"
+    })
+    .firestore.document("accounts/{accountId}/imports/{importId}")
+    .onCreate(async (snap, context) => {
+      //Dynamically import this function to reduce start up times.
+      //When cloud functions are spun up all exported functions in the file will be loaded.
+      //If all the code was below every function would load. 
+      await (
+        await import("./sync-slh-data/sync-slh-data"))
+        .default(snap, context);
+    });

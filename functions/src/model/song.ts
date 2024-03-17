@@ -1,7 +1,6 @@
-import { Timestamp } from "@angular/fire/firestore";
 import { Base } from "./base";
 import { BaseUser, UserHelper } from "./user";
-
+import { Timestamp } from "firebase-admin/firestore";
 
 export interface Song extends Base {
   name: string;
@@ -32,7 +31,7 @@ export class SongHelper {
   static getForAdd(song: Song, editingUser: BaseUser): Song {
     const songForAdd = this.getForUpdate(song, editingUser);
     songForAdd.createdByUser = UserHelper.getForUpdate(editingUser);
-    songForAdd.dateCreated = Timestamp.fromDate(new Date());
+    songForAdd.dateCreated = Timestamp.now();
     
     return songForAdd;
   }
@@ -51,9 +50,9 @@ export class SongHelper {
       noteValue: data.noteValue ?? 0,
       beatValue: data.beatValue ?? 0,
       youTubeUrl: data.youTubeUrl ?? "",
-      lastEdit: Timestamp.fromDate(new Date()),
+      lastEdit: Timestamp.now(),
       lastUpdatedByUser : UserHelper.getForUpdate(editingUser),
-      dateCreated: data.dateCreated ?? Timestamp.fromDate(new Date()),
+      dateCreated: data.dateCreated ?? Timestamp.now(),
       createdByUser: data.createdByUser ?? UserHelper.getForUpdate(editingUser),
       lengthMin: data.lengthMin ?? 3,
       countOfLyrics: data.countOfLyrics ?? 0,

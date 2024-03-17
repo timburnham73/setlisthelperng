@@ -4,7 +4,9 @@ const cors = require('cors');
 //const util = require('util');
 const bodyParser = require('body-parser');
 import {db} from "../init";
-//import { convertSnaps } from "./db-utils";
+import { AccountImport } from "../model/account-import";
+import { SLHSong, SLHSongHelper } from "../model/SLHSong";
+import { Lyric, LyricHelper } from "../model/lyric";
 //import { Account } from "./account";
 export const syncSetlistHelperData = express();
 
@@ -30,7 +32,47 @@ syncSetlistHelperData.post("/", async (req, res)=> {
     }
 })
 
+export default async (snap, context) => {
+  startSync(snap, context);
+}
 
+export const startSync = async (snap, context) =>{
+  const accountImport = snap.data() as AccountImport;
+  functions.logger.debug(`Account jwtToken ${accountImport.jwtToken}`);
+
+  const slhSongs: SLHSong[] = await getSongs(accountImport.jwtToken);
+  functions.logger.debug(`Song count ${slhSongs.length}`);
+  
+  const songsRef = db.collection(`/accounts/${context.params.accountId}/songs`);
+  
+  for (let slhSong of slhSongs){
+    const convertedSong = SLHSongHelper.slhSongToSong(slhSong, accountImport.createdByUser);
+    const addedSong = await songsRef.add(convertedSong);
+    if(slhSong.Lyrics){
+      functions.logger.debug(`Adding lyrics for song ${convertedSong.name}`);
+      const lyricsRef = db.collection(`/accounts/${context.params.accountId}/songs/${addedSong.id}/lyrics`);
+      const lyric ={
+        name: "Version 1",
+        key: convertedSong.key,
+        tempo: convertedSong.tempo,
+        notes: "",
+        noteValue: convertedSong.noteValue,
+        beatValue: convertedSong.beatValue,
+        youTubeUrl: convertedSong.youTubeUrl,
+        songId: addedSong.id,
+        lyrics: slhSong.Lyrics,
+        defaultLyric: "",
+      } as Lyric;
+      await lyricsRef.add(LyricHelper.getForAdd(lyric, accountImport.createdByUser));
+    }
+    else {
+      functions.logger.debug(`No lyrics for song ${convertedSong.name}`);
+    }
+  }
+  
+
+
+}
 async function getSongs(accessToken: string){
     const actionUrl = "https://setlisthelper.azurewebsites.net/api/v2.0/Song";
     // const startIndex = 0;
@@ -53,6 +95,5 @@ async function getSongs(accessToken: string){
     // Send the request and print the response
     const response = await fetch(request);
     const data = await response.json();
-    console.log("Songs response", data);
     return data;
   }

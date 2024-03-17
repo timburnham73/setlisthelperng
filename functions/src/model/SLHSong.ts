@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore"
+import { Timestamp } from "firebase-admin/firestore";
 import { Song } from "./song"
 import { BaseUser, UserHelper } from "./user"
 
@@ -46,6 +46,7 @@ export interface SLHSong {
   
   export class SLHSongHelper {
     static slhSongToSong(slhSong: SLHSong, editingUser: BaseUser): Song {
+      const nowTimestamp = Timestamp.now();
       return {
         name: slhSong.Name ?? "",
         artist: slhSong.Artist?.Name ?? "",
@@ -59,9 +60,9 @@ export interface SLHSong {
         noteValue: slhSong.NoteValue ?? 0,
         beatValue: slhSong.BeatValue ?? 0,
         youTubeUrl: slhSong.YouTubeUrl ?? "",
-        lastEdit: Timestamp.fromDate(new Date()),
+        lastEdit: nowTimestamp,
         lastUpdatedByUser : UserHelper.getForUpdate(editingUser),
-        dateCreated: Timestamp.fromDate(new Date()),
+        dateCreated: nowTimestamp,
         createdByUser: UserHelper.getForUpdate(editingUser),
         countOfLyrics: slhSong.Lyrics ? 1 : 0,
         lengthSec: slhSong.SongLength ?? 0,
