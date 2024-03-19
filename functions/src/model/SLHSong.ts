@@ -50,8 +50,16 @@ export interface SLHSong {
   }
   
   export class SLHSongHelper {
+    public static getSongLengthMinSec(SongLength) {
+      return {
+        minutes: Math.floor(SongLength / 60),
+        seconds: SongLength % 60
+      };
+    }
+
     static slhSongToSong(slhSong: SLHSong, editingUser: BaseUser): Song {
       const nowTimestamp = Timestamp.now();
+      const songLenSplit = this.getSongLengthMinSec(slhSong.SongLength);
       return {
         name: slhSong.Name ?? "",
         artist: slhSong.Artist?.Name ?? "",
@@ -70,8 +78,8 @@ export interface SLHSong {
         dateCreated: nowTimestamp,
         createdByUser: UserHelper.getForUpdate(editingUser),
         countOfLyrics: slhSong.Lyrics ? 1 : 0,
-        lengthSec: slhSong.SongLength ?? 0,
-        lengthMin: slhSong.SongLength ?? 0,
+        lengthSec: songLenSplit.seconds ?? 0,
+        lengthMin: songLenSplit.minutes ?? 3,
       };
     }
   }

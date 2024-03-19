@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Observable, from, map } from 'rxjs';
 import { AccountImportHelper, AccountImport } from '../model/account-import';
 import { BaseUser } from '../model/user';
+import { AccountImportEvent } from '../model/account-import-event';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,20 @@ export class AccountImportService {
       changes.map((c) => {
         const accountImport = c.payload.doc.data() as AccountImport;
         return accountImport;
+      })
+    )
+    );
+  }
+
+  getImportEvents(accountId: string, accountImportId: string): Observable<AccountImportEvent[]> {
+    const dbPath = `/accounts/${accountId}/imports/${accountImportId}/events`;
+    const accountImporEventstRef = this.db.collection(dbPath);
+    return accountImporEventstRef.snapshotChanges().pipe(
+      map((changes) =>
+      changes.map((c) => {
+        const accountImportEvent = c.payload.doc.data() as AccountImportEvent;
+        accountImportEvent.id = c.payload.doc.id;
+        return accountImportEvent;
       })
     )
     );

@@ -6,6 +6,7 @@ import {
   AngularFireAuthGuard,
   redirectUnauthorizedTo,
 } from "@angular/fire/compat/auth-guard";
+import { AccountImportEventsComponent } from "./account-import-events/account-import-events.component";
 const routes: Routes = [
   {
     path: "",
@@ -25,6 +26,10 @@ const routes: Routes = [
           import("../setlists/setlist.module").then((m) => m.SetlistModule),
         canActivate: [AngularFireAuthGuard],
         data: { authGuardPipe: redirectUnauthorizedTo },
+      },
+      {
+        path: ":accountid/import",
+        component: AccountImportEventsComponent
       },
     ],
   },
