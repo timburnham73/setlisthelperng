@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { catchError, map, throwError } from 'rxjs';
 import { Account } from 'src/app/core/model/account';
 import { AccountImport, AccountImportHelper } from 'src/app/core/model/account-import';
@@ -45,6 +46,7 @@ export class LoginLegacySetlistHelperComponent implements OnInit{
     private accountService: AccountService,
     private accountImportService: AccountImportService,
     private userService: UserService,
+    private router: Router,
     @Inject(MAT_DIALOG_DATA) public accountId: string,
   ) {
     
@@ -78,19 +80,11 @@ export class LoginLegacySetlistHelperComponent implements OnInit{
         if(this.account && this.account.id){
           this.accountService.updateAccount(this.account.id, this.currentUser, modifiedAccount);
           const accountImport = AccountImportHelper.getForAdd(this.currentUser, {username: username, jwtToken:token.access_token} as AccountImport)
-          this.accountImportService.addImport(this.account.id, accountImport, this.currentUser);
-          //Call the cloud function to start Sync.
-          /*this.http.post(environment.api.syncSetlistHelperData, {accountid: this.account?.id})
-            .pipe(
-              catchError(err => {
-                console.log(err);
-                alert("Could not login");
-                return throwError(() => err);
-              })
-            )
-            .subscribe(() =>
-              alert("User created successfully")
-            );*/
+          this.accountImportService.addImport(this.account.id, accountImport, this.currentUser)
+            .subscribe((accountImport) => {
+              this.router.navigate([`/accounts/${this.accountId}/import`], {});
+            });
+          
         }
         this.dialogRef.close();
       })

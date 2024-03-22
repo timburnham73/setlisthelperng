@@ -1,39 +1,13 @@
 import * as functions from "firebase-functions";
-const express = require('express');
-const cors = require('cors');
-//const util = require('util');
-const bodyParser = require('body-parser');
 import { db } from "../init";
 import { AccountImport } from "../model/account-import";
 import { SLHSong, SLHSongHelper, SongType } from "../model/SLHSong";
 import { Lyric, LyricHelper } from "../model/lyric";
 import { BaseUser } from "../model/user";
 import { AccountImportEvent } from "../model/account-import-event";
-//import { Account } from "./account";
-export const syncSetlistHelperData = express();
+import { Timestamp } from "firebase-admin/firestore";
 
-syncSetlistHelperData.use(bodyParser.json());
-syncSetlistHelperData.use(cors({ origin: true }));
-
-syncSetlistHelperData.post("/", async (req, res) => {
-  const responseBody = req.body;
-  const accountid = responseBody['accountid'];
-  functions.logger.debug(`Account id passed in ${accountid}`);
-  functions.logger.debug(`Calling Sync Setlist Helper Data.`);
-  try {
-    const accountRef = db.doc(`/accounts/${accountid}`);
-    const accountSnap = await accountRef.get();
-    const account = accountSnap.data();
-    const songs = await getSongs(account.importToken);
-    functions.logger.debug(`Account name ${songs}`);
-    res.status(200).json(songs);
-  }
-  catch (err) {
-    functions.logger.error(`Could not import Setlist Helper data.`, err);
-    res.status(500).json({ message: "User create successuffly" })
-  }
-})
-
+//Entry point
 export default async (accountImportSnap, context) => {
   const accountImport = accountImportSnap.data() as AccountImport;
   const accountId = context.params.accountId;
@@ -41,24 +15,29 @@ export default async (accountImportSnap, context) => {
 
   startSync(accountImport.jwtToken, accountId, accountImportSnap.id, accountImport.createdByUser);
 }
-
+//Starting to Sync
 export const startSync = async (jwtToken: string, accountId: string, accountImportId: string, importingUser: BaseUser) => {
   const slhSongs: SLHSong[] = await getSongs(jwtToken);
   functions.logger.debug(`Song count ${slhSongs.length}`);
 
   const songsRef = db.collection(`/accounts/${accountId}/songs`);
   const accountImportEventRef = db.collection(`/accounts/${accountId}/imports/${accountImportId}/events`);
-  await accountImportEventRef.add({eventType: "Song", message: "Starting import of Songs"} as AccountImportEvent);
+
+  await addAccountEvent("Song", "Starting import of Songs", accountImportEventRef);
+
   for (let slhSong of slhSongs) {
     //Do not import deleted songs. 
     if(slhSong.Deleted === true){
-      await accountImportEventRef.add({eventType: "Song", message: `Deleted song with name ${slhSong.Name} will not be imported`} as AccountImportEvent);
+      await addAccountEvent("Song", `Deleted song with name ${slhSong.Name} will not be imported`, accountImportEventRef);
+
       continue;
     }
 
     const convertedSong = SLHSongHelper.slhSongToSong(slhSong, importingUser);
     const addedSong = await songsRef.add(convertedSong);
-    await accountImportEventRef.add({eventType: "Song", message: `Added song with name ${convertedSong.name}.`} as AccountImportEvent);
+
+    await addAccountEvent("Song", `Added song with name ${convertedSong.name}.`, accountImportEventRef);
+
     if (slhSong.SongType === SongType.Song && slhSong.Lyrics) {
       functions.logger.debug(`Adding lyrics for song ${convertedSong.name}`);
       const lyricsRef = db.collection(`/accounts/${accountId}/songs/${addedSong.id}/lyrics`);
@@ -74,15 +53,28 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
         lyrics: slhSong.Lyrics,
         defaultLyric: "",
       } as Lyric;
-      await accountImportEventRef.add({eventType: "Lyric", message: `Added lyric for the Song ${convertedSong.name}.`} as AccountImportEvent);
+      
+      
+      await addAccountEvent("Lyric", `Added lyric for the Song ${convertedSong.name}.`, accountImportEventRef);
+      
       await lyricsRef.add(LyricHelper.getForAdd(lyric, importingUser));
     }
     else {
-      await accountImportEventRef.add({eventType: "Lyric", message: `No lyrics found for the Song ${convertedSong.name}.`} as AccountImportEvent);
+      await addAccountEvent("Lyric", `No lyrics found for the Song ${convertedSong.name}.`, accountImportEventRef);
+
       functions.logger.debug(`No lyrics for song ${convertedSong.name}`);
     }
   }
 }
+
+async function addAccountEvent(eventType: string, message: string, accountImportEventRef){
+  await accountImportEventRef.add({
+    eventType: eventType, 
+    message: message,
+    eventTime: Timestamp.now()
+  } as AccountImportEvent);
+}
+
 async function getSongs(accessToken: string) {
   const actionUrl = "https://setlisthelper.azurewebsites.net/api/v2.0/Song";
   // const startIndex = 0;
