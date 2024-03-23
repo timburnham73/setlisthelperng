@@ -82,7 +82,7 @@ export class LoginLegacySetlistHelperComponent implements OnInit{
           const accountImport = AccountImportHelper.getForAdd(this.currentUser, {username: username, jwtToken:token.access_token} as AccountImport)
           this.accountImportService.addImport(this.account.id, accountImport, this.currentUser)
             .subscribe((accountImport) => {
-              this.router.navigate([`/accounts/${this.accountId}/import`], {});
+              this.router.navigate([`/accounts/${this.accountId}/import/${accountImport.id}`], {});
             });
           
         }

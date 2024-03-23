@@ -14,7 +14,9 @@ export class AccountImportService {
 
   getImports(accountId: string): Observable<AccountImport[]> {
     const dbPath = `/accounts/${accountId}/imports`;
-    const accountImportRef = this.db.collection(dbPath);
+    const accountImportRef = this.db.collection(dbPath, (ref) =>
+      ref.orderBy("dateCreated", "desc")
+    );
     return accountImportRef.snapshotChanges().pipe(
       map((changes) =>
       changes.map((c) => {
@@ -27,7 +29,9 @@ export class AccountImportService {
 
   getImportEvents(accountId: string, accountImportId: string): Observable<AccountImportEvent[]> {
     const dbPath = `/accounts/${accountId}/imports/${accountImportId}/events`;
-    const accountImporEventstRef = this.db.collection(dbPath);
+    const accountImporEventstRef = this.db.collection(dbPath, (ref) =>
+      ref.orderBy("eventTime", "desc")
+    );
     return accountImporEventstRef.snapshotChanges().pipe(
       map((changes) =>
       changes.map((c) => {
@@ -63,6 +67,7 @@ export class AccountImportService {
     return save$.pipe(
       map((res) => {
         const rtnImport = {
+          id: res.id,
           ...importForAdd,
         };
         return rtnImport;

@@ -15,7 +15,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { BaseUser } from 'functions/src/model/user';
 import { NGXLogger } from 'ngx-logger';
-import { finalize } from 'rxjs';
+import { finalize, flatMap, mergeMap, pipe, switchMap, tap } from 'rxjs';
+import { AccountImport } from 'src/app/core/model/account-import';
 import { AccountImportEvent } from 'src/app/core/model/account-import-event';
 import { AccountImportService } from 'src/app/core/services/account-import.service';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
@@ -32,6 +33,7 @@ export class AccountImportEventsComponent {
   currentUser: BaseUser;
   displayedColumns: string[] = [ 'eventType', 'message'];
   dataSource : AccountImportEvent[];
+  accountImports : AccountImport[];
   accountId: string;
   importId: string;
   loading = false;
@@ -59,13 +61,23 @@ export class AccountImportEventsComponent {
     if(id && importId){
       this.loading = false;
       this.accountId = id;
+      this.importId = importId;
+      
+      this.accountImportService.getImports(this.accountId).pipe(
+        tap((data) => {
+          this.accountImports = data;
+        })
+        
+      ).subscribe();
+
       this.accountImportService.getImportEvents(this.accountId, this.importId)
-        .pipe(
-          finalize(() => this.loading = false)
-        )
-        .subscribe((events) => {
-          this.dataSource =  events;
-        });
+          .subscribe(accountEvents => {
+            return this.dataSource =  accountEvents;
+          });
     }
+  }
+
+  onBackToAccounts(){
+    this.router.navigate([`/accounts`], {});
   }
 }
