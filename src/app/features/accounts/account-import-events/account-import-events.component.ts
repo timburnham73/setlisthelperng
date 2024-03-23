@@ -33,6 +33,7 @@ export class AccountImportEventsComponent {
   displayedColumns: string[] = [ 'eventType', 'message'];
   dataSource : AccountImportEvent[];
   accountId: string;
+  importId: string;
   loading = false;
 
   constructor(
@@ -46,6 +47,7 @@ export class AccountImportEventsComponent {
     
 
   ) { 
+    this.titleService.setTitle("Account")
     this.authService.user$.subscribe((user) => {
       if(user && user.uid){
         this.currentUser = user;
@@ -53,10 +55,11 @@ export class AccountImportEventsComponent {
     });
     const selectedAccount = this.store.selectSnapshot(AccountState.selectedAccount);
     const id = this.route.snapshot.paramMap.get('accountid');
-    if(id){
+    const importId = this.route.snapshot.paramMap.get('importid');
+    if(id && importId){
       this.loading = false;
       this.accountId = id;
-      this.accountImportService.getImportEvents(this.accountId, "TSHqEIkRZtWgZd7oPFY5")
+      this.accountImportService.getImportEvents(this.accountId, this.importId)
         .pipe(
           finalize(() => this.loading = false)
         )
