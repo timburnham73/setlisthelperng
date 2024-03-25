@@ -40,7 +40,8 @@ export async function getToken(req: Request, res: Response) {
   const data = await response.json();
   console.log(data);
   const songs = await getSongs(data.access_token);
-  res.send(songs);
+  const setlists = await getSetlists(data.access_token);
+  res.send(setlists);
     
 }
 
@@ -73,7 +74,27 @@ async function getSongs(accessToken: string){
                   email: "timburnham73@getMaxListeners.com",
                   photoUrl: "httsp://wwww.setlisthelepr.com"
                 });
-    console.log("Songs response", song);  
   })
+  return data;
+}
+
+async function getSetlists(accessToken: string) {
+  const actionUrl = "https://setlisthelper.azurewebsites.net/api/v2.0/Setlist";
+  const jwt = accessToken;
+  const songsUrl = actionUrl;
+
+  const headers: Headers = new Headers()
+  headers.set('Content-Type', 'application/json')
+  headers.set('Authorization', 'Bearer ' + jwt,)
+
+  const request: RequestInfo = new Request(songsUrl, {
+    // We need to set the `method` to `POST` and assign the headers
+    method: 'GET',
+    headers: headers,
+  });
+
+  // Send the request and print the response
+  const response = await fetch(request);
+  const data = await response.json();
   return data;
 }
