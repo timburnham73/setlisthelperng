@@ -17,19 +17,15 @@ export default async (accountImportSnap, context) => {
 }
 //Starting to Sync
 export const startSync = async (jwtToken: string, accountId: string, accountImportId: string, importingUser: BaseUser) => {
-  const slhSongs: SLHSong[] = await getSongs(jwtToken);
-  functions.logger.debug(`Song count ${slhSongs.length}`);
-
   const songsRef = db.collection(`/accounts/${accountId}/songs`);
   const accountImportEventRef = db.collection(`/accounts/${accountId}/imports/${accountImportId}/events`);
 
-  await addAccountEvent("Song", "Starting import of Songs", accountImportEventRef);
-
+  await addAccountEvent("System", "Starting import.", accountImportEventRef);
+  await addAccountEvent("Songs", "Downloading songs and lyrics.", accountImportEventRef);
+  const slhSongs: SLHSong[] = await getSongs(jwtToken);
   for (let slhSong of slhSongs) {
     //Do not import deleted songs. 
     if(slhSong.Deleted === true){
-      await addAccountEvent("Song", `Deleted song with name ${slhSong.Name} will not be imported`, accountImportEventRef);
-
       continue;
     }
 
@@ -54,17 +50,19 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
         defaultLyric: "",
       } as Lyric;
       
-      
       await addAccountEvent("Lyric", `Added lyric for the Song ${convertedSong.name}.`, accountImportEventRef);
-      
       await lyricsRef.add(LyricHelper.getForAdd(lyric, importingUser));
     }
     else {
       await addAccountEvent("Lyric", `No lyrics found for the Song ${convertedSong.name}.`, accountImportEventRef);
-
       functions.logger.debug(`No lyrics for song ${convertedSong.name}`);
     }
-  }
+  }//End of song import
+
+  const setlists = getSetlists(jwtToken);
+  functions.logger.debug(`Setlists downloaded from api ${JSON.stringify(setlists[5])}`);
+
+  await addAccountEvent("System", `Finished importing data.`, accountImportEventRef);
 }
 
 async function addAccountEvent(eventType: string, message: string, accountImportEventRef){
@@ -83,6 +81,27 @@ async function getSongs(accessToken: string) {
   // const orderByColumDirection = "asc";
   const jwt = accessToken;
   const songsUrl = actionUrl //+ `?start=${startIndex}&records=${numberOfSongsToGet}&orderbycol=${orderByColumnName}&orderbydirection=${orderByColumDirection}`;
+
+  const headers: Headers = new Headers()
+  headers.set('Content-Type', 'application/json')
+  headers.set('Authorization', 'Bearer ' + jwt,)
+
+  const request: RequestInfo = new Request(songsUrl, {
+    // We need to set the `method` to `POST` and assign the headers
+    method: 'GET',
+    headers: headers,
+  });
+
+  // Send the request and print the response
+  const response = await fetch(request);
+  const data = await response.json();
+  return data;
+}
+
+async function getSetlists(accessToken: string) {
+  const actionUrl = "https://setlisthelper.azurewebsites.net/api/v2.0/Setlist";
+  const jwt = accessToken;
+  const songsUrl = actionUrl;
 
   const headers: Headers = new Headers()
   headers.set('Content-Type', 'application/json')

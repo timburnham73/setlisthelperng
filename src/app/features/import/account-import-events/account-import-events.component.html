@@ -7,6 +7,10 @@
             <button mat-icon-button aria-label="Back to Accounts" (click)="onBackToAccounts()">
               <mat-icon>arrow_back</mat-icon>
             </button>
+            <div class="header-container">
+              <h2 style="float: left;">{{currentAccountImport?.username}}</h2><span style="float: left;margin-left: 15px;">{{ this.currentAccountImportDate }}</span>
+            </div>
+            <span class="spacer"></span>
           </mat-toolbar>
           <div class="spinner-container" *ngIf="loading">
             <mat-spinner>

@@ -1,4 +1,4 @@
-import { NgIf } from '@angular/common';
+import { DatePipe, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,19 +21,22 @@ import { AccountImportEvent } from 'src/app/core/model/account-import-event';
 import { AccountImportService } from 'src/app/core/services/account-import.service';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { AccountState } from 'src/app/core/store/account.state';
+import { LOCALE_ID, Inject } from '@angular/core';
 
 @Component({
   selector: 'app-account-import-events',
   standalone: true,
-    imports: [MatCardModule, MatToolbarModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, NgIf, MatProgressSpinnerModule, MatTableModule, MatSortModule],
+  imports: [MatCardModule, MatToolbarModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, NgIf, MatProgressSpinnerModule, MatTableModule, MatSortModule, DatePipe],
   templateUrl: './account-import-events.component.html',
   styleUrl: './account-import-events.component.scss'
 })
 export class AccountImportEventsComponent {
   currentUser: BaseUser;
-  displayedColumns: string[] = [ 'eventType', 'message'];
-  dataSource : AccountImportEvent[];
-  accountImports : AccountImport[];
+  displayedColumns: string[] = ['eventType', 'message'];
+  dataSource: AccountImportEvent[];
+  accountImports: AccountImport[];
+  currentAccountImport?: AccountImport;
+  currentAccountImportDate: string | null;
   accountId: string;
   importId: string;
   loading = false;
@@ -46,38 +49,43 @@ export class AccountImportEventsComponent {
     private store: Store,
     private authService: AuthenticationService,
     private router: Router,
-    
+    @Inject(LOCALE_ID) public locale: string
 
-  ) { 
+  ) {
     this.titleService.setTitle("Account")
     this.authService.user$.subscribe((user) => {
-      if(user && user.uid){
+      if (user && user.uid) {
         this.currentUser = user;
       }
     });
     const selectedAccount = this.store.selectSnapshot(AccountState.selectedAccount);
     const id = this.route.snapshot.paramMap.get('accountid');
     const importId = this.route.snapshot.paramMap.get('importid');
-    if(id && importId){
+    if (id && importId) {
       this.loading = false;
       this.accountId = id;
       this.importId = importId;
-      
-      this.accountImportService.getImports(this.accountId).pipe(
-        tap((data) => {
-          this.accountImports = data;
-        })
-        
-      ).subscribe();
 
-      this.accountImportService.getImportEvents(this.accountId, this.importId)
-          .subscribe(accountEvents => {
-            return this.dataSource =  accountEvents;
-          });
+      const accountEvents$ = this.accountImportService.getImports(this.accountId).pipe(
+        switchMap((data) => {
+          this.accountImports = data;
+          this.currentAccountImport = data.find((accountImport) => accountImport.id === this.importId);
+          if(this.currentAccountImport && this.currentAccountImport.lastEdit && this.currentAccountImport.lastEdit.seconds){
+            const pipe = new DatePipe(this.locale);
+            this.currentAccountImportDate = pipe.transform(this.currentAccountImport.lastEdit.toDate(), 'short');
+          }
+          return this.accountImportService.getImportEvents(this.accountId, this.importId);
+        })
+      );
+
+
+      accountEvents$.subscribe(accountEvents => {
+        return this.dataSource = accountEvents;
+      });
     }
   }
 
-  onBackToAccounts(){
+  onBackToAccounts() {
     this.router.navigate([`/accounts`], {});
   }
 }

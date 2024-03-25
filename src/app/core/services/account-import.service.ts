@@ -12,6 +12,7 @@ export class AccountImportService {
   
   constructor(private db: AngularFirestore) { }
 
+  
   getImports(accountId: string): Observable<AccountImport[]> {
     const dbPath = `/accounts/${accountId}/imports`;
     const accountImportRef = this.db.collection(dbPath, (ref) =>
@@ -21,6 +22,7 @@ export class AccountImportService {
       map((changes) =>
       changes.map((c) => {
         const accountImport = c.payload.doc.data() as AccountImport;
+        accountImport.id = c.payload.doc.id;
         return accountImport;
       })
     )
