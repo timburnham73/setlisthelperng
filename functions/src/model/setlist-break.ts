@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
 import { Timestamp } from "@angular/fire/firestore";
+=======
+import { Timestamp } from "firebase-admin/firestore";
+>>>>>>> 2817d526fc42602977824955de73f34d2be65f3e
 import { Base } from "./base";
 import { BaseUser, UserHelper } from "./user";
 

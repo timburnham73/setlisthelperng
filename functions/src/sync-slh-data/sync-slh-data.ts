@@ -6,6 +6,8 @@ import { Lyric, LyricHelper } from "../model/lyric";
 import { BaseUser } from "../model/user";
 import { AccountImportEvent } from "../model/account-import-event";
 import { Timestamp } from "firebase-admin/firestore";
+import { SLHSetlist, SLHSetlistHelper } from "../model/SLHSetlist";
+import { SetlistHelper } from "../model/setlist";
 
 //Entry point
 export default async (accountImportSnap, context) => {
@@ -59,8 +61,28 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     }
   }//End of song import
 
-  const setlists = getSetlists(jwtToken);
-  functions.logger.debug(`Setlists downloaded from api ${JSON.stringify(setlists[5])}`);
+  const setlistsRef = db.collection(`/accounts/${accountId}/setlists`);
+  const slhSetlists = await getSetlists(jwtToken);
+  for(let slhSetlist of slhSetlists){
+    const setlist = SLHSetlistHelper.slhSetlistToSetlist(slhSetlist, importingUser);
+    const addedSetlist = await setlistsRef.add(setlist);
+    await addAccountEvent("Song", `Added setlist with name ${setlist.name}.`, accountImportEventRef);
+    for(const setlistSongId of slhSetlist.songs){
+      const setlistSLHSong = slhSongs.find((slhSong) => slhSong.SongId === setlistSongId);
+      let sequenceNumber = 1;
+      if(setlistSLHSong){
+        if(setlistSLHSong.SongType === 1){
+          //Add Break
+          
+        }
+        else{
+          //Add Setlist Songs
+
+        }
+        sequenceNumber++;
+      }
+    }
+  }
 
   await addAccountEvent("System", `Finished importing data.`, accountImportEventRef);
 }
@@ -95,7 +117,7 @@ async function getSongs(accessToken: string) {
   // Send the request and print the response
   const response = await fetch(request);
   const data = await response.json();
-  return data;
+  return data as SLHSong[];
 }
 
 async function getSetlists(accessToken: string) {
@@ -116,5 +138,5 @@ async function getSetlists(accessToken: string) {
   // Send the request and print the response
   const response = await fetch(request);
   const data = await response.json();
-  return data;
+  return data as SLHSetlist[];
 }
