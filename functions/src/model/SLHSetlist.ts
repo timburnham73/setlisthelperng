@@ -27,7 +27,7 @@ export class SLHSetlistHelper {
 
     static slhSetlistToSetlist(slhSetlist: SLHSetlist, editingUser: BaseUser): Setlist {
       const nowTimestamp = Timestamp.now();
-      const gigDate = this.getSongLengthMinSec(slhSetlist.);
+      //const gigDate = this.getSongLengthMinSec(slhSetlist.);
       return {
         name: slhSetlist.Name ?? "",
         gigDate: Timestamp.now(),//TODO: Fix git date in the setlist helper function
@@ -41,3 +41,4 @@ export class SLHSetlistHelper {
         
       };
     }
+  }

@@ -7,8 +7,13 @@ import { BaseUser } from "../model/user";
 import { AccountImportEvent } from "../model/account-import-event";
 import { Timestamp } from "firebase-admin/firestore";
 import { SLHSetlist, SLHSetlistHelper } from "../model/SLHSetlist";
-import { SetlistHelper } from "../model/setlist";
+import { SetlistBreakHelper } from "../model/setlist-break";
+import { SetlistSong } from "../model/setlist-song";
 
+interface SlhSongToFirebaseSongId {
+  SongId: number;
+  FireBaseSongId: string;
+}
 //Entry point
 export default async (accountImportSnap, context) => {
   const accountImport = accountImportSnap.data() as AccountImport;
@@ -25,19 +30,19 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
   await addAccountEvent("System", "Starting import.", accountImportEventRef);
   await addAccountEvent("Songs", "Downloading songs and lyrics.", accountImportEventRef);
   const slhSongs: SLHSong[] = await getSongs(jwtToken);
+  const mapSongIdToFirebaseSongId: SlhSongToFirebaseSongId[] = [];
   for (let slhSong of slhSongs) {
     //Do not import deleted songs. 
-    if(slhSong.Deleted === true){
+    if(slhSong.Deleted === true || slhSong.SongType === 1){
       continue;
     }
 
     const convertedSong = SLHSongHelper.slhSongToSong(slhSong, importingUser);
     const addedSong = await songsRef.add(convertedSong);
-
+    mapSongIdToFirebaseSongId.push({SongId: slhSong.SongId, FireBaseSongId: addedSong.id });
     await addAccountEvent("Song", `Added song with name ${convertedSong.name}.`, accountImportEventRef);
 
     if (slhSong.SongType === SongType.Song && slhSong.Lyrics) {
-      functions.logger.debug(`Adding lyrics for song ${convertedSong.name}`);
       const lyricsRef = db.collection(`/accounts/${accountId}/songs/${addedSong.id}/lyrics`);
       const lyric = {
         name: "Version 1",
@@ -57,27 +62,53 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     }
     else {
       await addAccountEvent("Lyric", `No lyrics found for the Song ${convertedSong.name}.`, accountImportEventRef);
-      functions.logger.debug(`No lyrics for song ${convertedSong.name}`);
     }
   }//End of song import
-
+  
+  await addAccountEvent("Setlists", "Downloading setlists.", accountImportEventRef);
   const setlistsRef = db.collection(`/accounts/${accountId}/setlists`);
   const slhSetlists = await getSetlists(jwtToken);
+
+  await addAccountEvent("Setlists", "Processing setlists.", accountImportEventRef);
   for(let slhSetlist of slhSetlists){
+    
     const setlist = SLHSetlistHelper.slhSetlistToSetlist(slhSetlist, importingUser);
     const addedSetlist = await setlistsRef.add(setlist);
     await addAccountEvent("Song", `Added setlist with name ${setlist.name}.`, accountImportEventRef);
+
+    const setlistSongsRef = db.collection(`/accounts/${accountId}/setlists/${addedSetlist.id}/songs`);
+    
+    let sequenceNumber = 1;
     for(const setlistSongId of slhSetlist.songs){
       const setlistSLHSong = slhSongs.find((slhSong) => slhSong.SongId === setlistSongId);
-      let sequenceNumber = 1;
       if(setlistSLHSong){
+        const convertedSong = SLHSongHelper.slhSongToSong(setlistSLHSong, importingUser);
+        const isDeleted = setlistSLHSong.Deleted;
         if(setlistSLHSong.SongType === 1){
           //Add Break
-          
+          const setBreakPartial = {
+            sequenceNumber: sequenceNumber,
+            isBreak: true,
+            name: convertedSong.name,
+            notes: convertedSong.notes,
+            breakTime: convertedSong.songLength
+          }
+          const setBreak = SetlistBreakHelper.getSetlistBreakForAdd(setBreakPartial, importingUser);
+          setlistSongsRef.add(setBreak);
+          await addAccountEvent("Setlist Break", `Added setlist break with name ${setBreak.name}.`, accountImportEventRef);
         }
         else{
+          //Find the Firebase songId
+          const songIdMap = mapSongIdToFirebaseSongId.find((slhSongMap) => slhSongMap.SongId === setlistSLHSong.SongId);
           //Add Setlist Songs
-
+          const setlistSong = {
+            sequenceNumber: sequenceNumber, 
+            saveChangesToRepertoire: !isDeleted,  
+            songId: songIdMap ? songIdMap.FireBaseSongId : 0,
+            ...convertedSong
+          } as SetlistSong;
+          setlistSongsRef.add(setlistSong);
+          await addAccountEvent("Setlist Song", `Added setlist song with name ${setlistSong.name}.`, accountImportEventRef);
         }
         sequenceNumber++;
       }
@@ -85,6 +116,7 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
   }
 
   await addAccountEvent("System", `Finished importing data.`, accountImportEventRef);
+  functions.logger.debug(`Finished importing data`);
 }
 
 async function addAccountEvent(eventType: string, message: string, accountImportEventRef){

@@ -17,12 +17,12 @@ export const updateCountOfLyricsInSongs = async (snap, context) =>{
     
     //Update the lyric count on the master song
     songsRef.update({countOfLyrics: lyricCountSnap.data().count});
-    functions.logger.debug(`Update lyrics count for song ${context.params.songId}:${lyricCountSnap.data().count}`);
+    //functions.logger.debug(`Update lyrics count for song ${context.params.songId}:${lyricCountSnap.data().count}`);
 
     //Update all setlist songs with the lyric count
     //Find all the setlist songs
     const setlistSongSnap = await db.collectionGroup("songs").where('songId', '==', `${context.params.songId}`).get();
-    functions.logger.debug(`Updating lyric count in all setlist songs. Setlist Song cound with song Id ${context.params.songId}`, setlistSongSnap.size);
+    //functions.logger.debug(`Updating lyric count in all setlist songs. Setlist Song cound with song Id ${context.params.songId}`, setlistSongSnap.size);
     
     //Loop through and update the songs. 
     setlistSongSnap.forEach((doc) => {
