@@ -80,6 +80,7 @@ export interface SLHSong {
         countOfLyrics: slhSong.Lyrics ? 1 : 0,
         lengthSec: songLenSplit.seconds ?? 0,
         lengthMin: songLenSplit.minutes ?? 3,
+        tags: []
       };
     }
   }

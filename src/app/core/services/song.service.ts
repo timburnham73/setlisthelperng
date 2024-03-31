@@ -34,7 +34,7 @@ export class SongService {
 
   getSongs(accountId: string, sortOrder: OrderByDirection = 'asc', pageNumber = 0, pageSize = 10): Observable<Song[]> {
     const dbPath = `/accounts/${accountId}/songs`;
-    const songsRef = this.db.collection(dbPath, ref => ref.orderBy("name", sortOrder));
+    const songsRef = this.db.collection(dbPath, ref => ref/*.where("tags", "array-contains-any", ["new fossils", "Dad"])*/.orderBy("name", sortOrder));
                                                           //.limit(pageSize)
                                                           //.startAfter(pageNumber * pageSize));
     return songsRef.snapshotChanges().pipe(

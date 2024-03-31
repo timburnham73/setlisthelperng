@@ -1,7 +1,6 @@
 import { Timestamp } from "firebase-admin/firestore"
 import { BaseUser, UserHelper } from "./user"
 import { Setlist } from "./setlist"
-
 export interface SLHSetlist {
     Deleted: boolean
     Deprecated: boolean
@@ -27,10 +26,9 @@ export class SLHSetlistHelper {
 
     static slhSetlistToSetlist(slhSetlist: SLHSetlist, editingUser: BaseUser): Setlist {
       const nowTimestamp = Timestamp.now();
-      //const gigDate = this.getSongLengthMinSec(slhSetlist.);
       return {
         name: slhSetlist.Name ?? "",
-        gigDate: Timestamp.now(),//TODO: Fix git date in the setlist helper function
+        gigDate: Timestamp.fromDate(new Date(slhSetlist.GigDate)),
         gigLocation: slhSetlist.GigLocation ?? "",
         makePublic: slhSetlist.MakePublic,
         deprecated: slhSetlist.Deprecated,

@@ -30,7 +30,7 @@ export class SetlistService {
 
   getSetlists(accountId: string): Observable<any> {
     const dbPath = `/accounts/${accountId}/setlists`;
-    const setlistsRef = this.db.collection(dbPath);
+    const setlistsRef = this.db.collection(dbPath, ref => ref.orderBy("gigDate", 'desc'));
     return setlistsRef.snapshotChanges().pipe(
       map(changes =>
         changes.map(c =>
