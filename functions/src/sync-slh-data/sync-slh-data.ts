@@ -95,22 +95,48 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     mapSongIdToFirebaseSongId.push({SongId: slhSong.SongId, FireBaseSongId: addedSong.id });
     
     if (slhSong.SongType === SongType.Song && slhSong.Lyrics) {
+      //Needed to updat the song with the default lyric
+      //const songUpdateRef = db.collection(`/accounts/${accountId}/songs/${addedSong.id}`);
       const lyricsRef = db.collection(`/accounts/${accountId}/songs/${addedSong.id}/lyrics`);
-      const lyric = {
-        name: "Version 1",
-        key: convertedSong.key,
-        tempo: convertedSong.tempo,
-        notes: "",
-        noteValue: convertedSong.noteValue,
-        beatValue: convertedSong.beatValue,
-        youTubeUrl: convertedSong.youTubeUrl,
-        songId: addedSong.id,
-        lyrics: slhSong.Lyrics,
-        defaultLyric: "",
-      } as Lyric;
+      let versionNumber = 1;
+      //let documentLyricCreated = false;
+      if(slhSong.DocumentLocation){
+        const lyricDocument = {
+          name: `Version ${versionNumber++}`,
+          key: convertedSong.key,
+          tempo: convertedSong.tempo,
+          notes: "",
+          noteValue: convertedSong.noteValue,
+          beatValue: convertedSong.beatValue,
+          youTubeUrl: convertedSong.youTubeUrl,
+          songId: addedSong.id,
+          lyrics: "",
+          audioLocation: slhSong.IosAudioLocation ? slhSong.IosAudioLocation : slhSong.SongLocation,
+          defaultLyricForUser: [importingUser.uid]
+        } as Partial<Lyric>;
+        await lyricsRef.add(LyricHelper.getForAdd(lyricDocument, importingUser));
+        //songUpdateRef.push(`Adding lyrics song with name ${slhSong.Name} - ${lyricDocument.name}`);
+        //documentLyricCreated = true;
+      }
       
-      await lyricsRef.add(LyricHelper.getForAdd(lyric, importingUser));
-      songDetails.push(`Adding lyrics song with name ${slhSong.Name} - ${lyric.name}`);
+      if(slhSong.Lyrics){
+        const lyric = {
+          name: `Version ${versionNumber++}`,
+          key: convertedSong.key,
+          tempo: convertedSong.tempo,
+          notes: "",
+          noteValue: convertedSong.noteValue,
+          beatValue: convertedSong.beatValue,
+          youTubeUrl: convertedSong.youTubeUrl,
+          songId: addedSong.id,
+          lyrics: slhSong.Lyrics,
+          audioLocation: slhSong.IosAudioLocation ? slhSong.IosAudioLocation : slhSong.SongLocation,
+          defaultLyric: "",
+        } as Partial<Lyric>;
+      
+        await lyricsRef.add(LyricHelper.getForAdd(lyric, importingUser));
+        songDetails.push(`Adding lyrics song with name ${slhSong.Name} - ${lyric.name}`);
+      }
     }
   }//End of song import
   

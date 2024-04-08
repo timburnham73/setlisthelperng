@@ -12,8 +12,9 @@ export interface Lyric extends Base {
   youTubeUrl: string;
   songId: string;
   lyrics: string;
-  defaultLyric: string;
-  
+  defaultLyricForUser: string[];
+  documentLocation: string;
+  audioLocation: string;
 }
 
 export interface AccountLyric extends Lyric {
@@ -21,7 +22,7 @@ export interface AccountLyric extends Lyric {
 }
 
 export class LyricHelper {
-  static getForAdd(data: Lyric, editingUser: BaseUser): Lyric {
+  static getForAdd(data: Partial<Lyric>, editingUser: BaseUser): Lyric {
     const lyricForAdd = {
       ...this.getForUpdate(data, editingUser),
       dateCreated: Timestamp.now(),
@@ -30,7 +31,7 @@ export class LyricHelper {
     return lyricForAdd;
   }
 
-  static getForUpdate(data: Lyric, editingUser: BaseUser): Lyric {
+  static getForUpdate(data: Partial<Lyric>, editingUser: BaseUser): Lyric {
     return {
       name: data.name ?? "",
       lyrics: data.lyrics ?? "",
@@ -42,11 +43,12 @@ export class LyricHelper {
       beatValue: data.beatValue ?? 0,
       youTubeUrl: data.youTubeUrl ?? "",
       songId: data.songId ?? "",
-      defaultLyric: data.defaultLyric ?? "",
+      defaultLyricForUser: data.defaultLyricForUser ?? [editingUser.uid],
       createdByUser: data.createdByUser ?? editingUser,
       dateCreated: data.dateCreated ?? Timestamp.now(),
-      lastUpdatedByUser: editingUser
-
+      lastUpdatedByUser: editingUser,
+      documentLocation: data.documentLocation ?? "",
+      audioLocation: data.audioLocation ?? ""
     };
   }
 }

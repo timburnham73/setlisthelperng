@@ -48,6 +48,7 @@ export class LyricsComponent {
   setlistId?: string;
   song?: Song;
   selectedLyric?: Lyric;
+  isDefaultLyric: false;
   lyricVersionValue = "add";
   lyrics: Lyric[];
   lyricVersions = new FormControl("");
@@ -150,6 +151,11 @@ export class LyricsComponent {
         });
       }
     
+  }
+
+  onSetDefault(event: Event){
+    this.selectedLyric?.defaultLyricForUser.push(this.currentUser.id)
+    this.lyricsService.updateLyric(this.accountId!, this.songId!, this.selectedLyric!, this.currentUser);
   }
 
   onSelectLyric(value: string) {

@@ -12,8 +12,9 @@ export interface Lyric extends Base {
   youTubeUrl: string;
   songId: string;
   lyrics: string;
-  defaultLyric: string;
-  
+  defaultLyricForUser: string[];
+  documentLocation: string;
+  audioLocation: string;
 }
 
 export interface AccountLyric extends Lyric {
@@ -37,15 +38,17 @@ export class LyricHelper {
       key: data.key ?? "",
       tempo: data.tempo ?? 120,
       notes: data.notes ?? "",
-      lastEdit: Timestamp.fromDate(new Date()),
+      lastEdit: Timestamp.now(),
       noteValue: data.noteValue ?? 0,
       beatValue: data.beatValue ?? 0,
       youTubeUrl: data.youTubeUrl ?? "",
       songId: data.songId ?? "",
-      defaultLyric: data.defaultLyric ?? "",
+      defaultLyricForUser: data.defaultLyricForUser ?? "",
       createdByUser: data.createdByUser ?? editingUser,
-      dateCreated: data.dateCreated ?? Timestamp.fromDate(new Date()),
-      lastUpdatedByUser: editingUser
+      dateCreated: data.dateCreated ?? Timestamp.now(),
+      lastUpdatedByUser: editingUser,
+      documentLocation: data.documentLocation ?? "",
+      audioLocation: data.audioLocation ?? ""
 
     };
   }

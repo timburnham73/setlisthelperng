@@ -5,16 +5,15 @@
         <mat-toolbar>
           <button
             mat-icon-button
-            aria-label="Add Song"
+            aria-label="Back to Song List"
             (click)="onBackToSong()"
           >
             <mat-icon>arrow_back</mat-icon>
           </button>
           <h4>{{ song?.name }}</h4>
           <span class="spacer"></span>
-          <button mat-icon-button aria-label="Add Lyric" *ngIf="!selectedLyric" (click)="onAddLyric($event)">
-            <mat-icon>add</mat-icon>
-          </button>
+          
+
           <ng-container *ngIf="selectedLyric">
             <mat-form-field  subscriptSizing="dynamic"> 
               <mat-select [(value)]="lyricVersionValue" (selectionChange)="onSelectLyric($event.value)"> 
@@ -23,8 +22,18 @@
               </mat-select> 
             </mat-form-field> 
             
-            <button mat-icon-button aria-label="Edit Lyrics" (click)="onEditLyric()">
+            <button mat-button aria-label="Edit Lyrics" title="Edit" (click)="onEditLyric()">
               <mat-icon>edit</mat-icon>
+              <span fxShow fxHide.xs>
+                Edit
+              </span>
+            </button>
+
+            <button mat-button aria-label="Set Default Lyric" title="Set Default" (click)="onSetDefault($event)">
+              <mat-icon>star</mat-icon>
+              <span fxShow fxHide.xs>
+                Set Default
+              </span>
             </button>
           </ng-container>
           
