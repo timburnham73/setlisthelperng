@@ -96,7 +96,7 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     
     if (slhSong.SongType === SongType.Song && slhSong.Lyrics) {
       //Needed to updat the song with the default lyric
-      //const songUpdateRef = db.collection(`/accounts/${accountId}/songs/${addedSong.id}`);
+      const songUpdateRef = db.collection(`/accounts/${accountId}/songs`);
       const lyricsRef = db.collection(`/accounts/${accountId}/songs/${addedSong.id}/lyrics`);
       let versionNumber = 1;
       //let documentLyricCreated = false;
@@ -112,10 +112,11 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
           songId: addedSong.id,
           lyrics: "",
           audioLocation: slhSong.IosAudioLocation ? slhSong.IosAudioLocation : slhSong.SongLocation,
-          defaultLyricForUser: [importingUser.uid]
         } as Partial<Lyric>;
-        await lyricsRef.add(LyricHelper.getForAdd(lyricDocument, importingUser));
-        //songUpdateRef.push(`Adding lyrics song with name ${slhSong.Name} - ${lyricDocument.name}`);
+        const addLyric = await lyricsRef.add(LyricHelper.getForAdd(lyricDocument, importingUser));
+
+        convertedSong.defaultLyricForUser.push({uid: importingUser.uid, lyricId: addLyric.id})
+        songUpdateRef.doc(addedSong.id).update(convertedSong);
         //documentLyricCreated = true;
       }
       

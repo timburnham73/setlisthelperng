@@ -48,7 +48,10 @@ export class LyricsComponent {
   setlistId?: string;
   song?: Song;
   selectedLyric?: Lyric;
-  isDefaultLyric: false;
+
+  defaultLyricId: string | undefined;
+  isDefaultLyric = false;
+  
   lyricVersionValue = "add";
   lyrics: Lyric[];
   lyricVersions = new FormControl("");
@@ -97,6 +100,7 @@ export class LyricsComponent {
         .pipe(take(1))
         .subscribe((song) => {
           this.song = song;
+          this.defaultLyricId = this.getDefaultLyricId(); 
         });
 
       this.lyricsService
@@ -104,17 +108,43 @@ export class LyricsComponent {
         .pipe(take(1))
         .subscribe((lyrics) => {
           this.lyrics = lyrics;
-          if (!this.lyricId) {
-            this.selectedLyric = lyrics[0];
-          } else {
-            this.selectedLyric = lyrics.find(
-              (lyric) => lyric.id === this.lyricId
-            );
-          }
+          
+          this.selectedLyric = this.getSelectedLyric(lyrics);
+          this.isDefaultLyric = this.isDefaultLyricSelected();
+
           this.loading = false;
           this.lyricVersionValue = this.selectedLyric?.id || "add";
         });
     }
+  }
+
+  private getDefaultLyricId(){
+    if (this.song?.defaultLyricForUser) {
+      return this.song?.defaultLyricForUser.find((userLyric) => userLyric.uid === this.currentUser.uid)?.lyricId;
+    }
+    return undefined;
+  }
+
+  private isDefaultLyricSelected(){    
+      return this.defaultLyricId === this.selectedLyric?.id;
+  }
+  
+  private getSelectedLyric(lyrics: any) {
+    //If the lyric id is NOT passed in on the url 
+    if (!this.lyricId) {
+      if (this.song?.defaultLyricForUser) {
+        const userLyric = this.song?.defaultLyricForUser.find((userLyric) => userLyric.uid === this.currentUser.uid);
+        if (userLyric) {
+          const selecteLyric = lyrics.find((lyric) => lyric.id === userLyric.lyricId);
+          return selecteLyric ? selecteLyric : lyrics[0];
+        }
+      }
+    } else {
+      //If the lyric is not passed in with the URL find the default lyrics or first lyric.
+      const selectedLyric = lyrics.find((lyric) => lyric.id === this.lyricId);
+      return selectedLyric ? selectedLyric : lyrics[0];
+    }
+    return lyrics[0];
   }
 
   onAddLyric(event?) {
@@ -154,8 +184,9 @@ export class LyricsComponent {
   }
 
   onSetDefault(event: Event){
-    this.selectedLyric?.defaultLyricForUser.push(this.currentUser.id)
-    this.lyricsService.updateLyric(this.accountId!, this.songId!, this.selectedLyric!, this.currentUser);
+    this.songService.setDefaultLyricForUser(this.accountId!, this.songId!, this.song!, this.selectedLyric?.id!, this.currentUser).subscribe(
+      () => this.isDefaultLyric = true
+    );
   }
 
   onSelectLyric(value: string) {

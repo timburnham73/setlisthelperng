@@ -67,6 +67,28 @@ export class SongService {
     );
   }
 
+  setDefaultLyricForUser(accountId: string, songId: string, song: Song, lyricId: string, editingUser: BaseUser): Observable<any> {
+    const userLyric = song.defaultLyricForUser?.find((userLyric) => userLyric.uid === editingUser.uid);
+    if(userLyric){
+      userLyric.lyricId = lyricId;
+    }
+    else{
+      if(!song.defaultLyricForUser || song.defaultLyricForUser?.length === 0) {
+        song.defaultLyricForUser = [{uid: editingUser.uid, lyricId: lyricId}]; 
+      }
+      else{
+        song.defaultLyricForUser.push({uid: editingUser.uid, lyricId: lyricId});
+      }
+    }
+    const songForUpdate = SongHelper.getForUpdate(song, editingUser);
+    const dbPath = `/accounts/${accountId}/songs`;
+    const songsRef = this.db.collection(dbPath);
+    
+    return from(songsRef.doc(songId).update(songForUpdate)).pipe(
+      switchMap(() => this.setlistSongService.updateSetlistSongsBySongId(song.id!, song, editingUser))
+    );
+  }
+
   updateSong(accountId: string, songId: string, song: Song, editingUser: BaseUser): Observable<any> {
     const songForUpdate = SongHelper.getForUpdate(song, editingUser);
     const dbPath = `/accounts/${accountId}/songs`;

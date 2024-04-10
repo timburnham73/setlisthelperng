@@ -2,6 +2,11 @@ import { Base } from "./base";
 import { BaseUser, UserHelper } from "./user";
 import { Timestamp } from "firebase-admin/firestore";
 
+export interface UserLyric {
+  uid: string;
+  lyricId: string;
+}
+
 export interface Song extends Base {
   name: string;
   artist: string;
@@ -19,14 +24,8 @@ export interface Song extends Base {
   lengthSec: number;
   countOfLyrics: number;
   tags: string[];
+  defaultLyricForUser: UserLyric[];
 }
-
-// public static getSongLengthMinSec(SongLength: number) {
-//   return {
-//     minutes: Math.floor(SongLength / 60),
-//     seconds: SongLength % 60
-//   };
-// }
 
 export class SongHelper {
   static getForAdd(song: Song, editingUser: BaseUser): Song {
@@ -58,7 +57,8 @@ export class SongHelper {
       lengthMin: data.lengthMin ?? 3,
       countOfLyrics: data.countOfLyrics ?? 0,
       lengthSec: data.lengthSec ?? 0,
-      tags: data.tags ?? 0
+      tags: data.tags ?? 0,
+      defaultLyricForUser: data.defaultLyricForUser ?? []
     };
   }
 }

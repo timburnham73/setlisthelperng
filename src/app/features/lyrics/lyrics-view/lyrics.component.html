@@ -10,14 +10,30 @@
           >
             <mat-icon>arrow_back</mat-icon>
           </button>
+          
           <h4>{{ song?.name }}</h4>
           <span class="spacer"></span>
-          
-
+          @if(!isDefaultLyric){
+            <button mat-button 
+            aria-label="Set the default lyric for this song." 
+            title="Set the default lyric for this song." 
+            (click)="onSetDefault($event)">
+              <mat-icon>star</mat-icon>
+              <span fxShow fxHide.xs>
+                Set Default
+              </span>
+            </button>
+          }
+          @else {
+            <mat-icon>star</mat-icon>
+          }
           <ng-container *ngIf="selectedLyric">
             <mat-form-field  subscriptSizing="dynamic"> 
               <mat-select [(value)]="lyricVersionValue" (selectionChange)="onSelectLyric($event.value)"> 
-                <mat-option *ngFor="let lyric of lyrics" [value]="lyric?.id">{{lyric.name}}</mat-option> 
+                <mat-option *ngFor="let lyric of lyrics" [value]="lyric?.id">
+                  <mat-icon *ngIf="lyric.id === defaultLyricId">star</mat-icon>
+                  {{lyric.name}}
+                </mat-option> 
                 <mat-option value="add">Add...</mat-option> 
               </mat-select> 
             </mat-form-field> 
@@ -26,13 +42,6 @@
               <mat-icon>edit</mat-icon>
               <span fxShow fxHide.xs>
                 Edit
-              </span>
-            </button>
-
-            <button mat-button aria-label="Set Default Lyric" title="Set Default" (click)="onSetDefault($event)">
-              <mat-icon>star</mat-icon>
-              <span fxShow fxHide.xs>
-                Set Default
               </span>
             </button>
           </ng-container>

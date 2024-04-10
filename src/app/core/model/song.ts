@@ -2,6 +2,10 @@ import { Timestamp } from "@angular/fire/firestore";
 import { Base } from "./base";
 import { BaseUser, UserHelper } from "./user";
 
+export interface UserLyric {
+  uid: string;
+  lyricId: string;
+}
 export interface Song extends Base {
   name: string;
   artist: string;
@@ -19,6 +23,7 @@ export interface Song extends Base {
   lengthSec: number;
   countOfLyrics: number;
   tags: string[];
+  defaultLyricForUser: UserLyric[];
 }
 
 // public static getSongLengthMinSec(SongLength: number) {
@@ -58,7 +63,8 @@ export class SongHelper {
       lengthMin: data.lengthMin ?? 3,
       countOfLyrics: data.countOfLyrics ?? 0,
       lengthSec: data.lengthSec ?? 0,
-      tags: data.tags ?? []
+      tags: data.tags ?? [],
+      defaultLyricForUser: data.defaultLyricForUser ?? []
     };
   }
 }
