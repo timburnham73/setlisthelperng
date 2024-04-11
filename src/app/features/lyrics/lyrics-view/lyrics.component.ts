@@ -185,7 +185,10 @@ export class LyricsComponent {
 
   onSetDefault(event: Event){
     this.songService.setDefaultLyricForUser(this.accountId!, this.songId!, this.song!, this.selectedLyric?.id!, this.currentUser).subscribe(
-      () => this.isDefaultLyric = true
+      () => {
+        this.isDefaultLyric = true;
+        this.defaultLyricId = this.selectedLyric?.id;
+      }
     );
   }
 
