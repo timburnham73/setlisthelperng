@@ -24,7 +24,7 @@ export class LyricsService {
 
   getSongLyrics(accountId: string, songId: string): Observable<any> {
     const dbPath = `/accounts/${accountId}/songs/${songId}/lyrics`;
-    const songsRef = this.db.collection(dbPath);
+    const songsRef = this.db.collection(dbPath, (ref) => ref.orderBy("name", "asc"));
     return songsRef.snapshotChanges().pipe(
       map((changes) =>
         changes.map((c) => {

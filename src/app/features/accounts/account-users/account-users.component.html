@@ -26,15 +26,13 @@
             <th mat-header-cell *matHeaderCellDef>Role</th>
             <td mat-cell *matCellDef="let element">
               <span *ngIf="data.ownerUser.uid=== element.uid">{{element.role}}</span>
-              <button mat-icon-button *ngIf="data.ownerUser.uid !== element.uid" [matMenuTriggerFor]="notificationMenu">
+              <button mat-button *ngIf="data.ownerUser.uid !== element.uid" [matMenuTriggerFor]="notificationMenu">
                 {{element.role}}
               </button>
               <mat-menu #notificationMenu="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false">
-          
                 <a mat-menu-item *ngFor="let role of roles" (click)="onSelectRole($event, element, role)">
                   <span>{{role}}</span>
                 </a>
-                
               </mat-menu>
             </td>
           </ng-container>
