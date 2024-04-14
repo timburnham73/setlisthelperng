@@ -4,9 +4,9 @@ import { Timestamp } from "@angular/fire/firestore";
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 import { Song, SongHelper } from '../model/song';
 import { BaseUser } from '../model/user';
-import { OrderByDirection } from 'firebase/firestore';
+import { CollectionReference, OrderByDirection } from 'firebase/firestore';
 import { SetlistSongService } from './setlist-songs.service';
-
+import {Query } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -34,9 +34,9 @@ export class SongService {
 
   getSongs(accountId: string, sortOrder: OrderByDirection = 'asc', pageNumber = 0, pageSize = 10): Observable<Song[]> {
     const dbPath = `/accounts/${accountId}/songs`;
-    const songsRef = this.db.collection(dbPath, ref => ref/*.where("tags", "array-contains-any", ["new fossils", "Dad"])*/.orderBy("name", sortOrder));
-                                                          //.limit(pageSize)
-                                                          //.startAfter(pageNumber * pageSize));
+    
+    const songsRef = this.db.collection(dbPath, ref => ref.where("deactivated", "!=", true).where("deleted", "==", false));
+    
     return songsRef.snapshotChanges().pipe(
       map((changes) =>
       changes.map((c) => {
@@ -46,6 +46,10 @@ export class SongService {
       })
     )
     );
+  }
+
+  buildCollectionReference(ref: CollectionReference){
+    return ref;
   }
 
   addSong(accountId: string, song: Song, editingUser: BaseUser): Observable<Song> {
@@ -97,5 +101,16 @@ export class SongService {
     return from(songsRef.doc(songId).update(songForUpdate)).pipe(
       switchMap(() => this.setlistSongService.updateSetlistSongsBySongId(song.id!, song, editingUser))
     );
+  }
+
+  removeSong(
+    songToDelete: Song,
+    accountId: string,
+    editingUser: BaseUser
+  ): any {
+    const dbPath = `/accounts/${accountId}/songs`;
+    const songsCollection = this.db.collection(dbPath);
+    return from(songsCollection.doc(songToDelete.id).delete());
+    
   }
 }

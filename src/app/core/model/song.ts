@@ -14,6 +14,7 @@ export interface Song extends Base {
   songLength: number;
   tempo: number;
   deactivated: boolean;
+  deleted: boolean;
   notes: string;
   other: string;
   noteValue: number;
@@ -51,6 +52,7 @@ export class SongHelper {
       songLength: data.songLength ?? 0,
       tempo: data.tempo ?? 120,
       deactivated: data.deactivated ?? false,
+      deleted: data.deleted ?? false,
       notes: data.notes ?? "",
       other: data.other ?? "",
       noteValue: data.noteValue ?? 0,

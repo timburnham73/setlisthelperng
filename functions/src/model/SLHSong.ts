@@ -68,6 +68,7 @@ export interface SLHSong {
         songLength: slhSong.SongLength ?? 0,
         tempo: slhSong.Tempo ?? 120,
         deactivated: slhSong.Deprecated ?? false,
+        deleted: false,
         notes: slhSong.Notes ?? "",
         other: slhSong.Other ?? "",
         noteValue: slhSong.NoteValue ?? 0,

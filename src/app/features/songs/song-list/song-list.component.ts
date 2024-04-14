@@ -6,7 +6,7 @@ import { Title } from '@angular/platform-browser';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { SongService } from 'src/app/core/services/song.service';
 import { SAMPLE_SONGS } from 'src/app/core/model/sampleSongs';
-import { Observable, finalize } from 'rxjs';
+import { Observable, finalize, first } from 'rxjs';
 import { Song } from 'src/app/core/model/song';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SongEditDialogComponent } from '../song-edit-dialog/song-edit-dialog.component';
@@ -39,9 +39,10 @@ export class SongListComponent implements OnInit {
   @Select(AccountState.selectedAccount) 
   selectedAccount$!: Observable<Account>;
   currentUser: any;
-  displayedColumns: string[] = [ 'name', 'artist', 'genre', 'key', 'tempo', 'timeSignature', 'songLength', 'lyrics'];
+  displayedColumns: string[] = [ 'name', 'artist', 'genre', 'key', 'tempo', 'timeSignature', 'songLength', 'lyrics', 'remove'];
   dataSource : Song[];
   accountId: string;
+  showRemove = false;
   @ViewChild(MatSort, { static: true })
   sort: MatSort = new MatSort;
   loading = false;
@@ -114,6 +115,19 @@ export class SongListComponent implements OnInit {
     })
     .afterClosed().subscribe((data) => {
     });
+  }
+
+  onEnableDeleteMode() {
+    this.showRemove = !this.showRemove;
+  }
+
+  onRemoveSong(event, element) {
+    event.preventDefault();
+    //TODO: Add an "Are you user message".
+    this.songService
+      .removeSong(element, this.accountId!, this.currentUser)
+      .pipe(first())
+      .subscribe();
   }
 
   onViewLyrics(event, row: any){

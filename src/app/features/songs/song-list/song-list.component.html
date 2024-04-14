@@ -4,18 +4,28 @@
     <mat-card>
       <mat-card-content class="card-content">
         <mat-toolbar  >
-          <button mat-button aria-label="Add Song or Break" aria-label="Add Song" (click)="onAddSong()">
-            <mat-icon>add</mat-icon>
-            <span fxShow fxHide.xs>
-              Add
-            </span>
-          </button>
-          <button mat-button aria-label="Add Multiple" title="Add Multiple" (click)="onAddMultipleSongs()">
-            <mat-icon>playlist_add</mat-icon>
-            <span fxShow fxHide.xs>
-              Add Multiple
-            </span>
-          </button>
+          @if(!showRemove){
+            <button mat-button aria-label="Add Song or Break" aria-label="Add Song" (click)="onAddSong()">
+              <mat-icon>add</mat-icon>
+              <span fxShow fxHide.xs>
+                Add
+              </span>
+            </button>
+            <button mat-button aria-label="Add Multiple" title="Add Multiple" (click)="onAddMultipleSongs()">
+              <mat-icon>playlist_add</mat-icon>
+              <span fxShow fxHide.xs>
+                Add Multiple
+              </span>
+            </button>
+            <button mat-button aria-label="Remove Song" (click)="onEnableDeleteMode()">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          } @else {
+            <button mat-icon-button aria-label="Stop Remove Song" (click)="onEnableDeleteMode()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          }
           <span class="spacer"></span>
           <form class="search-form">
             <mat-form-field subscriptSizing="dynamic">
@@ -75,9 +85,18 @@
             </ng-container>
             
             <ng-container matColumnDef="lyrics">
-              <th mat-header-cell *matHeaderCellDef>Lyrics</th>
-              <td mat-cell *matCellDef="let element">
+              <th mat-header-cell [hidden]="showRemove" *matHeaderCellDef>Lyrics</th>
+              <td mat-cell [hidden]="showRemove" *matCellDef="let element">
                 <a href="#" (click)="onViewLyrics($event, element)">{{element.countOfLyrics}} Lyrics</a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="remove">
+              <th mat-header-cell [hidden]="!showRemove" *matHeaderCellDef>
+                Remove
+              </th>
+              <td mat-cell [hidden]="!showRemove" *matCellDef="let element">
+                <a href="#" (click)="onRemoveSong($event, element)"><mat-icon>delete</mat-icon></a>
               </td>
             </ng-container>
 
