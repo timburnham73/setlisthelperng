@@ -28,7 +28,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
 
     //////////////////////////////////////////////////
     //Update Setlist Songs
-    export const onAddSetlistSong_UpdateSetlistSongCount = functions
+    export const onAddSetlistSong_UpdateSetlistSongStatistics = functions
     .runWith({
       timeoutSeconds: 300,
       memory: "128MB"
@@ -39,6 +39,32 @@ export const onAddLyrics_UpdateSongLyricsCount =
         await import("./setlist-song-add-trigger/on-add-setlist-song"))
         .default(snap, context);
     });
+
+    export const onUpdateSetlistSong_UpdateSetlistSongStatistics = functions
+    .runWith({
+      timeoutSeconds: 300,
+      memory: "128MB"
+    })
+    .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
+    .onUpdate(async (snap, context) => {
+      await (
+        await import("./setlist-song-add-trigger/on-add-setlist-song"))
+        .default(snap, context);
+    });
+
+    export const onDeleteSetlistSong_UpdateSetlistSongStatistics = functions
+    .runWith({
+      timeoutSeconds: 300,
+      memory: "128MB"
+    })
+    .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
+    .onDelete(async (snap, context) => {
+      await (
+        await import("./setlist-song-add-trigger/on-add-setlist-song"))
+        .default(snap, context);
+    });
+
+
 
     //Sync functions
     export const onAddAccoutImport_StartSLHSync =

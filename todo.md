@@ -2,7 +2,7 @@
 Fix setlist row cursor #Setlists {cm:2024-01-27}
 Drag and Drop setlist songs #SetlistSongs {cm:2024-02-05}
 Add remove button to toolbar that will show a trash can and checkboxes. #SetlistSongs {cm:2024-02-13}
-Add function to import Old Setlist Helper #Functions
+Add function to import Old Setlist Helper #Functions {cm:2024-04-21}
 Make song row selected and show read-only lyrics #Songs
 Search for songs #Songs
 Fix crash when clicking save on Edit Setlist. Only happens when editing a setlist and the date has not changed. #Setlists {cm:2024-01-27}
