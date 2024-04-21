@@ -26,6 +26,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
         .default(snap, context);
     });
 
+    //////////////////////////////////////////////////
     //Update Setlist Songs
     functions
     .runWith({
@@ -34,11 +35,8 @@ export const onAddLyrics_UpdateSongLyricsCount =
     })
     .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
     .onCreate(async (snap, context) => {
-      //Dynamically import this function to reduce start up times.
-      //When cloud functions are spun up all exported functions in the file will be loaded.
-      //If all the code was below every function would load. 
       await (
-        await import("./sync-slh-data/sync-slh-data"))
+        await import("./setlist-song-add-trigger/on-add-setlist-song"))
         .default(snap, context);
     });
 
