@@ -99,10 +99,11 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
       const songUpdateRef = db.collection(`/accounts/${accountId}/songs`);
       const lyricsRef = db.collection(`/accounts/${accountId}/songs/${addedSong.id}/lyrics`);
       let versionNumber = 1;
-      //let documentLyricCreated = false;
+      let documentLyricCreated = false;
       if(slhSong.DocumentLocation){
+        const lyricName = `Version ${versionNumber++}`; 
         const lyricDocument = {
-          name: `Version ${versionNumber++}`,
+          name: lyricName,
           key: convertedSong.key,
           tempo: convertedSong.tempo,
           notes: "",
@@ -117,12 +118,15 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
 
         convertedSong.defaultLyricForUser.push({uid: importingUser.uid, lyricId: addLyric.id})
         songUpdateRef.doc(addedSong.id).update(convertedSong);
-        //documentLyricCreated = true;
+
+        songDetails.push(`Adding ${lyricName} lyrics for song with name ${slhSong.Name}`);
+        documentLyricCreated = true;
       }
       
       if(slhSong.Lyrics){
+        const lyricName = `Version ${versionNumber}`; 
         const lyric = {
-          name: `Version ${versionNumber++}`,
+          name: lyricName,
           key: convertedSong.key,
           tempo: convertedSong.tempo,
           notes: "",
@@ -132,11 +136,15 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
           songId: addedSong.id,
           lyrics: slhSong.Lyrics,
           audioLocation: slhSong.IosAudioLocation ? slhSong.IosAudioLocation : slhSong.SongLocation,
-          defaultLyric: "",
         } as Partial<Lyric>;
       
-        await lyricsRef.add(LyricHelper.getForAdd(lyric, importingUser));
-        songDetails.push(`Adding lyrics song with name ${slhSong.Name} - ${lyric.name}`);
+        const addLyric = await lyricsRef.add(LyricHelper.getForAdd(lyric, importingUser));
+        songDetails.push(`Adding ${lyricName} lyrics for song with name ${slhSong.Name}`);
+        
+        if(documentLyricCreated == false){
+          convertedSong.defaultLyricForUser.push({uid: importingUser.uid, lyricId: addLyric.id})
+          songUpdateRef.doc(addedSong.id).update(convertedSong);
+        }
       }
     }
   }//End of song import
