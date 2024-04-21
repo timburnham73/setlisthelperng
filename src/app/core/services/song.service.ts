@@ -98,9 +98,7 @@ export class SongService {
     const dbPath = `/accounts/${accountId}/songs`;
     const songsRef = this.db.collection(dbPath);
     
-    return from(songsRef.doc(songId).update(songForUpdate)).pipe(
-      switchMap(() => this.setlistSongService.updateSetlistSongsBySongId(song.id!, song, editingUser))
-    );
+    return from(songsRef.doc(songId).update(songForUpdate));
   }
 
   removeSong(
