@@ -28,7 +28,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
 
     //////////////////////////////////////////////////
     //Update Setlist Songs
-    functions
+    export const onAddSetlistSong_UpdateSetlistSongCount = functions
     .runWith({
       timeoutSeconds: 300,
       memory: "128MB"
