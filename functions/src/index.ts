@@ -27,7 +27,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
     });
 
     //////////////////////////////////////////////////
-    //Update Setlist Songs
+    //Add, Update, and Delete Setlist Songs
     export const onAddSetlistSong_UpdateSetlistSongStatistics = functions
     .runWith({
       timeoutSeconds: 300,
@@ -36,7 +36,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
     .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
     .onCreate(async (snap, context) => {
       await (
-        await import("./setlist-song-add-trigger/on-add-setlist-song"))
+        await import("./setlist-song-trigger/on-add-or-modify-setlist-song"))
         .default(snap, context);
     });
 
@@ -48,7 +48,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
     .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
     .onUpdate(async (snap, context) => {
       await (
-        await import("./setlist-song-add-trigger/on-add-setlist-song"))
+        await import("./setlist-song-trigger/on-add-or-modify-setlist-song"))
         .default(snap, context);
     });
 
@@ -60,7 +60,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
     .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
     .onDelete(async (snap, context) => {
       await (
-        await import("./setlist-song-add-trigger/on-add-setlist-song"))
+        await import("./setlist-song-trigger/on-add-or-modify-setlist-song"))
         .default(snap, context);
     });
 
