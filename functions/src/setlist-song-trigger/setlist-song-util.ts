@@ -1,14 +1,9 @@
-//import * as functions from "firebase-functions";
+import { SetlistSong } from "../model/setlist-song";
 import {db} from "../init";
 import * as functions from "firebase-functions";
-import { SetlistSong } from "../model/setlist-song";
+import { SetlistRef } from "../model/setlist";
 
-export default async (snap, context) => {
-    updateSetlistSongStatistics(snap, context);
-}
-
-export const updateSetlistSongStatistics = async (snap, context) => {
-    const setlistSong = snap.data() as SetlistSong;
+export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, context) => {
     //Used to update the setlist with the song count
     const setlistRef = db.doc(`/accounts/${context.params.accountId}/setlists/${context.params.setlistId}`);
     //Used to count the setlist songs
@@ -20,11 +15,16 @@ export const updateSetlistSongStatistics = async (snap, context) => {
     //Find all the setlist songs
     //Get the snapshot count of lyrics for the song.
     const setlistSongCountSnap = await setlistSongsRef.get();
-    const setlistSongSnap = await db.collectionGroup(`songs`)
-                                    .where('songId', '==', setlistSong.songId).get();
-
-    const setlistBreakRef = db.doc(`/accounts/${context.params.accountId}/songs/${setlistSong.songId}`);
-    setlistBreakRef.update({countOfSetlistSongs: setlistSongSnap.size});
+    const setlistSongSnap = await db.collectionGroup(`songs`).where('songId', '==', setlistSong.songId).get();
+    
+    if(setlistSong.songId){
+        const setlistRefs = getSetlistFromSetlistSongPath(setlistSongSnap);
+        const setlistBreakRef = db.doc(`/accounts/${context.params.accountId}/songs/${setlistSong.songId}`);
+        setlistBreakRef.update({setlists: setlistRefs});
+    }
+    else{
+        functions.logger.debug(`Song with name ${setlistSong.name} has no songId`);
+    }
 
     let songCount = 0;
     let breakCount = 0;
@@ -45,6 +45,7 @@ export const updateSetlistSongStatistics = async (snap, context) => {
             //Update the song count before a break and the total time. 
             const setlistBreakRef = db.doc(`/accounts/${context.params.accountId}/setlists/${context.params.setlistId}/songs/${doc.id}`);
             setlistBreakRef.update({countOfSongs: songCountBeforeBreaks, totalTimeInSeconds: totalTimeInSecondsBeforeBreaks});
+            
             //Reset the counter
             songCountBeforeBreaks = 0;
             totalTimeInSecondsBeforeBreaks = 0;
@@ -53,4 +54,30 @@ export const updateSetlistSongStatistics = async (snap, context) => {
         totalTimeInSeconds += setlistSong.lengthSec ? setlistSong.lengthSec : 0;
     });
     setlistRef.update({countOfSongs: songCount, countOfBreaks: breakCount, totalTimeInSeconds: totalTimeInSeconds});
+}
+
+async function getSetlistFromSetlistSongPath(setlistSongSnap: any) {
+    const setlistPaths: string[] = [];
+    //Get the path to each setlist
+    setlistSongSnap.forEach(async (doc) => {
+        
+        const splitSetlistSongPath = doc.ref.path.split('/');
+        splitSetlistSongPath.splice(splitSetlistSongPath.length - 2, 2);
+        
+        const pathToSetlist = splitSetlistSongPath.join('/');
+        
+        setlistPaths.push(pathToSetlist);
+    });
+
+    const setlistRefs: SetlistRef[] = [];
+    //Get the setlist from the path and return the id and name.
+    for(const setlistPath of setlistPaths){
+        const setlistBreakRef = db.doc(setlistPath);
+        const setlistRef = await setlistBreakRef.get();
+        const setlist = setlistRef.data();
+        setlistRefs.push({name: setlist.name, id: setlistRef.id});
+    }
+
+    functions.logger.debug(`Setlist Ref ${JSON.stringify(setlistRefs)}`);
+    return setlistRefs;
 }

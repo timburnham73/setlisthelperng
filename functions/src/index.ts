@@ -36,7 +36,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
     .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
     .onCreate(async (snap, context) => {
       await (
-        await import("./setlist-song-trigger/on-add-or-modify-setlist-song"))
+        await import("./setlist-song-trigger/on-add-setlist-song"))
         .default(snap, context);
     });
 
@@ -46,10 +46,10 @@ export const onAddLyrics_UpdateSongLyricsCount =
       memory: "128MB"
     })
     .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
-    .onUpdate(async (snap, context) => {
+    .onUpdate(async (change, context) => {
       await (
-        await import("./setlist-song-trigger/on-add-or-modify-setlist-song"))
-        .default(snap, context);
+        await import("./setlist-song-trigger/on-update-setlist-song"))
+        .default(change, context);
     });
 
     export const onDeleteSetlistSong_UpdateSetlistSongStatistics = functions
@@ -60,7 +60,7 @@ export const onAddLyrics_UpdateSongLyricsCount =
     .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
     .onDelete(async (snap, context) => {
       await (
-        await import("./setlist-song-trigger/on-add-or-modify-setlist-song"))
+        await import("./setlist-song-trigger/on-add-setlist-song"))
         .default(snap, context);
     });
 
