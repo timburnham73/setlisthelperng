@@ -18,7 +18,7 @@ export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, cont
     const setlistSongSnap = await db.collectionGroup(`songs`).where('songId', '==', setlistSong.songId).get();
     
     if(setlistSong.songId){
-        const setlistRefs = getSetlistFromSetlistSongPath(setlistSongSnap);
+        const setlistRefs = await getSetlistFromSetlistSongPath(setlistSongSnap);
         const setlistBreakRef = db.doc(`/accounts/${context.params.accountId}/songs/${setlistSong.songId}`);
         setlistBreakRef.update({setlists: setlistRefs});
     }
@@ -39,6 +39,7 @@ export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, cont
             songCountBeforeBreaks++;
             totalTimeInSecondsBeforeBreaks += setlistSong.lengthMin ? setlistSong.lengthMin * 60 : 0;
             totalTimeInSecondsBeforeBreaks += setlistSong.lengthSec ? setlistSong.lengthSec : 0;
+            
         }
         else{
             breakCount++;
