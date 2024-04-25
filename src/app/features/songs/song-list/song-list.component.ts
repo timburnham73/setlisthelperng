@@ -129,21 +129,21 @@ export class SongListComponent implements OnInit {
     this.showRemove = !this.showRemove;
   }
 
-  onRemoveSong(event, element: Song) {
+  onRemoveSong(event, songToDelete: Song) {
     event.preventDefault();
     let message = "Are you sure you want to delete this song?";
     let message2 = "";
     let hasSetlists = false;
-    if(element.setlists){
+    if(songToDelete.setlists){
       hasSetlists = true;
-      const setlistNames = element.setlists.map((setlistRef) => setlistRef.name).join(', ');
+      const setlistNames = songToDelete.setlists.map((setlistRef) => setlistRef.name).join(', ');
       message = `This song is contained in the following setlists ${setlistNames}.`
       message2 = `This song can not be deleted. Do you want to deactivate the song?`
     }
 
     
     const dialogRef = this.dialog.open(AlertDialogComponent, {
-      data: { title: "Delete", message: message, message2, okButtonText: "OK", cancelButtonText: "Cancel"},
+      data: { title: "Delete", message: message, message2, okButtonText: "Yes", cancelButtonText: "Cancel"},
       panelClass: "dialog-responsive",
       width: '300px',
       enterAnimationDuration: '200ms', 
@@ -154,12 +154,14 @@ export class SongListComponent implements OnInit {
       if(data && data.result === ALERT_DIALOG_RESULT.OK){
         if(!hasSetlists){
           this.songService
-              .removeSong(element, this.accountId!, this.currentUser)
+              .removeSong(songToDelete, this.accountId!, this.currentUser)
               .pipe(first())
               .subscribe();
         }
         else{
           //TODO: deactivate
+          songToDelete.deactivated = true;
+           this.songService.updateSong(this.accountId!, songToDelete?.id!, songToDelete, this.currentUser);
         }
       }
     });
