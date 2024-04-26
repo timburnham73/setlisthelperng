@@ -3,13 +3,24 @@
     <mat-card>
       <mat-card-content class="card-content"> 
         <mat-toolbar>
+          @if(!showRemove){
           <button
-            mat-icon-button
-            aria-label="Add Song"
+            mat-button
+            aria-label="Add Setlist"
             (click)="onAddSetlist()"
           >
             <mat-icon>add</mat-icon>
+            <span>Add</span>
           </button>
+          <button mat-button aria-label="Remove Setlist" (click)="onEnableDeleteMode()">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+          } @else {
+          <button mat-icon-button aria-label="Stop Remove Setlist" (click)="onEnableDeleteMode()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          }
           <span class="spacer"></span>
           <form class="search-form">
             <mat-form-field subscriptSizing="dynamic">
@@ -55,6 +66,15 @@
                  href="#" (click)="onViewSetlistSongs($event, element)" >View</a> | 
                 <a title="Edit the Setlist."
                  href="#" (click)="onEditSetlist($event, element)" >Edit</a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="remove">
+              <th mat-header-cell [hidden]="!showRemove" *matHeaderCellDef>
+                Remove
+              </th>
+              <td mat-cell [hidden]="!showRemove" *matCellDef="let element">
+                <a href="#" (click)="onRemoveSetlist($event, element)"><mat-icon>delete</mat-icon></a>
               </td>
             </ng-container>
 

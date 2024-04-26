@@ -4,8 +4,6 @@ import * as functions from "firebase-functions";
 import { SetlistRef } from "../model/setlist";
 
 export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, context) => {
-    //Used to update the setlist with the song count
-    const setlistRef = db.doc(`/accounts/${context.params.accountId}/setlists/${context.params.setlistId}`);
     //Used to count the setlist songs
     const setlistSongsRef = db.collection(`/accounts/${context.params.accountId}/setlists/${context.params.setlistId}/songs`);
     
@@ -15,9 +13,8 @@ export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, cont
     //Find all the setlist songs
     //Get the snapshot count of lyrics for the song.
     const setlistSongCountSnap = await setlistSongsRef.get();
-    const setlistSongSnap = await db.collectionGroup(`songs`).where('songId', '==', setlistSong.songId).get();
-    
     if(setlistSong.songId){
+        const setlistSongSnap = await db.collectionGroup(`songs`).where('songId', '==', setlistSong.songId).get();
         const setlistRefs = await getSetlistFromSetlistSongPath(setlistSongSnap);
         const setlistBreakRef = db.doc(`/accounts/${context.params.accountId}/songs/${setlistSong.songId}`);
         setlistBreakRef.update({setlists: setlistRefs});
@@ -54,7 +51,12 @@ export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, cont
         totalTimeInSeconds += setlistSong.lengthMin ? setlistSong.lengthMin * 60 : 0;
         totalTimeInSeconds += setlistSong.lengthSec ? setlistSong.lengthSec : 0;
     });
-    setlistRef.update({countOfSongs: songCount, countOfBreaks: breakCount, totalTimeInSeconds: totalTimeInSeconds});
+    
+    //Used to update the setlist with the song count. The setlist may be deleted and so do not try to update it. 
+    const setlistDoc = db.doc(`/accounts/${context.params.accountId}/setlists/${context.params.setlistId}`);
+    if(setlistDoc.ref){
+        setlistDoc.update({countOfSongs: songCount, countOfBreaks: breakCount, totalTimeInSeconds: totalTimeInSeconds});
+    }
 }
 
 async function getSetlistFromSetlistSongPath(setlistSongSnap: any) {
@@ -76,9 +78,10 @@ async function getSetlistFromSetlistSongPath(setlistSongSnap: any) {
         const setlistBreakRef = db.doc(setlistPath);
         const setlistRef = await setlistBreakRef.get();
         const setlist = setlistRef.data();
-        setlistRefs.push({name: setlist.name, id: setlistRef.id});
+        if(setlist && setlist.name && setlistRef && setlistRef.id){
+            setlistRefs.push({name: setlist.name, id: setlistRef.id});
+        }
     }
 
-    functions.logger.debug(`Setlist Ref ${JSON.stringify(setlistRefs)}`);
     return setlistRefs;
 }

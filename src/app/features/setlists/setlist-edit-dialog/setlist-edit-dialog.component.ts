@@ -71,11 +71,16 @@ export class SetlistEditDialogComponent {
     }
 
     if(this.data.setlist?.id && this.data.accountId){
-      this.setlistService.updateSetlist(this.data.accountId, this.data.setlist?.id, modifiedSetlist, this.currentUser);
+      this.setlistService.updateSetlist(this.data.accountId, this.data.setlist?.id, modifiedSetlist, this.currentUser).subscribe((ref) => {
+        this.dialogRef.close(modifiedSetlist);
+    });
     }else if(this.data.accountId){
-      this.setlistService.addSetlist(this.data.accountId, modifiedSetlist, this.currentUser);
+      this.setlistService.addSetlist(this.data.accountId, modifiedSetlist, this.currentUser).subscribe((ref) => {
+        modifiedSetlist.id = ref.id;
+        this.dialogRef.close(modifiedSetlist);
+      });
     }
-    this.dialogRef.close(modifiedSetlist);
+    
   }
 
 

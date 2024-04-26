@@ -14,15 +14,18 @@ export class SetlistService {
   constructor(private db: AngularFirestore) { }
 
 
-  getSetlist(accountId: string, setlistId: string): Observable<any> {
+  getSetlist(accountId: string, setlistId: string): Observable<Setlist | undefined> {
     const dbPath = `/accounts/${accountId}/setlists`;
     const setlistsRef = this.db.collection(dbPath).doc(setlistId);
     return setlistsRef.snapshotChanges().pipe(
       map((resultSetlist) =>
           {
             const setlist = resultSetlist.payload.data() as Setlist;
-            setlist.id = setlistId;
-            return setlist;
+            if(setlist){
+              setlist.id = setlistId;
+              return setlist;
+            }
+            return undefined;
           }
       )
     );
@@ -50,7 +53,7 @@ export class SetlistService {
     const dbPath = `/accounts/${accountId}/setlists`;
     const setlistsRef = this.db.collection(dbPath);
     
-    return setlistsRef.add(setlistForUpdate);
+    return from(setlistsRef.add(setlistForUpdate));
   }
 
   updateSetlist(accountId: string, setlistId: string, setlist: Setlist, editingUser: BaseUser): Observable<void> {
@@ -60,5 +63,16 @@ export class SetlistService {
     const setlistsRef = this.db.collection(dbPath);
     
     return from(setlistsRef.doc(setlistId).update(setlistForUpdate));
+  }
+
+  removeSetlist(
+    setlistToDelete: Setlist,
+    accountId: string,
+    editingUser: BaseUser
+  ): any {
+    const dbPath = `/accounts/${accountId}/setlists`;
+    const songsCollection = this.db.collection(dbPath);
+    return from(songsCollection.doc(setlistToDelete.id).delete());
+    
   }
 }

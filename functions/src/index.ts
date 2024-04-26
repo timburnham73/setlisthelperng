@@ -1,16 +1,16 @@
 /**
  * Import function triggers from their respective submodules:
  *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * 
+ * The exported function name has the format of {Model}_{Event}_{Function Name}
  */
 
 import * as functions from "firebase-functions";
 
-
-export const onAddLyrics_UpdateSongLyricsCount =
+//////////////////////////////////////////////////
+//Lyrics
+export const Lyrics_OnAdd_UpdateSongLyricsCount =
   functions
     .runWith({
       timeoutSeconds: 300,
@@ -26,9 +26,10 @@ export const onAddLyrics_UpdateSongLyricsCount =
         .default(snap, context);
     });
 
-    //////////////////////////////////////////////////
-    //Add, Update, and Delete Setlist Songs
-    export const onAddSetlistSong_UpdateSetlistSongStatistics = functions
+  //////////////////////////////////////////////////
+  //Setlist Songs
+export const SetlistSong_OnAdd_UpdateSetlistSongStatistics = 
+  functions
     .runWith({
       timeoutSeconds: 300,
       memory: "128MB"
@@ -40,7 +41,8 @@ export const onAddLyrics_UpdateSongLyricsCount =
         .default(snap, context);
     });
 
-    export const onUpdateSetlistSong_UpdateSetlistSongStatistics = functions
+export const SetlistSong_onUpdate_UpdateSetlistSongStatistics = 
+  functions
     .runWith({
       timeoutSeconds: 300,
       memory: "128MB"
@@ -52,7 +54,8 @@ export const onAddLyrics_UpdateSongLyricsCount =
         .default(change, context);
     });
 
-    export const onDeleteSetlistSong_UpdateSetlistSongStatistics = functions
+export const SetlistSong_onDelete_UpdateSetlistSongStatistics = 
+  functions
     .runWith({
       timeoutSeconds: 300,
       memory: "128MB"
@@ -60,14 +63,29 @@ export const onAddLyrics_UpdateSongLyricsCount =
     .firestore.document("accounts/{accountId}/setlists/{setlistId}/songs/{setlistSongId}")
     .onDelete(async (snap, context) => {
       await (
-        await import("./setlist-song-trigger/on-add-setlist-song"))
+        await import("./setlist-song-trigger/on-delete-setlist-song"))
         .default(snap, context);
     });
 
 
+//////////////////////////////////
+//Setlist functions
+export const Setlist_onDelete_RemoveSetlistSongs = 
+  functions
+    .runWith({
+      timeoutSeconds: 300,
+      memory: "128MB"
+    })
+    .firestore.document("accounts/{accountId}/setlists/{setlistId}")
+    .onDelete(async (snap, context) => {
+      await (
+        await import("./setlists-trigger/on-delete-setlist"))
+        .default(snap, context);
+    });
 
-    //Sync functions
-    export const onAddAccoutImport_StartSLHSync =
+//////////////////////////////////
+//Sync functions
+export const AccoutImport_OnAdd_StartSLHSync =
   functions
     .runWith({
       timeoutSeconds: 300,

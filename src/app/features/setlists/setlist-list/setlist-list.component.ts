@@ -8,7 +8,7 @@ import { Title } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Select, Store } from "@ngxs/store";
 import { NGXLogger } from "ngx-logger";
-import { Observable } from "rxjs";
+import { Observable, first } from "rxjs";
 import { Account } from "src/app/core/model/account";
 import { SetlistService } from "src/app/core/services/setlist.service";
 import { AccountSetlist } from "src/app/core/model/account-setlist";
@@ -24,6 +24,8 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
 import { FlexLayoutModule } from "ngx-flexible-layout";
+import { ALERT_DIALOG_RESULT, AlertDialogComponent } from "../../alert-dialog/alert-dialog.component";
+import { AuthenticationService } from "src/app/core/services/auth.service";
 
 @Component({
     selector: "app-setlist-list",
@@ -50,8 +52,9 @@ import { FlexLayoutModule } from "ngx-flexible-layout";
 export class SetlistListComponent implements OnInit {
   @Select(AccountState.selectedAccount)
   selectedAccount$!: Observable<Account>;
-
-  displayedColumns: string[] = ["name", "gigLocation", "gigDate", "setlistedit"];
+  currentUser: any;
+  showRemove = false;
+  displayedColumns: string[] = ["name", "gigLocation", "gigDate", "setlistedit", "remove"];
   dataSource = new MatTableDataSource();
   accountId?: string;
   selectedSetlist?: Setlist;
@@ -71,13 +74,22 @@ export class SetlistListComponent implements OnInit {
     private titleService: Title,
     private setlistService: SetlistService,
     private setlistSongsService: SetlistSongService,
+    private authService: AuthenticationService,
     private store: Store,
     private router: Router,
     public dialog: MatDialog
   ) {
+
+    this.authService.user$.subscribe((user) => {
+      if(user && user.uid){
+        this.currentUser = user;
+      }
+    });
+
     const selectedAccount = this.store.selectSnapshot(
       AccountState.selectedAccount
     );
+
     const id = this.route.snapshot.paramMap.get("accountid");
     if (id) {
       this.accountId = id;
@@ -100,7 +112,13 @@ export class SetlistListComponent implements OnInit {
     const dialogRef = this.dialog.open(SetlistEditDialogComponent, {
       data: { accountId: this.accountId } as AccountSetlist,
       panelClass: "dialog-responsive",
+    }).afterClosed().subscribe((setlist) => {
+      if(setlist){
+        this.router.navigate([setlist.id + '/songs'], { relativeTo: this.route } );
+      }
     });
+
+    
   }
 
   onEditSetlist(event, row: any) {
@@ -120,6 +138,34 @@ export class SetlistListComponent implements OnInit {
     console.log('Not implmented');
   }
 
+  onRemoveSetlist(event, setlistToDelete: Setlist) {
+    event.preventDefault();
+    let message = "Are you sure you want to delete this setlist?";
+    let message2 = "";
+    
+    this.dialog.open(AlertDialogComponent, {
+      data: { title: "Delete", message: message, message2, okButtonText: "Yes", cancelButtonText: "Cancel"},
+      panelClass: "dialog-responsive",
+      width: '300px',
+      enterAnimationDuration: '200ms', 
+      exitAnimationDuration: '200ms',
+      
+    })
+    .afterClosed().subscribe((data) => {
+      if(data && data.result === ALERT_DIALOG_RESULT.OK){
+        
+          this.setlistService
+              .removeSetlist(setlistToDelete, this.accountId!, this.currentUser)
+              .pipe(first())
+              .subscribe(); 
+      }
+    });
+  }
+
+  onEnableDeleteMode() {
+    this.showRemove = !this.showRemove;
+  }
+  
   selectRow(row) {
     
     if (this.selectedSetlist === undefined || this.selectedSetlist?.id !== row.id) {
