@@ -34,7 +34,7 @@ import {
   MatDialogTitle,
   MatDialogContent,
 } from '@angular/material/dialog';
-import { ALERT_DIALOG_RESULT, AlertDialogComponent } from '../../alert-dialog/alert-dialog.component';
+import { CONFIRM_DIALOG_RESULT, ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
     selector: 'app-song-list',
@@ -142,7 +142,7 @@ export class SongListComponent implements OnInit {
     }
 
     
-    const dialogRef = this.dialog.open(AlertDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: { title: "Delete", message: message, message2, okButtonText: "Yes", cancelButtonText: "Cancel"},
       panelClass: "dialog-responsive",
       width: '300px',
@@ -151,7 +151,7 @@ export class SongListComponent implements OnInit {
       
     })
     .afterClosed().subscribe((data) => {
-      if(data && data.result === ALERT_DIALOG_RESULT.OK){
+      if(data && data.result === CONFIRM_DIALOG_RESULT.OK){
         if(!hasSetlists){
           this.songService
               .removeSong(songToDelete, this.accountId!, this.currentUser)

@@ -24,8 +24,8 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
 import { FlexLayoutModule } from "ngx-flexible-layout";
-import { ALERT_DIALOG_RESULT, AlertDialogComponent } from "../../alert-dialog/alert-dialog.component";
 import { AuthenticationService } from "src/app/core/services/auth.service";
+import { CONFIRM_DIALOG_RESULT, ConfirmDialogComponent } from "src/app/shared/confirm-dialog/confirm-dialog.component";
 
 @Component({
     selector: "app-setlist-list",
@@ -143,7 +143,7 @@ export class SetlistListComponent implements OnInit {
     let message = "Are you sure you want to delete this setlist?";
     let message2 = "";
     
-    this.dialog.open(AlertDialogComponent, {
+    this.dialog.open(ConfirmDialogComponent, {
       data: { title: "Delete", message: message, message2, okButtonText: "Yes", cancelButtonText: "Cancel"},
       panelClass: "dialog-responsive",
       width: '300px',
@@ -152,7 +152,7 @@ export class SetlistListComponent implements OnInit {
       
     })
     .afterClosed().subscribe((data) => {
-      if(data && data.result === ALERT_DIALOG_RESULT.OK){
+      if(data && data.result === CONFIRM_DIALOG_RESULT.OK){
         
           this.setlistService
               .removeSetlist(setlistToDelete, this.accountId!, this.currentUser)

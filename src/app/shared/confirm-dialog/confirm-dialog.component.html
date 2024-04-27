@@ -1,12 +1,22 @@
-<h1 mat-dialog-title>
-  {{title}}
-</h1>
-
-<div mat-dialog-content>
-  <p>{{message}}</p>
-</div>
-
-<div mat-dialog-actions>
-  <button mat-button (click)="onDismiss()">No</button>
-  <button mat-raised-button color="primary" (click)="onConfirm()">Yes</button>
-</div>
+<h2 mat-dialog-title>{{data.title}}</h2>
+<mat-dialog-content>
+    <div>
+        {{data.message}}
+    </div>
+    @if(data.message2){
+        <div class="message2">
+            {{data.message2}}
+        </div>
+    }
+</mat-dialog-content>
+<mat-dialog-actions>
+<button 
+    mat-button 
+    mat-raised-button
+    mat-dialog-close 
+    color="primary"
+    (click)="onOkClick()">
+        {{data.okButtonText}}
+</button>
+  <button mat-button mat-dialog-close cdkFocusInitial>{{data.cancelButtonText}}</button>
+</mat-dialog-actions>
