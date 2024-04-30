@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef as MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { catchError, concat, first, mergeMap, switchMap, take, tap, throwError, zip } from 'rxjs';
+import { catchError, concat, concatMap, first, mergeMap, switchMap, take, tap, throwError, zip } from 'rxjs';
 import { SongEdit } from 'src/app/core/model/account-song';
 import { Song } from 'src/app/core/model/song';
 import { BaseUser, UserHelper } from 'src/app/core/model/user';
@@ -126,9 +126,11 @@ export class SongEditDialogComponent {
     } else {
       //If this is a seltist song a seuqence number will be passed in with no songId. 
       if ((this.song as SetlistSong)?.sequenceNumber) {
-        concat(this.addSetlistSong(), this.addSong())
+        this.addSong()
           .pipe(
-            first(),
+            concatMap((song) => {
+              return this.addSetlistSong(song.id)
+            }),
             tap((result) => this.dialogRef.close(result))
           )
           .subscribe();
@@ -172,8 +174,8 @@ export class SongEditDialogComponent {
     return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser);
   }
 
-  addSetlistSong() {
-    const modifiedSong = { ...this.song, ...this.songForm.value } as SetlistSong;
+  addSetlistSong(songId) {
+    const modifiedSong = { ...this.song, songId: songId, ...this.songForm.value } as SetlistSong;
     return this.setlistSongService.addSetlistSong(modifiedSong, this.accountId!, this.setlistId!, this.currentUser)
       .pipe(
         catchError((err) => {

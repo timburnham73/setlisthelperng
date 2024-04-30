@@ -3,7 +3,7 @@ import {
   AngularFirestore,
   AngularFirestoreCollection,
 } from "@angular/fire/compat/firestore";
-import { Observable, concat, concatMap, from, map, switchMap, tap } from "rxjs";
+import { Observable, concat, concatMap, first, from, map, switchMap, tap } from "rxjs";
 import { Song, SongHelper } from "../model/song";
 import { SetlistSong, SetlistSongHelper } from "../model/setlist-song";
 import { SetlistBreak, SetlistBreakHelper } from "../model/setlist-break";
@@ -107,6 +107,7 @@ export class SetlistSongService {
     const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
     return this.getOrderedSetlistSongs(accountId, setlistId).pipe(
+      first(),
       concatMap((results: SetlistSong[]) => {
         const setlistSongs = results;
         const batch = this.db.firestore.batch();
