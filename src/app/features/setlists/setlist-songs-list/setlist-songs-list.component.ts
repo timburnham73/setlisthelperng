@@ -185,6 +185,8 @@ export class SetlistSongsListComponent {
       songId: "",
       isBreak: true,
       name: "Break",
+      lengthMin: 10,
+      lengthSec: 0 
     };
     this.setlistSongsService.addSetlistBreak(
       this.accountId!,

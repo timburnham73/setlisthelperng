@@ -45,7 +45,7 @@ export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, cont
             //Update the song count before a break and the total time. 
             const setlistBreakRef = db.doc(`/accounts/${context.params.accountId}/setlists/${context.params.setlistId}/songs/${doc.id}`);
             setlistBreakRef.update({countOfSongs: songCountBeforeBreaks, totalTimeInSeconds: totalTimeInSecondsBeforeBreaks});
-            functions.logger.debug(`Updating setlist break with ${doc.id} countOfSongs:${songCountBeforeBreaks}, totalTimeInSeconds: ${totalTimeInSecondsBeforeBreaks}`);
+            //functions.logger.debug(`Updating setlist break with ${doc.id} countOfSongs:${songCountBeforeBreaks}, totalTimeInSeconds: ${totalTimeInSecondsBeforeBreaks}`);
             //Reset the counter
             songCountBeforeBreaks = 0;
             totalTimeInSecondsBeforeBreaks = 0;

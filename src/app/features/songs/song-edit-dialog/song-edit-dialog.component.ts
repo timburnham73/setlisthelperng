@@ -32,6 +32,7 @@ export class SongEditDialogComponent {
   currentUser: BaseUser;
   saving = false;
   isNew = true;
+  isBreak = false;
   song: Song | SetlistSong | undefined;
   accountId: string | undefined;
   setlistId: string | undefined;
@@ -49,6 +50,7 @@ export class SongEditDialogComponent {
     if(this.data.song && Object.keys(this.data.song).length){
       this.song = this.data.song;
       this.isNew = false;
+      this.isBreak = this.song['isBreak'];
     }
 
     this.accountId = this.data.accountId;
@@ -91,7 +93,7 @@ export class SongEditDialogComponent {
     if (this.song?.id) {
       //Update setlist song
       if ((this.song as SetlistSong)?.sequenceNumber && this.setlistId) {
-        if (this.saveChangesToRepertoire()?.value === false) {
+        if (this.saveChangesToRepertoire()?.value === false || (this.song as SetlistSong)?.isBreak === true) {
           const updateSetlistSong$ = this.updateSetlistSong();
           updateSetlistSong$
             .pipe(

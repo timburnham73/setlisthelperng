@@ -132,7 +132,7 @@
                   {{ element.isBreak ? "" : element.genre }}
                 </td>
                 <td *ngIf="element.isBreak" mat-cell >
-                  Set Count: {{element.countOfSongs ? element.countOfSongs : 0 }}
+                  Song Count: {{element.countOfSongs ? element.countOfSongs : 0 }}
                 </td>
               </ng-container>
             </ng-container>
@@ -174,7 +174,7 @@
               </th>
               <td mat-cell *matCellDef="let element">
                 {{
-                element.lengthMin && !element.isBreak
+                element.lengthMin 
                 ? element.lengthMin +
                 ":" +
                 element.lengthSec?.toString().padStart(2, "0")
@@ -203,7 +203,7 @@
 
             <tr mat-row cdkDrag class="setlist-song-row" [cdkDragData]="row" cdkDragLockAxis="y"
               (dblclick)="onEditSong(row)" *matRowDef="let row; columns: displayedColumns" [ngClass]="{
-                selected: selectedRowSequence == row.sequenceNumber
+                selected: selectedRowSequence == row.sequenceNumber, setbreak: row.isBreak
               }" (click)="selectRow(row)"></tr>
           </table>
         </div>

@@ -3,9 +3,10 @@
     <p *ngIf="!isNew">Edit Song</p>
     <p *ngIf="isNew">Add Song</p>
     <mat-form-field appearance="outline" class="dialog-input-full-width">
-      <mat-label>Song Name</mat-label>
+      <mat-label>{{this.isBreak ? 'Break' : 'Song'}} Name</mat-label>
       <input matInput formControlName="name" />
     </mat-form-field>
+    @if (this.isBreak === false) {
     <mat-form-field appearance="outline" class="dialog-input-full-width">
       <mat-label>Artist</mat-label>
       <input matInput formControlName="artist" />
@@ -59,9 +60,10 @@
         />
       </mat-form-field>
     </div>
+    }
     <div class="inline-container">
       <mat-form-field appearance="outline" class="min-sec">
-        <mat-label>Song Minutes</mat-label>
+        <mat-label>{{this.isBreak ? 'Break' : 'Song'}} Minutes</mat-label>
         <input
           matInput
           type="number"
@@ -70,7 +72,7 @@
         />
       </mat-form-field>
       <mat-form-field appearance="outline" class="min-sec">
-        <mat-label>Song Seconds</mat-label>
+        <mat-label>{{this.isBreak ? 'Break' : 'Song'}} Seconds</mat-label>
         <input
           matInput
           type="number"
@@ -79,24 +81,27 @@
         />
       </mat-form-field>
     </div>
+    
     <mat-form-field appearance="outline" class="dialog-input-full-width">
       <mat-label>Notes</mat-label>
       <input matInput formControlName="notes" />
     </mat-form-field>
-    <mat-form-field appearance="outline" class="dialog-input-full-width">
-      <mat-label>Other</mat-label>
-      <input matInput formControlName="other" />
-    </mat-form-field>
-    @if(showChangesToRepertoire() && !isAddingNewSong()){
-    <div>
-      <mat-checkbox formControlName="saveChangesToRepertoire">Save these changes to the song in your repertoire.</mat-checkbox>
-    </div>
-    }
-    @if(!isAddingNewSong()){
-    <mat-divider></mat-divider>
-    <div>
-      <mat-checkbox formControlName="deactivated"> Deactivate </mat-checkbox>
-    </div>
+    @if (this.isBreak === false) {
+      <mat-form-field appearance="outline" class="dialog-input-full-width">
+        <mat-label>Other</mat-label>
+        <input matInput formControlName="other" />
+      </mat-form-field>
+      @if(showChangesToRepertoire() && !isAddingNewSong()){
+        <div>
+          <mat-checkbox formControlName="saveChangesToRepertoire">Save these changes to the song in your repertoire.</mat-checkbox>
+        </div>
+      }
+      @if(!isAddingNewSong()){
+        <mat-divider></mat-divider>
+        <div>
+          <mat-checkbox formControlName="deactivated"> Deactivate </mat-checkbox>
+        </div>
+      }
     }
   </div>
   <div mat-dialog-actions>
