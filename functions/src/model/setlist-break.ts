@@ -9,6 +9,8 @@ export interface SetlistBreak extends Base {
    name: string;
    notes: string;
    breakTime: number;
+   totalTimeInSeconds: number;
+   countOfSongs: number;
 }
 
 export class SetlistBreakHelper {
@@ -24,6 +26,8 @@ export class SetlistBreakHelper {
          lastUpdatedByUser: UserHelper.getForUpdate(editingUser),
          dateCreated: Timestamp.now(),
          createdByUser: Timestamp.now(),
+         totalTimeInSeconds: setlistBreak.totalTimeInSeconds ?? 0,
+         countOfSongs: setlistBreak.countOfSongs ?? 0
       };
    }
 }

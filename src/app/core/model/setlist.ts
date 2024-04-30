@@ -4,6 +4,9 @@ import { BaseUser } from "./user";
 
 export interface Setlist extends Base {
   name: string;
+  totalTimeInSeconds: number;
+  countOfSongs: number;
+  countOfBreaks: number;
   gigLocation: string;
   gigDate: Timestamp;
   deprecated: boolean;
@@ -29,6 +32,9 @@ export class SetlistHelper {
       deprecated: data.deprecated ?? false,
       makePublic: data.makePublic ?? false,
       lastUpdatedByUser: editingUser,
+      countOfBreaks: data.countOfBreaks ?? 0,
+      countOfSongs: data.countOfSongs ?? 0,
+      totalTimeInSeconds: data.totalTimeInSeconds ?? 0
     };
   }
 }

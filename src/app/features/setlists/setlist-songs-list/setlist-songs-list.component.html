@@ -41,13 +41,20 @@
   <!-- Setlist Songs Grid -->
   <div fxFlex="74%">
     <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <span *ngIf="this.setlist?.name">{{this.setlist?.name}}</span> 
+          <span *ngIf="this.setlist?.gigLocation"> - {{this.setlist?.gigLocation}}</span> 
+          <span *ngIf="this.setlist?.gigDate"> - {{ this.setlist?.gigDate?.toDate() | date:'MM/dd/yyyy h:mm:ss a'}}</span> 
+        </mat-card-title>
+        <mat-card-subtitle>
+          <span class="subtitle"  *ngIf="this.setlist?.totalTimeInSeconds"><b>Total Time:</b> {{ getSetlistTotalTimeInSeconds() * 1000 | date:'mm:ss'}}</span>
+          <span class="subtitle"  *ngIf="this.setlist?.totalTimeInSeconds"><b>Song Count:</b> {{ this.setlist?.countOfSongs}}</span>
+        </mat-card-subtitle>
+      </mat-card-header>
       <mat-card-content class="card-content">
         <mat-toolbar>
           @if(showRemove === false) {
-            <div class="header-container">
-              <h2 style="float: left;">{{this.setlist?.name}}</h2>
-            </div>
-            <span class="vl"></span>
             <button mat-button aria-label="Add Song or Break" [matMenuTriggerFor]="addSong">
             <mat-icon>add</mat-icon>
             <span fxShow fxHide.xs>
@@ -107,17 +114,27 @@
             <!-- Artist Column -->
             <ng-container matColumnDef="artist">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Artist</th>
-              <td mat-cell *matCellDef="let element">
-                {{ element.isBreak ? "" : element.artist }}
+              <ng-container *matCellDef="let element">
+              <td *ngIf="!element.isBreak" mat-cell>
+                {{ element.isBreak ? ""  : element.artist }}
               </td>
+              <td *ngIf="element.isBreak" mat-cell >
+                Set Time: {{ getSetTimeInSeconds(element) * 1000 | date:'mm:ss'}}
+              </td>
+              </ng-container>
             </ng-container>
 
             <!-- Genre Column -->
             <ng-container matColumnDef="genre">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Genre</th>
-              <td mat-cell *matCellDef="let element">
-                {{ element.isBreak ? "" : element.genre }}
-              </td>
+              <ng-container *matCellDef="let element">
+                <td *ngIf="!element.isBreak" mat-cell>
+                  {{ element.isBreak ? "" : element.genre }}
+                </td>
+                <td *ngIf="element.isBreak" mat-cell >
+                  Set Count: {{element.countOfSongs ? element.countOfSongs : 0 }}
+                </td>
+              </ng-container>
             </ng-container>
 
             <!-- Key Column -->

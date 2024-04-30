@@ -21,7 +21,7 @@ import { SongService } from "src/app/core/services/song.service";
 import { AccountState } from "src/app/core/store/account.state";
 import { LyricAddDialogComponent } from "../../lyrics/lyric-add-dialog/lyric-add-dialog.component";
 import { Lyric } from "src/app/core/model/lyric";
-import { NgIf, NgClass } from "@angular/common";
+import { NgIf, NgClass, DatePipe } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatSortModule } from "@angular/material/sort";
@@ -38,6 +38,7 @@ import { SongEdit } from "src/app/core/model/account-song";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatDivider } from "@angular/material/divider";
 import { Setlist } from "src/app/core/model/setlist";
+import { SetlistBreak } from "functions/src/model/setlist-break";
 
 @Component({
   selector: "app-setlist-songs-list",
@@ -57,6 +58,7 @@ import { Setlist } from "src/app/core/model/setlist";
     MatSortModule,
     MatButtonModule,
     MatIconModule,
+    DatePipe,
     NgIf,
     NgClass,
     DragDropModule,
@@ -329,5 +331,19 @@ export class SetlistSongsListComponent {
       sequenceNumber = this.selectedRowSequence;
     }
     return sequenceNumber;
+  }
+
+  public getSetlistTotalTimeInSeconds(){
+    if(this.setlist && this.setlist.totalTimeInSeconds){
+      return this.setlist.totalTimeInSeconds;
+    }
+    return 0;
+  }
+
+  public getSetTimeInSeconds(setlistSongBreak: SetlistBreak){
+    if(setlistSongBreak){
+      return setlistSongBreak.totalTimeInSeconds;
+    }
+    return 0;
   }
 }
