@@ -203,7 +203,7 @@
 
             <tr mat-row cdkDrag class="setlist-song-row" [cdkDragData]="row" cdkDragLockAxis="y"
               (dblclick)="onEditSong(row)" *matRowDef="let row; columns: displayedColumns" [ngClass]="{
-                selected: selectedRowSequence == row.sequenceNumber, setbreak: row.isBreak
+                selected: selectedRowSequence === row.sequenceNumber, setbreak: row.isBreak && selectedRowSequence !== row.sequenceNumber
               }" (click)="selectRow(row)"></tr>
           </table>
         </div>

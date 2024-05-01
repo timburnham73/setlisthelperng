@@ -5,6 +5,5 @@ export interface SongEdit {
   accountId?: string;
   setlistId?: string;
   song : Song | SetlistSong;
-
   
 }
