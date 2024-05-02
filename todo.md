@@ -16,20 +16,20 @@ Add option to save to master song when editing song #SetlistSongs {cm:2024-02-16
 Add remove toolbar button that will show checkboxes and a trash can. #SetlistSongs {cm:2024-02-18}
 Search for songs in the songs list. #SetlistSongs
 Add button should have a dropdown for Add Break and Add New Song. If on mobile Add From Catalog. #SetlistSongs {cm:2024-02-18}
-Create duplicate setlist function #Setlists
+Add duplicate button and create duplicate setlist function #Setlists
 Adjust the selected song after delete and reorder. #SetlistSongs {cm:2024-02-18}
 Fix the loading indicator #Songs
-Add Edit Break dialog #SetlistSongs
+Add Edit Break dialog #SetlistSongs {cm:2024-05-01}
 When song is updated, update all Seltist Songs if "update repertoire" checkbox is checked on the setlist song. #Functions
 Make sure the showChangesToRepertoire variable is saved during edit #SetlistSongs {cm:2024-02-18}
 Drag and Drop to position 1 of the setlist is broke #SetlistSongs {cm:2024-02-18}
 Fix the Setlist gigDate #Functions {cm:2024-04-17}
 Add setlist song - update song object with count of setlist songs. Add/Update an array with setlist id and name. #Functions {cm:2024-04-22}
 Delete setlist song - update master song with setlist song count. Add/Update an array with setlist id and name. #Functions {cm:2024-04-22}
-Delete setlist - Iterate through songs and update master song with setlist song count. Add/Update an array with setlist id and name. #Functions
-Add Song - Update song count and store it in the account. Add the songs to Global song list and increment count. #Functions
-Add Setlist - Update setlist count and store it in the account. #Functions 
-Add duplicate button #Setlists
-Caculate the setlist time #SetlistSongs
+Delete setlist - Iterate through songs and update master song with setlist song count. Add/Update an array with setlist id and name. #Functions {cm:2024-05-02}
+Add Song - Update song count and store it in the account. 
+Add Song - Add the songs to Global song list and increment count. #Functions
+Add Setlist - Update setlist count and store it in the account. #Functions {cm:2024-05-02}
+Caculate the setlist time #SetlistSongs {cm:2024-05-01}
 
-After adding a setlist navigate to the setlist song view #Setlists
+After adding a setlist navigate to the setlist song view #Setlists {cm:2024-05-01}

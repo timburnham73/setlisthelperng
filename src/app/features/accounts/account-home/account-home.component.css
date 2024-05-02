@@ -25,3 +25,7 @@
   cursor: pointer;
   max-width: 400px;
 }
+
+.padding-right{
+  padding-right: 10px;
+}

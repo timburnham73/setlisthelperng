@@ -16,8 +16,8 @@
       <mat-card *ngFor="let account of (accounts$ | async)" class="account-card">
         <div (click)="onSelectAccount(account)">
         <mat-card-header>
-          <mat-card-subtitle>Account Name</mat-card-subtitle>
           <mat-card-title>{{account.name}}</mat-card-title>
+          <mat-card-subtitle ><span class="padding-right">Songs: {{account.countOfSongs}}</span>  <span>Setlists: {{account.countOfSetlists}}</span></mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <p *ngIf="!account.description">Songs, Setlists, Lyrics, Audio and Documents that are grouped for a band, worship group, or solo act. </p>

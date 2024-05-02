@@ -56,7 +56,9 @@ export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, cont
     
     //Used to update the setlist with the song count. The setlist may be deleted and so do not try to update it. 
     const setlistDoc = db.doc(`/accounts/${context.params.accountId}/setlists/${context.params.setlistId}`);
-    if(setlistDoc){
+    const res = await setlistDoc.get()
+    const setlistToUpdate = res.data()
+    if(setlistToUpdate){
         setlistDoc.update({countOfSongs: songCount, countOfBreaks: breakCount, totalTimeInSeconds: totalTimeInSeconds});
     }
 }

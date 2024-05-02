@@ -8,6 +8,8 @@ export interface Account extends Base{
     users?: string[];
     ownerUser: any;
     importToken: string; 
+    countOfSetlists: number;
+    countOfSongs: number;
 }
 
 export class AccountHelper{
@@ -30,7 +32,9 @@ export class AccountHelper{
           dateCreated: data.dateCreated ?? "",
           lastEdit: Timestamp.fromDate(new Date()),
           lastUpdatedByUser: user,
-          importToken: data.importToken ?? ""
+          importToken: data.importToken ?? "",
+          countOfSetlists: data.countOfSetlists ?? 0,
+          countOfSongs: data.countOfSongs ?? 0
         };
       }
 }

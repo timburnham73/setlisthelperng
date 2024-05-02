@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import {db} from "../init";
 import { Setlist } from "../model/setlist";
+import { countSetlists } from "./setlist-util";
 //import { SetlistSong } from "../model/setlist-song";
 
 export default async (snap, context) => {
@@ -19,4 +20,6 @@ export default async (snap, context) => {
         //functions.logger.debug(`Setlist Song with name: ${setlistSong.name} and id ${setlistSongId} has been deleted`);
     });
     batch.commit();
+
+    countSetlists(snap, context);
 }

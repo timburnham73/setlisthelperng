@@ -134,7 +134,7 @@ export class SongListComponent implements OnInit {
     let message = "Are you sure you want to delete this song?";
     let message2 = "";
     let hasSetlists = false;
-    if(songToDelete.setlists){
+    if(songToDelete.setlists && songToDelete.setlists.length > 0){
       hasSetlists = true;
       const setlistNames = songToDelete.setlists.map((setlistRef) => setlistRef.name).join(', ');
       message = `This song is contained in the following setlists ${setlistNames}.`
