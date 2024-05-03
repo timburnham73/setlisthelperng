@@ -15,19 +15,7 @@
       </mat-form-field>
     </p>
     <p>
-      <mat-form-field appearance="outline">
-        <mat-label>Gig Date</mat-label>
-        <input
-          matInput
-          [matDatepicker]="gigDatePicker"
-          formControlName="gigDatePicker"
-        />
-        <mat-datepicker-toggle
-          matSuffix
-          [for]="gigDatePicker"
-        ></mat-datepicker-toggle>
-        <mat-datepicker #gigDatePicker></mat-datepicker>
-      </mat-form-field>
+      <p-calendar formControlName="gigDatePicker" [minDate]="minimumGigDate" class="slh-datepicker" appendTo="body" [showTime]="true" [showSeconds]="false" p-calendar-w-btn></p-calendar>
     </p>
   </div>
   <div mat-dialog-actions>

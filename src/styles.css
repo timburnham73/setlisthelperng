@@ -1,4 +1,9 @@
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/primeng.css";
+
+@layer reset, primeng;
+
 
 body {
   margin: 0;
@@ -173,3 +178,4 @@ p .mat-mdc-icon {
       background: #dddddd;
   }
 }
+

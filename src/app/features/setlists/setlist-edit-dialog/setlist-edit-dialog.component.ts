@@ -15,19 +15,29 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
+import { CalendarModule } from 'primeng/calendar';
 
 @Component({
     selector: 'app-setlist-edit-dialog',
     templateUrl: './setlist-edit-dialog.component.html',
     styleUrls: ['./setlist-edit-dialog.component.css'],
     standalone: true,
-    imports: [FormsModule, ReactiveFormsModule, MatDialogModule, NgIf, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule]
+    imports: [FormsModule, CalendarModule, ReactiveFormsModule, MatDialogModule, NgIf, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule]
 })
 export class SetlistEditDialogComponent {
   currentUser: BaseUser;
   saving = false;
   isNew = true;
+  minimumGigDate = new Date();
   get name() { return this.setlistForm.get('name'); }
+  get gigDate() { return this.setlistForm.get('name'); }
+
+  //This is a good video for creating forms https://angular-university.io/lesson/angularfire-crud-create-part-1
+  setlistForm = new FormGroup({
+    name: new FormControl('', Validators.required),
+    gigLocation: new FormControl(),
+    gigDatePicker: new FormControl(new Date()),
+  });
 
   constructor(
     public dialogRef: MatDialogRef<SetlistEditDialogComponent>,
@@ -45,14 +55,21 @@ export class SetlistEditDialogComponent {
     if(this.data && this.data.setlist){
       this.isNew = false;
     }
+
+    let defaultGigDate = new Date();
+    defaultGigDate.setDate(defaultGigDate.getDate() + 30);
+    defaultGigDate.setHours(22,0,0,0);
+
+    this.setlistForm.setValue({
+      name: this.data.setlist?.name || '',
+      gigLocation: this.data.setlist?.gigLocation || '',
+      gigDatePicker: this.data.setlist?.gigDate ? this.data.setlist?.gigDate.toDate() : defaultGigDate
+    })
+    
+    
   }
 
-  //This is a good video for creating forms https://angular-university.io/lesson/angularfire-crud-create-part-1
-  setlistForm = new FormGroup({
-    name: new FormControl(this.data.setlist?.name || '', Validators.required),
-    gigLocation: new FormControl(this.data.setlist?.gigLocation || ''),
-    gigDatePicker: new FormControl(this.data.setlist?.gigDate ? this.data.setlist?.gigDate.toDate() : new Date()),
-  });
+  
 
   onNoClick(): void {
     this.dialogRef.close()
@@ -64,7 +81,7 @@ export class SetlistEditDialogComponent {
     //If the Date is modified do some manipulation with moment. 
     const modifiedSetlist = this.setlistForm.value as Setlist;
     if(this.setlistForm.get('gigDatePicker')?.dirty && this.setlistForm.value.gigDatePicker){
-      modifiedSetlist.gigDate = this.convertMomentDateToDate(this.setlistForm.value.gigDatePicker as unknown as moment.Moment);
+      modifiedSetlist.gigDate = Timestamp.fromDate(this.setlistForm.value.gigDatePicker);
     }
     else{
       modifiedSetlist.gigDate = this.data.setlist?.gigDate;
@@ -84,8 +101,5 @@ export class SetlistEditDialogComponent {
   }
 
 
-  private convertMomentDateToDate(momentDate: moment.Moment) : Timestamp{
-    const gigDate = momentDate;
-    return Timestamp.fromDate(gigDate.toDate());
-  }
+ 
 }

@@ -43,7 +43,7 @@ import { AppRoutingModule } from "./app/app-routing.module";
 import { CustomMaterialModule } from "./app/custom-material/custom-material.module";
 import { SharedModule } from "./app/shared/shared.module";
 import { CoreModule } from "./app/core/core.module";
-import { provideAnimations } from "@angular/platform-browser/animations";
+import { BrowserAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
 import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
 import {
   getFirestore,
@@ -73,6 +73,7 @@ bootstrapApplication(AppComponent, {
       AngularFireAuthModule,
       AngularFireFunctionsModule,
       BrowserModule,
+      BrowserAnimationsModule,
       CoreModule,
       SharedModule,
       CustomMaterialModule.forRoot(),
