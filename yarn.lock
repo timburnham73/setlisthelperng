@@ -241,6 +241,20 @@
     "@angular-eslint/bundled-angular-compiler" "17.2.1"
     "@typescript-eslint/utils" "6.19.0"
 
+"@angular-material-components/datetime-picker@^16.0.1":
+  version "16.0.1"
+  resolved "https://registry.npmjs.org/@angular-material-components/datetime-picker/-/datetime-picker-16.0.1.tgz"
+  integrity sha512-dbkwWiC8qL7NVlMclb1hvuZvuP2l1nvfnnmijEc/zGsoWeoLNDXn/+z/UQtMcbUphcwCzFt9CfHhhpGUGgQLgw==
+  dependencies:
+    tslib "^2.3.0"
+
+"@angular-material-components/moment-adapter@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.npmjs.org/@angular-material-components/moment-adapter/-/moment-adapter-7.0.0.tgz"
+  integrity sha512-p8Ja8jgc7/J4Q3U9gDabQRcVDzOqI8j9ENElVYRb5H9UF8XtCmu/t4q+EcV6H6nT4YvoZ8XqoLibcsEf39/s3A==
+  dependencies:
+    tslib "^2.3.0"
+
 "@angular/animations@^17.0.9":
   version "17.1.1"
   resolved "https://registry.npmjs.org/@angular/animations/-/animations-17.1.1.tgz"
@@ -8984,13 +8998,6 @@ pretty-format@^29.7.0:
     "@jest/schemas" "^29.6.3"
     ansi-styles "^5.0.0"
     react-is "^18.0.0"
-
-primeng@^17.15.0:
-  version "17.15.0"
-  resolved "https://registry.npmjs.org/primeng/-/primeng-17.15.0.tgz"
-  integrity sha512-DzEDFVKaAjCfOmF8/Nenun7/nwNb/KY0T8LZJTFVbWok3xDB+2U01/yfhPsQMz+7aVnPFP8FHzbaI70Zt752/w==
-  dependencies:
-    tslib "^2.3.0"
 
 proc-log@^3.0.0:
   version "3.0.0"

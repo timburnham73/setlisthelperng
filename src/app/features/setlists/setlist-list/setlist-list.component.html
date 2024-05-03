@@ -55,7 +55,7 @@
               </th>
               <td mat-cell *matCellDef="let element">
                 <ng-container *ngIf="element.gigDate">
-                {{  element.gigDate?.seconds * 1000 | date:'MM/dd/yyyy h:mm:ss a' }}
+                {{  element.gigDate?.seconds * 1000 | date:'MM/dd/yyyy h:mm a' }}
                 </ng-container>
               </td>
             </ng-container>

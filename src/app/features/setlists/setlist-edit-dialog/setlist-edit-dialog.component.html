@@ -15,7 +15,18 @@
       </mat-form-field>
     </p>
     <p>
-      <p-calendar formControlName="gigDatePicker" [minDate]="minimumGigDate" class="slh-datepicker" appendTo="body" [showTime]="true" [showSeconds]="false" p-calendar-w-btn></p-calendar>
+      <mat-form-field appearance="outline">
+        <mat-label>Gig Date</mat-label>
+        <input matInput [ngxMatDatetimePicker]="picker" formControlName="gigDatePicker"
+              [min]="minDate">
+        <mat-datepicker-toggle matSuffix [for]="$any(picker)">
+          <mat-icon ngxMatDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
+        </mat-datepicker-toggle>
+        <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+          [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [color]="'primary'"
+          [enableMeridian]="false">
+        </ngx-mat-datetime-picker>
+      </mat-form-field>
     </p>
   </div>
   <div mat-dialog-actions>

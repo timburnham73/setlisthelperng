@@ -38,10 +38,10 @@ import { MAT_DATE_FORMATS } from '@angular/material/core';
 
 export const MY_FORMATS = {
   parse: {
-    dateInput: 'MMM DD YYYY',
+    dateInput: 'DD/MM/YYYY HH:mm'
   },
   display: {
-    dateInput: 'MMM DD YYYY',
+    dateInput: 'DD/MM/YYYY HH:mm',
     monthYearLabel: 'MMM YYYY',
     dateA11yLabel: 'LL',
     monthYearA11yLabel: 'MMMM YYYY'
@@ -70,13 +70,6 @@ export const MY_FORMATS = {
         MatTooltipModule, MatSelectModule, MatPaginatorModule, MatChipsModule,
         MatButtonToggleModule, MatSlideToggleModule, MatBadgeModule, MatCheckboxModule,
         MatExpansionModule, SelectCheckAllComponent, DragDropModule, MatSortModule
-    ],
-    providers: [
-        {
-            provide: MAT_DATE_FORMATS,
-            useValue: MY_FORMATS
-        },
-        { provide: LOCALE_ID, useValue: 'en-us' }
     ]
 })
 export class CustomMaterialModule {

@@ -59,7 +59,7 @@ import {
 } from "@angular/fire/functions";
 import { connectAuthEmulator, getAuth, provideAuth } from "@angular/fire/auth";
 import { connectFirestoreEmulator } from "@angular/fire/firestore";
-
+import { NgxMatDatetimePickerModule, NgxMatTimepickerModule } from '@angular-material-components/datetime-picker';
 if (environment.production) {
   enableProdMode();
 } else {
@@ -74,6 +74,7 @@ bootstrapApplication(AppComponent, {
       AngularFireFunctionsModule,
       BrowserModule,
       BrowserAnimationsModule,
+      
       CoreModule,
       SharedModule,
       CustomMaterialModule.forRoot(),
