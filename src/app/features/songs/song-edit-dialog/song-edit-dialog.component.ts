@@ -50,7 +50,7 @@ export class SongEditDialogComponent {
     if(this.data.song && Object.keys(this.data.song).length){
       this.song = this.data.song;
       this.isNew = false;
-      this.isBreak = this.song['isBreak'];
+      this.isBreak = this.song['isBreak'] ? true : false;
     }
 
     this.accountId = this.data.accountId;
