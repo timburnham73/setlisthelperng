@@ -9,7 +9,7 @@ Fix crash when clicking save on Edit Setlist. Only happens when editing a setlis
 Add spinner to loading Setlist Songs on Setlist page #SetlistSongsReadonly
 Add print function to setlist songs readonly #SetlistSongsReadonly
 Make readonly Seltist Songs view a component #SetlistSongsReadonly
-Show and edit Time is Setlist Edit #Setlists
+Show and edit Time is Setlist Edit #Setlists {cm:2024-05-03}
 Add confirm delete dialog #Songs #Setlists #SetlistSongs {cm:2024-04-24}
 Add edit song #SetlistSongs {cm:2024-02-13}
 Add option to save to master song when editing song #SetlistSongs {cm:2024-02-16}

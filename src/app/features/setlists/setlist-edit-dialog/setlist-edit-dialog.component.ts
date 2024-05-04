@@ -67,8 +67,8 @@ export class SetlistEditDialogComponent {
 
   @ViewChild('picker', { static: true }) picker: any;
 
-  public minDate: Date;
-  public dateControlMinMax = new FormControl(new Date());
+  public minDate: Date = new Date();
+  
   //This is a good video for creating forms https://angular-university.io/lesson/angularfire-crud-create-part-1
   setlistForm = new FormGroup({
     name: new FormControl('', Validators.required),
