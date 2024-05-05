@@ -87,7 +87,14 @@
             <ng-container matColumnDef="lyrics">
               <th mat-header-cell [hidden]="showRemove" *matHeaderCellDef>Lyrics</th>
               <td mat-cell [hidden]="showRemove" *matCellDef="let element">
-                <a href="#" (click)="onViewLyrics($event, element)">{{element.countOfLyrics}} Lyrics</a>
+                <a href="#" (click)="onViewLyrics($event, element)">{{element.countOfLyrics}}</a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="setlists">
+              <th mat-header-cell [hidden]="showRemove" *matHeaderCellDef>Setlists</th>
+              <td mat-cell [hidden]="showRemove" *matCellDef="let element">
+                <a title="{{getSetlistNames(element)}}" href="#" (click)="onViewSetlists($event, element)">{{getSetlistCount(element)}}</a>
               </td>
             </ng-container>
 

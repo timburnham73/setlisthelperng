@@ -35,6 +35,7 @@ import {
   MatDialogContent,
 } from '@angular/material/dialog';
 import { CONFIRM_DIALOG_RESULT, ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
+import { SetlistRef } from 'functions/src/model/setlist';
 
 @Component({
     selector: 'app-song-list',
@@ -47,7 +48,7 @@ export class SongListComponent implements OnInit {
   @Select(AccountState.selectedAccount) 
   selectedAccount$!: Observable<Account>;
   currentUser: any;
-  displayedColumns: string[] = [ 'name', 'artist', 'genre', 'key', 'tempo', 'timeSignature', 'songLength', 'lyrics', 'remove'];
+  displayedColumns: string[] = [ 'name', 'artist', 'genre', 'key', 'tempo', 'timeSignature', 'songLength', 'lyrics', 'setlists', 'remove'];
   dataSource : Song[];
   accountId: string;
   showRemove = false;
@@ -173,6 +174,11 @@ export class SongListComponent implements OnInit {
     this.router.navigate([row.id + `/lyrics`], { relativeTo: this.route });
   }
 
+  onViewSetlists(event, row: any){
+    event.preventDefault();
+    this.router.navigate([`setlists`], { relativeTo: this.route });
+  }
+
   onAddLyric(event, row: Song){
     event.preventDefault();
     const accountLyric = { accountId: this.accountId, songId: row.id, createdByUserId: this.currentUser.uid };
@@ -186,5 +192,19 @@ export class SongListComponent implements OnInit {
         this.router.navigate([row.id + `/lyrics/${result.id}/edit`], { relativeTo: this.route });
       }
     });
+  }
+
+  getSetlistCount(song){
+    if(song && song.setlists && song.setlists.length > 0){
+      return song.setlists.length;
+    }
+    return 0;
+  }
+
+  getSetlistNames(song){
+    if(song && song.setlists && song.setlists.length > 0){
+      return song.setlists.map((setlist: SetlistRef) => setlist.name).join(', ');
+    }
+    return 0;
   }
 }
