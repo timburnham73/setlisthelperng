@@ -11,16 +11,23 @@ export default async (snap, context) => {
     functions.logger.debug(`Song that was updated. ${song.id}`);
     countSongs(context);
 
-    const setlistSongSnap = await db.collectionGroup(`songs`).where('songId', '==', song.id)
-                                                             .where('saveChangesToRepertoire', '==', true)
-                                                             .get();
-    
-    setlistSongSnap.forEach(async (doc) => {
-        const setlistSongPath = doc.ref.path;
-        const modifiedSong = { ...song } as SetlistSong;
-        await updateSetlistSong(setlistSongPath, modifiedSong);
-    });
-    
+    //If the song was updated by the Setlist Song function updateParentSongSetlistRef, do not run the code below. 
+    //This means the setlist song update was already run so do not do it again.
+    if(song.doNotUpdateSetlistSongs === false){
+        const setlistSongSnap = await db.collectionGroup(`songs`).where('songId', '==', song.id)
+                                                                .where('saveChangesToRepertoire', '==', true)
+                                                                .get();
+        
+        setlistSongSnap.forEach(async (doc) => {
+            const setlistSongPath = doc.ref.path;
+            const modifiedSong = { ...song } as SetlistSong;
+            await updateSetlistSong(setlistSongPath, modifiedSong);
+        });
+    }
+
+    //Remove the doNotUpdateSetlistSongs flag
+    const songRef = db.doc(`/accounts/${context.params.accountId}/songs/${song.id}`);
+    songRef.update({ doNotUpdateSetlistSongs: false });
 }
 
 async function updateSetlistSong(setlistSongPath: string, modifiedSong: SetlistSong) {

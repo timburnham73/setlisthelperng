@@ -26,6 +26,7 @@ export interface Song extends Base {
   countOfLyrics: number;
   tags: string[];
   defaultLyricForUser: UserLyric[];
+  doNotUpdateSetlistSongs: boolean;
 }
 
 export class SongHelper {
@@ -60,7 +61,8 @@ export class SongHelper {
       countOfLyrics: data.countOfLyrics ?? 0,
       lengthSec: data.lengthSec ?? 0,
       tags: data.tags ?? 0,
-      defaultLyricForUser: data.defaultLyricForUser ?? []
+      defaultLyricForUser: data.defaultLyricForUser ?? [],
+      doNotUpdateSetlistSongs: data.doNotUpdateSetlistSongs ?? false
     };
   }
 }

@@ -11,13 +11,13 @@ export const updateSetlistSongStatistics = async (setlistSong: SetlistSong, cont
 ////////////////////////////////////////////////////////////////////////////////////////////
 //Updates parent song from the setlist song with the setlist ids and arrays
 //Compiles the Setlists that contain the song (setlistSong.songId) and updatings that SetlistRef array in the song.
-export async function updateSongSetlistReference(setlistSong: SetlistSong, context: any) {
+export async function updateParentSongSetlistRef(setlistSong: SetlistSong, context: any) {
     if (setlistSong.songId && setlistSong.isBreak === false) {
         const setlistSongSnap = await db.collectionGroup(`songs`).where('songId', '==', setlistSong.songId).get();
         const setlistRefs = await getSetlistFromSetlistSongPath(setlistSongSnap);
 
         const songRef = db.doc(`/accounts/${context.params.accountId}/songs/${setlistSong.songId}`);
-        songRef.update({ setlists: setlistRefs });
+        songRef.update({ setlists: setlistRefs, doNotUpdateSetlistSongs: true });
     }
 }
 

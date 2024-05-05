@@ -20,7 +20,7 @@ Add duplicate button and create duplicate setlist function #Setlists
 Adjust the selected song after delete and reorder. #SetlistSongs {cm:2024-02-18}
 Fix the loading indicator #Songs
 Add Edit Break dialog #SetlistSongs {cm:2024-05-01}
-When song is updated, update all Seltist Songs if "update repertoire" checkbox is checked on the setlist song. #Functions
+When song is updated, update all Seltist Songs if "update repertoire" checkbox is checked on the setlist song. #Functions {cm:2024-05-05}
 Make sure the showChangesToRepertoire variable is saved during edit #SetlistSongs {cm:2024-02-18}
 Drag and Drop to position 1 of the setlist is broke #SetlistSongs {cm:2024-02-18}
 Fix the Setlist gigDate #Functions {cm:2024-04-17}

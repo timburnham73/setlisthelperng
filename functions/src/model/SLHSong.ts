@@ -82,7 +82,8 @@ export interface SLHSong {
         lengthSec: songLenSplit.seconds ?? 0,
         lengthMin: songLenSplit.minutes ?? 3,
         tags: [],
-        defaultLyricForUser: []
+        defaultLyricForUser: [],
+        doNotUpdateSetlistSongs: false
       };
     }
   }
