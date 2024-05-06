@@ -14,6 +14,7 @@ import { countSongs, getSetlistSnapshot, getSongSnapshot, updateParentSongSetlis
 import { Song } from "../model/song";
 import { Setlist } from "../model/setlist";
 import { updateCountOfLyricsInSongs } from "../lyrics-count-trigger/lyric-utils";
+import { countSetlists } from "../setlists-trigger/setlist-util";
 
 interface SlhSongToFirebaseSongId {
   SongId: number;
@@ -29,6 +30,7 @@ interface SlhSongIdToTagName {
 export default async (accountImportSnap, context) => {
   const accountImport = accountImportSnap.data() as AccountImport;
   const accountId = context.params.accountId;
+  const accountImportId = accountImportSnap.id;
   functions.logger.debug(`Account jwtToken ${accountImport.jwtToken}`);
 
   const accountRef = db.doc(`/accounts/${accountId}`);
@@ -38,6 +40,8 @@ export default async (accountImportSnap, context) => {
 
   await startSync(accountImport.jwtToken, accountId, accountImportSnap.id, accountImport.createdByUser);
   
+  //const accountImportEventRef = db.collection(`/accounts/${accountId}/imports/${accountImportId}/events`);
+  //await addAccountEvent("System", `Turning triggers back on.`, accountImportEventRef);
   //await accountRef.update({ slhImportInProgress: false });
 }
 
@@ -173,21 +177,21 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     }
   }
 
+  await batch.commit();
 
   await addAccountEventWithDetails("Setlists", "Finished processing setlists.", setlistDetails, accountImportEventRef);
   
-  await addAccountEvent("System", `Finished importing data.`, accountImportEventRef);
-  
-  await batch.commit();
-
   await countSongs(accountId);
+
+  await countSetlists(accountId);
 
   await updateAllSetlists(accountId);
   
-  updateAllSongs(accountId);
-
+  await updateAllSongs(accountId);
   
   functions.logger.debug(`Finished importing data`);
+
+  await addAccountEvent("System", `Finished importing data.`, accountImportEventRef);
 }
 
 async function updateAllSetlists(accountId: string) {

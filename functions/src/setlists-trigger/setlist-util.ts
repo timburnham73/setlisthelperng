@@ -1,20 +1,14 @@
-import * as functions from "firebase-functions";
 import {db} from "../init";
-import { Setlist } from "../model/setlist";
 import { isImportInProgress } from "../utils";
 
-export const countSetlists = async (snap, context) => {
-    if(await isImportInProgress(context.params.accountId)){
+export const countSetlists = async (accountId) => {
+    if(await isImportInProgress(accountId)){
         return;
     }
     
-    const setlist = snap.data() as Setlist;
-    functions.logger.debug(`Setlist with name ${setlist.name} has been added`);
-
-
-    const setlistsRef = db.collection(`/accounts/${context.params.accountId}/setlists`);
+    const setlistsRef = db.collection(`/accounts/${accountId}/setlists`);
     
-    const accountRef = db.doc(`/accounts/${context.params.accountId}`);
+    const accountRef = db.doc(`/accounts/${accountId}`);
     
     //Get the snapshot count of lyrics for the song.
     const setlistCountSnap = await setlistsRef.count().get();

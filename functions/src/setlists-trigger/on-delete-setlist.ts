@@ -6,7 +6,8 @@ import { isImportInProgress } from "../utils";
 //import { SetlistSong } from "../model/setlist-song";
 
 export default async (snap, context) => {
-    if(await isImportInProgress(context.params.accountId)){
+    const accountId = context.params.accountId;
+    if(await isImportInProgress(accountId)){
         return;
     }
     
@@ -25,5 +26,5 @@ export default async (snap, context) => {
     });
     batch.commit();
 
-    countSetlists(snap, context);
+    countSetlists(accountId);
 }
