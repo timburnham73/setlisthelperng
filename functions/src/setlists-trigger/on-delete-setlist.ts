@@ -2,9 +2,13 @@ import * as functions from "firebase-functions";
 import {db} from "../init";
 import { Setlist } from "../model/setlist";
 import { countSetlists } from "./setlist-util";
+import { isImportInProgress } from "../utils";
 //import { SetlistSong } from "../model/setlist-song";
 
 export default async (snap, context) => {
+    if(await isImportInProgress(context.params.accountId)){
+        return;
+    }
     
     const setlist = snap.data() as Setlist;
     functions.logger.debug(`Setlist with name ${setlist.name} has been deleted`);

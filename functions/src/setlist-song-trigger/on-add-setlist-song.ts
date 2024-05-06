@@ -1,13 +1,20 @@
-import * as functions from "firebase-functions";
 import { SetlistSong } from "../model/setlist-song";
-import { updateSetlistSongStatistics, updateParentSongSetlistRef } from "./setlist-song-util";
+import { isImportInProgress, updateParentSongSetlistRef } from "../utils";
+import { updateSetlistSongStatistics } from "./setlist-song-util";
 
 export default async (snap, context) => {
-    functions.logger.debug(`Adding setlist song`);
+    const accountId = context.params.accountId;
+    const setlistId = context.params.setlistId;
+    if(await isImportInProgress(accountId)){
+        return;
+    }
+
     const setlistSong = snap.data() as SetlistSong;
-    updateSetlistSongStatistics(setlistSong, context);
+    updateSetlistSongStatistics(setlistSong, accountId, setlistId);
 
     //Updates parent song from the setlist song with the setlist ids and arrays
-    await updateParentSongSetlistRef(setlistSong, context);
+    if (setlistSong.songId && setlistSong.isBreak === false) {
+        await updateParentSongSetlistRef(accountId, setlistSong.songId);
+    }
 }
 
