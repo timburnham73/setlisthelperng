@@ -6,6 +6,7 @@ export interface AccountImport extends Base {
     username: string;
     jwtToken: string;
     importLog : [];
+    isFinished: boolean;
     
   }
 
@@ -25,7 +26,8 @@ export interface AccountImport extends Base {
             lastEdit: Timestamp.fromDate(new Date()),
             lastUpdatedByUser: user,
             jwtToken: data.jwtToken ?? "",
-            importLog: data.importLog ?? []
+            importLog: data.importLog ?? [],
+            isFinished: data.isFinished ?? false
           };
         }
   }

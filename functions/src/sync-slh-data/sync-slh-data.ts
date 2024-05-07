@@ -30,7 +30,7 @@ interface SlhSongIdToTagName {
 export default async (accountImportSnap, context) => {
   const accountImport = accountImportSnap.data() as AccountImport;
   const accountId = context.params.accountId;
-  const accountImportId = accountImportSnap.id;
+  //  const accountImportId = accountImportSnap.id;
   functions.logger.debug(`Account jwtToken ${accountImport.jwtToken}`);
 
   const accountRef = db.doc(`/accounts/${accountId}`);
