@@ -10,7 +10,7 @@ import * as functions from "firebase-functions";
 
 //////////////////////////////////////////////////
 //Lyrics
-export const Lyrics_OnAdd_UpdateSongLyricsCount =
+/*export const Lyrics_OnAdd_UpdateSongLyricsCount =
   functions
     .runWith({
       timeoutSeconds: 300,
@@ -134,7 +134,7 @@ export const Setlist_onDelete_RemoveSetlistSongs =
       await (
         await import("./setlists-trigger/on-delete-setlist"))
         .default(snap, context);
-    });
+    });*/
 
 //////////////////////////////////
 //Sync functions
@@ -154,7 +154,7 @@ export const AccoutImport_OnAdd_StartSLHSync =
         .default(snap, context);
     });
 
-    export const AccoutImport_OnUpdate_FinishSLHSync =
+export const AccoutImport_OnUpdate_FinishSLHSync =
     functions
       .runWith({
         timeoutSeconds: 300,

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, map, Observable, of } from "rxjs";
+import { from, map, Observable, of, take } from "rxjs";
 import { Timestamp } from "@angular/fire/firestore";
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 import { Setlist, SetlistHelper } from '../model/setlist';
@@ -53,7 +53,26 @@ export class SetlistService {
     const dbPath = `/accounts/${accountId}/setlists`;
     const setlistsRef = this.db.collection(dbPath);
     
-    return from(setlistsRef.add(setlistForUpdate));
+    return from(setlistsRef.add(setlistForUpdate)).pipe(
+      map((result) => {
+        const rtnSetlist = {
+          id: result.id,
+          ...setlist,
+        };
+        const accountRef = this.db.doc(`/accounts/${accountId}`);
+        accountRef
+        .valueChanges()
+          .pipe(take(1))
+          .subscribe((result) => {
+            const account = result as Account;
+            accountRef.update({
+              countOfSetlists: account.countOfSetlists ? account.countOfSetlists + 1 : 1,
+            });
+          });
+
+        return rtnSetlist;
+      })
+    );
   }
 
   updateSetlist(accountId: string, setlistId: string, setlist: Setlist, editingUser: BaseUser): Observable<void> {
@@ -72,7 +91,20 @@ export class SetlistService {
   ): any {
     const dbPath = `/accounts/${accountId}/setlists`;
     const songsCollection = this.db.collection(dbPath);
-    return from(songsCollection.doc(setlistToDelete.id).delete());
+    return from(songsCollection.doc(setlistToDelete.id).delete()).pipe(
+      map((result) => {
+        const accountRef = this.db.doc(`/accounts/${accountId}`);
+        accountRef
+        .valueChanges()
+          .pipe(take(1))
+          .subscribe((result) => {
+            const account = result as Account;
+            accountRef.update({
+              countOfSetlists: account.countOfSetlists ? account.countOfSetlists - 1 : 0,
+            });
+          });
+      })
+    );
     
   }
 }
