@@ -153,19 +153,3 @@ export const AccoutImport_OnAdd_StartSLHSync =
         await import("./sync-slh-data/sync-slh-data"))
         .default(snap, context);
     });
-
-    export const AccoutImport_OnUpdate_FinishSLHSync =
-    functions
-      .runWith({
-        timeoutSeconds: 300,
-        memory: "128MB"
-      })
-      .firestore.document("accounts/{accountId}/imports/{importId}")
-      .onUpdate(async (snap, context) => {
-        //Dynamically import this function to reduce start up times.
-        //When cloud functions are spun up all exported functions in the file will be loaded.
-        //If all the code was below every function would load. 
-        await (
-          await import("./sync-slh-data/finish-slh-sync"))
-          .default(snap, context);
-      });

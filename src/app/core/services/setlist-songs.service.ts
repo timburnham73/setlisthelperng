@@ -212,7 +212,11 @@ export class SetlistSongService {
         const deleteSongRef = setlistSongsCollection.doc(setlistSongToDelete.id).ref;
         batch.delete(deleteSongRef);
 
-        return from(batch.commit());
+        return from(batch.commit()).pipe(
+          tap(
+            this.updateSetlistSongStatistics(accountId,setlistId)
+          )
+        );
       })
     );
   }
@@ -262,6 +266,51 @@ export class SetlistSongService {
           }
           index = moveUp ? index + 1 : index - 1;
         }
+        //Batch commit incrementing the setlist song sequence number.
+        return from(batch.commit());
+      })
+    );
+  }
+
+  updateSetlistSongStatistics(accountId: string, setlistId: string) {
+    const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
+    const setlistSongsRef = this.db.collection(dbPath);
+    return this.getOrderedSetlistSongs(accountId, setlistId).pipe(
+      first(),
+      tap((results: SetlistSong[]) => {
+        let songCount = 0;
+        let breakCount = 0;
+        let totalTimeInSeconds = 0;
+        let songCountBeforeBreaks = 0;
+        let totalTimeInSecondsBeforeBreaks = 0;
+        const setlistSongs = results;
+        const batch = this.db.firestore.batch();
+        setlistSongs.forEach((setlistSong, index) => {
+          if (setlistSong.isBreak === false) {
+            songCount++;
+            songCountBeforeBreaks++;
+            totalTimeInSecondsBeforeBreaks += setlistSong.lengthMin ? setlistSong.lengthMin * 60 : 0;
+            totalTimeInSecondsBeforeBreaks += setlistSong.lengthSec ? setlistSong.lengthSec : 0;
+
+          }
+          else {
+              breakCount++;
+              //Update the song count before a break and the total time. 
+              const setlistBreakRef = this.db.doc(`/accounts/${accountId}/setlists/${setlistId}/songs/${setlistSong.id}`);
+              batch.update(setlistBreakRef.ref, { countOfSongs: songCountBeforeBreaks, totalTimeInSeconds: totalTimeInSecondsBeforeBreaks });
+              
+              //Reset the counter
+              songCountBeforeBreaks = 0;
+              totalTimeInSecondsBeforeBreaks = 0;
+          }
+          totalTimeInSeconds += setlistSong.lengthMin ? setlistSong.lengthMin * 60 : 0;
+          totalTimeInSeconds += setlistSong.lengthSec ? setlistSong.lengthSec : 0;
+        });
+        
+        //Used to update the setlist with the song count. The setlist may be deleted and so do not try to update it. 
+        const setlistDoc = this.db.doc(`/accounts/${accountId}/setlists/${setlistId}`);
+        batch.update(setlistDoc.ref, { countOfSongs: songCount, countOfBreaks: breakCount, totalTimeInSeconds: totalTimeInSeconds });
+        
         //Batch commit incrementing the setlist song sequence number.
         return from(batch.commit());
       })
