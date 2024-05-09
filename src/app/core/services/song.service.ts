@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, map, mergeMap, Observable, of, switchMap } from "rxjs";
+import { from, map, mergeMap, Observable, of, switchMap, take } from "rxjs";
 import { Timestamp } from "@angular/fire/firestore";
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 import { Song, SongHelper } from '../model/song';
@@ -7,6 +7,7 @@ import { BaseUser } from '../model/user';
 import { CollectionReference, OrderByDirection } from 'firebase/firestore';
 import { SetlistSongService } from './setlist-songs.service';
 import {Query } from '@angular/fire/firestore';
+import { Account } from '../model/account';
 
 @Injectable({
   providedIn: 'root'
@@ -66,6 +67,18 @@ export class SongService {
           id: res.id,
           ...songForAdd,
         };
+
+        const accountRef = this.db.doc(`/accounts/${accountId}`);
+        accountRef
+        .valueChanges()
+          .pipe(take(1))
+          .subscribe((result) => {
+            const account = result as Account;
+            accountRef.update({
+              countOfSongs: account.countOfSongs ? account.countOfSongs + 1 : 1,
+            });
+          });
+
         return rtnSong;
       })
     );
@@ -108,7 +121,22 @@ export class SongService {
   ): any {
     const dbPath = `/accounts/${accountId}/songs`;
     const songsCollection = this.db.collection(dbPath);
-    return from(songsCollection.doc(songToDelete.id).delete());
+    return from(songsCollection.doc(songToDelete.id).delete()).pipe(
+      map((result) => {
+        const accountRef = this.db.doc(`/accounts/${accountId}`);
+        accountRef
+        .valueChanges()
+          .pipe(take(1))
+          .subscribe((result) => {
+            const account = result as Account;
+            accountRef.update({
+              countOfSongs: account.countOfSongs ? account.countOfSongs - 1 : 1,
+            });
+          });
+
+        
+      })
+    );;
     
   }
 }

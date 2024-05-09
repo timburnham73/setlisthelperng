@@ -38,11 +38,19 @@ export default async (accountImportSnap, context) => {
   //This will pause the execution of all the triggers.
   await accountRef.update({ slhImportInProgress: true });
 
-  await startSync(accountImport.jwtToken, accountId, accountImportSnap.id, accountImport.createdByUser);
+  //await startSync(accountImport.jwtToken, accountId, accountImportSnap.id, accountImport.createdByUser);
   
   //const accountImportEventRef = db.collection(`/accounts/${accountId}/imports/${accountImportId}/events`);
   //await addAccountEvent("System", `Turning triggers back on.`, accountImportEventRef);
   //await accountRef.update({ slhImportInProgress: false });
+
+  await countSongs(accountId);
+
+  await countSetlists(accountId);
+
+  await updateAllSetlists(accountId);
+  
+  await updateAllSongs(accountId);
 }
 
 //Starting to Sync
