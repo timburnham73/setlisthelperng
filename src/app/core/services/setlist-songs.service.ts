@@ -82,7 +82,12 @@ export class SetlistSongService {
     const setlistSongsRef = this.db.collection(dbPath);
 
     //return a concat observable with the increment and add combined.
-    return this.incrementSequenceOfSongs(breakForAdd.sequenceNumber, breakForAdd, accountId, setlistId, editingUser);
+    return this.incrementSequenceOfSongs(breakForAdd.sequenceNumber, breakForAdd, accountId, setlistId, editingUser)
+    .pipe(
+      tap(
+        this.updateSetlistSongStatistics(accountId,setlistId)
+      )
+    );
   }
 
   addSetlistSong(
@@ -136,7 +141,11 @@ export class SetlistSongService {
 
         batch.set(setlistSongsRef.doc().ref, songToAdd);
         //Batch commit incrementing the setlist song sequence number.
-        return from(batch.commit());
+        return from(batch.commit()).pipe(
+          tap(
+            this.updateSetlistSongStatistics(accountId,setlistId)
+          )
+        );
       })
     );
   }
@@ -267,7 +276,11 @@ export class SetlistSongService {
           index = moveUp ? index + 1 : index - 1;
         }
         //Batch commit incrementing the setlist song sequence number.
-        return from(batch.commit());
+        return from(batch.commit()).pipe(
+          tap(
+            this.updateSetlistSongStatistics(accountId,setlistId)
+          )
+        );
       })
     );
   }
