@@ -126,14 +126,14 @@ export class SongEditDialogComponent {
     } else {
       //If this is a seltist song a seuqence number will be passed in with no songId. 
       if ((this.song as SetlistSong)?.sequenceNumber) {
-        this.addSong()
-          .pipe(
-            concatMap((song) => {
-              return this.addSetlistSong(song.id)
-            }),
-            tap((result) => this.dialogRef.close(result))
-          )
-          .subscribe();
+        // this.addSong()
+        //   .pipe(
+        //     concatMap((song) => {
+        //       return this.addSetlistSong(song.id)
+        //     }),
+        //     tap((result) => this.dialogRef.close(result))
+        //   )
+        //   .subscribe();
       }
       else {
         this.addSong()
@@ -174,17 +174,17 @@ export class SongEditDialogComponent {
     return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser);
   }
 
-  addSetlistSong(songId) {
-    const modifiedSong = { ...this.song, songId: songId, ...this.songForm.value } as SetlistSong;
-    return this.setlistSongService.addSetlistSong(modifiedSong, this.accountId!, this.setlistId!, this.currentUser)
-      .pipe(
-        catchError((err) => {
-          console.log(err);
-          alert('Could not add song.');
-          return throwError(() => new Error(err));
-        })
-      );
-  }
+  // addSetlistSong(songId) {
+  //   const modifiedSong = { ...this.song, songId: songId, ...this.songForm.value } as SetlistSong;
+  //   return this.setlistSongService.addSetlistSong(modifiedSong, this.accountId!, this.setlistId!, this.currentUser)
+  //     .pipe(
+  //       catchError((err) => {
+  //         console.log(err);
+  //         alert('Could not add song.');
+  //         return throwError(() => new Error(err));
+  //       })
+  //     );
+  // }
 
   addSong() {
     const modifiedSong = { ...this.song, ...this.songForm.value } as Song;

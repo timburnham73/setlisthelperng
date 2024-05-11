@@ -8,6 +8,7 @@ import { Song, SongHelper } from "../model/song";
 import { SetlistSong, SetlistSongHelper } from "../model/setlist-song";
 import { SetlistBreak, SetlistBreakHelper } from "../model/setlist-break";
 import { BaseUser } from "../model/user";
+import { Setlist } from "../model/setlist";
 
 @Injectable({
   providedIn: "root",
@@ -72,20 +73,20 @@ export class SetlistSongService {
 
   addSetlistBreak(
     accountId: string,
-    setlistId: string,
+    setlist: Setlist,
     setlistBreak: Partial<SetlistBreak>,
     editingUser: BaseUser
   ): any {
     const breakForAdd =
       SetlistBreakHelper.getSetlistBreakForAddOrUpdate(setlistBreak, editingUser);
-    const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
+    const dbPath = `/accounts/${accountId}/setlists/${setlist.id}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
 
     //return a concat observable with the increment and add combined.
-    return this.incrementSequenceOfSongs(breakForAdd.sequenceNumber, breakForAdd, accountId, setlistId, editingUser)
+    return this.incrementSequenceOfSongs(breakForAdd.sequenceNumber, breakForAdd, accountId, setlist, editingUser)
     .pipe(
       tap(
-        this.updateSetlistSongStatistics(accountId,setlistId)
+        this.updateSetlistSongStatistics(accountId, setlist.id!)
       )
     );
   }
@@ -93,25 +94,23 @@ export class SetlistSongService {
   addSetlistSong(
     setlistSong: SetlistSong,
     accountId: string,
-    setlistId: string,
+    setlist: Setlist,
     editingUser: BaseUser
   ): any {
     const songForAdd = SetlistSongHelper.getForUpdate(setlistSong, editingUser);
-    const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
-    const setlistSongsRef = this.db.collection(dbPath);
-
-    //return a concat observable with the increment and add combined.
-    return this.incrementSequenceOfSongs(songForAdd.sequenceNumber, songForAdd, accountId, setlistId, editingUser);
-
-
-
+    
+    if(setlist && setlist.id){
+      //return a concat observable with the increment and add combined.
+      return this.incrementSequenceOfSongs(songForAdd.sequenceNumber, songForAdd, accountId, setlist, editingUser);
+    }
   }
+
   //startingSequenceNumber is the currently selected song. All songs after the startingSequence should be incremented. 
   //The new songs sequece should be startingSequenceNumber + 1.
-  incrementSequenceOfSongs(startingSequenceNumber: number, songToAdd: SetlistSong | SetlistBreak, accountId: string, setlistId: string, editingUser: BaseUser) {
-    const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
+  incrementSequenceOfSongs(startingSequenceNumber: number, songToAdd: SetlistSong | SetlistBreak, accountId: string, setlist: Setlist, editingUser: BaseUser) {
+    const dbPath = `/accounts/${accountId}/setlists/${setlist.id}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
-    return this.getOrderedSetlistSongs(accountId, setlistId).pipe(
+    return this.getOrderedSetlistSongs(accountId, setlist.id!).pipe(
       first(),
       concatMap((results: SetlistSong[]) => {
         const setlistSongs = results;
@@ -143,7 +142,10 @@ export class SetlistSongService {
         //Batch commit incrementing the setlist song sequence number.
         return from(batch.commit()).pipe(
           tap(
-            this.updateSetlistSongStatistics(accountId,setlistId)
+            this.updateSetlistSongStatistics(accountId,setlist.id!)
+          ),
+          tap(
+            this.addSetlistRefInSong(accountId, songToAdd.songId, setlist)
           )
         );
       })
@@ -282,6 +284,20 @@ export class SetlistSongService {
           )
         );
       })
+    );
+  }
+
+  addSetlistRefInSong(accountId: string, songId: string, setlist: Setlist) {
+    const songDoc = this.db.doc(`/accounts/${accountId}/setlists/${setlist.id}/songs/${songId}`);
+
+    return songDoc.snapshotChanges().pipe(
+      map((resultSong) =>
+          {
+            const song = resultSong.payload.data() as Song;
+            song.setlists.push({name: setlist.name, id: setlist.id! });
+            return song;
+          }
+      )
     );
   }
 

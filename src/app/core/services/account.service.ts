@@ -44,9 +44,9 @@ export class AccountService {
     const dbPath = `/accounts`;
     const accountRef = this.db.collection(dbPath).doc(accountId);
     return accountRef.snapshotChanges().pipe(
-      map((resultSong) =>
+      map((resultAccount) =>
           {
-            const account = resultSong.payload.data() as Account;
+            const account = resultAccount.payload.data() as Account;
             account.id = accountId;
             return account;
           }
