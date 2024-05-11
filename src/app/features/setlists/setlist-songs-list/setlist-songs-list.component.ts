@@ -224,7 +224,7 @@ export class SetlistSongsListComponent {
     
     if(this.setlist && this.setlist.id){
       this.setlistSongsService
-        .removeSetlistSong(element, this.accountId!, this.setlist.id, this.currentUser)
+        .removeSetlistSong(element, this.accountId!, this.setlist, this.currentUser)
         .pipe(first())
         .subscribe();
     }

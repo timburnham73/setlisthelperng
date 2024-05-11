@@ -9,6 +9,7 @@ import { SetlistSong, SetlistSongHelper } from "../model/setlist-song";
 import { SetlistBreak, SetlistBreakHelper } from "../model/setlist-break";
 import { BaseUser } from "../model/user";
 import { Setlist } from "../model/setlist";
+import { SetlistRef } from "functions/src/model/setlist";
 
 @Injectable({
   providedIn: "root",
@@ -192,13 +193,13 @@ export class SetlistSongService {
   removeSetlistSong(
     setlistSongToDelete: SetlistSong,
     accountId: string,
-    setlistId: string,
+    setlist: Setlist,
     editingUser: BaseUser
   ): any {
-    const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
+    const dbPath = `/accounts/${accountId}/setlists/${setlist.id}/songs`;
     const setlistSongsCollection = this.db.collection(dbPath);
     //Reorder all the songs but the song we are deleting.
-    return this.getOrderedSetlistSongs(accountId, setlistId).pipe(
+    return this.getOrderedSetlistSongs(accountId, setlist.id!).pipe(
       concatMap((results: SetlistSong[]) => {
         const setlistSongs = results;
         const batch = this.db.firestore.batch();
@@ -225,7 +226,10 @@ export class SetlistSongService {
 
         return from(batch.commit()).pipe(
           tap(
-            this.updateSetlistSongStatistics(accountId,setlistId)
+            this.updateSetlistSongStatistics(accountId,setlist.id!)
+          ),
+          tap(
+            this.removeSetlistRefInSong(accountId, setlistSongToDelete.songId, setlist)
           )
         );
       })
@@ -287,14 +291,52 @@ export class SetlistSongService {
     );
   }
 
-  addSetlistRefInSong(accountId: string, songId: string, setlist: Setlist) {
-    const songDoc = this.db.doc(`/accounts/${accountId}/setlists/${setlist.id}/songs/${songId}`);
+  removeSetlistRefInSong(accountId: string, songId: string, setlist: Setlist) {
+    const songDoc = this.db.doc(`/accounts/${accountId}/songs/${songId}`);
 
-    return songDoc.snapshotChanges().pipe(
+    return songDoc.get().pipe(
       map((resultSong) =>
           {
-            const song = resultSong.payload.data() as Song;
-            song.setlists.push({name: setlist.name, id: setlist.id! });
+            const song = resultSong.data() as Song;
+            if(song.setlists){
+              const newSetlistRef: SetlistRef[] = [];
+              let removedOne = false;
+              for(const setlistRef of song.setlists) {
+                if(setlistRef.id === setlist.id){
+                  if(removedOne === true){
+                    //There could be multiple songs in the setlist. Just remove one. 
+                    newSetlistRef.push({name: setlist.name, id: setlist.id! });  
+                  }
+                  removedOne = true;
+                }
+                else{
+                  newSetlistRef.push({name: setlistRef.name, id: setlistRef.id! });  
+                }
+              }
+              song.setlists = newSetlistRef;
+              songDoc.update(song);
+            }
+            
+            return song;
+          }
+      )
+    );
+  }
+
+  addSetlistRefInSong(accountId: string, songId: string, setlist: Setlist) {
+    const songDoc = this.db.doc(`/accounts/${accountId}/songs/${songId}`);
+
+    return songDoc.get().pipe(
+      map((resultSong) =>
+          {
+            const song = resultSong.data() as Song;
+            if(song.setlists){
+              song.setlists.push({name: setlist.name, id: setlist.id! });
+            }
+            else{
+              song.setlists = [{name: setlist.name, id: setlist.id! }];
+            }
+            songDoc.update(song);
             return song;
           }
       )
