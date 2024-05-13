@@ -1,18 +1,6 @@
-import * as functions from "firebase-functions";
 import { db } from "./init";
 import { SetlistRef } from "./model/setlist";
 import { SetlistSong } from "./model/setlist-song";
-export async function isImportInProgress(accountId: string){
-    const accountDoc = db.doc(`/accounts/${accountId}`);
-    const res = await accountDoc.get();
-    const account = res.data();
-    if (account && account.slhImportInProgress) {
-        functions.logger.debug(`Trigger is paused until import is done.`);
-        return  account.slhImportInProgress;
-    }
-    return false;
-} 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 //Updates parent song from the setlist song with the setlist ids and arrays
 //Compiles the Setlists that contain the song (setlistSong.songId) and updatings that SetlistRef array in the song.

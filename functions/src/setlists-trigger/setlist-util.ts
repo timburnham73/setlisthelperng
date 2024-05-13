@@ -1,11 +1,6 @@
 import {db} from "../init";
-import { isImportInProgress } from "../utils";
 
 export const countSetlists = async (accountId) => {
-    if(await isImportInProgress(accountId)){
-        return;
-    }
-    
     const setlistsRef = db.collection(`/accounts/${accountId}/setlists`);
     
     const accountRef = db.doc(`/accounts/${accountId}`);

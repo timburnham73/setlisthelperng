@@ -30,20 +30,14 @@ interface SlhSongIdToTagName {
 export default async (accountImportSnap, context) => {
   const accountImport = accountImportSnap.data() as AccountImport;
   const accountId = context.params.accountId;
-  //  const accountImportId = accountImportSnap.id;
   functions.logger.debug(`Account jwtToken ${accountImport.jwtToken}`);
 
   const accountRef = db.doc(`/accounts/${accountId}`);
 
-  //This will pause the execution of all the triggers.
   await accountRef.update({ slhImportInProgress: true });
 
-  //await startSync(accountImport.jwtToken, accountId, accountImportSnap.id, accountImport.createdByUser);
+  await startSync(accountImport.jwtToken, accountId, accountImportSnap.id, accountImport.createdByUser);
   
-  //const accountImportEventRef = db.collection(`/accounts/${accountId}/imports/${accountImportId}/events`);
-  //await addAccountEvent("System", `Turning triggers back on.`, accountImportEventRef);
-  //await accountRef.update({ slhImportInProgress: false });
-
   await countSongs(accountId);
 
   await countSetlists(accountId);
@@ -51,11 +45,12 @@ export default async (accountImportSnap, context) => {
   await updateAllSetlists(accountId);
   
   await updateAllSongs(accountId);
+
+  await accountRef.update({ slhImportInProgress: false });
 }
 
 //Starting to Sync
 export const startSync = async (jwtToken: string, accountId: string, accountImportId: string, importingUser: BaseUser) => {
-  const batch = db.batch();
   const songsRef = db.collection(`/accounts/${accountId}/songs`);
   const tagsRef = db.collection(`/accounts/${accountId}/tags`);
   const accountImportEventRef = db.collection(`/accounts/${accountId}/imports/${accountImportId}/events`);
@@ -77,7 +72,7 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     const convertedTag = SLHTagHelper.slhTagToTag(slhTag, importingUser);
     const alreadyAddedTag = mapSLHSongIdToTagName.find(tagName => tagName.TagName.toLowerCase() === convertedTag.name.toLowerCase());
     if(!alreadyAddedTag){
-      await batch.set(tagsRef.doc(), convertedTag);
+      await tagsRef.doc().set(convertedTag);
       tagDetails.push(`Adding tag with name ${convertedTag.name}`);
     }
 
@@ -94,7 +89,7 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
   const slhSongs: SLHSong[] = await getSongs(jwtToken);
 
   const accountRef = db.doc(`/accounts/${accountId}`);
-  await batch.update(accountRef, { slhImportInProgress: true });
+  await accountRef.update({ slhImportInProgress: true });
 
   await addAccountEvent("Songs", "Processing Songs, Lyrics, and Tags.", accountImportEventRef);
   const mapSongIdToFirebaseSongId: SlhSongToFirebaseSongId[] = [];
@@ -116,12 +111,12 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     }
     
     let docRef = songsRef.doc();
-    batch.set(docRef, convertedSong);
+    docRef.set(convertedSong);
     
     //Add the song ids to a map so we can find the song below in the setlist songs and associate the firebase id.
     mapSongIdToFirebaseSongId.push({SongId: slhSong.SongId, FireBaseSongId: docRef.id });
     
-    await addLyrics(slhSong, accountId, docRef.id, convertedSong, batch, importingUser, songDetails);
+    await addLyrics(slhSong, accountId, docRef.id, convertedSong, importingUser, songDetails);
   }
   
   await addAccountEventWithDetails("Song", `Finished processing songs.`, [...tagDetails,...songDetails], accountImportEventRef);
@@ -138,7 +133,7 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     
     //Add Setlist
     const addedSetlist = setlistsRef.doc();
-    await batch.set(addedSetlist, convertedSetlist);
+    await addedSetlist.set(convertedSetlist);
 
     setlistDetails.push(`Added setlist with name ${convertedSetlist.name}`);
 
@@ -161,7 +156,7 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
           }
           
           const setBreak = SetlistBreakHelper.getSetlistBreakForAdd(setBreakPartial, importingUser);
-          await batch.set(setlistSongsRef.doc(), setBreak);
+          await setlistSongsRef.doc().set(setBreak);
 
           setlistDetails.push(`Added setlist break with name ${setBreak.name}`);
         }
@@ -177,7 +172,7 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
             ...convertedSong
           } as SetlistSong;
 
-          await batch.set(setlistSongsRef.doc(), setlistSong);
+          await setlistSongsRef.doc().set(setlistSong);
           setlistDetails.push(`Added setlist song with name ${setlistSong.name}`);
         }
         sequenceNumber++;
@@ -185,17 +180,7 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
     }
   }
 
-  await batch.commit();
-
   await addAccountEventWithDetails("Setlists", "Finished processing setlists.", setlistDetails, accountImportEventRef);
-  
-  await countSongs(accountId);
-
-  await countSetlists(accountId);
-
-  await updateAllSetlists(accountId);
-  
-  await updateAllSongs(accountId);
   
   functions.logger.debug(`Finished importing data`);
 
@@ -222,7 +207,7 @@ async function updateAllSongs(accountId: string) {
   });
 }
 
-async function addLyrics(slhSong: SLHSong, accountId: string, songId: string, convertedSong: Song, batch: any, importingUser: BaseUser, songDetails: string[]) {
+async function addLyrics(slhSong: SLHSong, accountId: string, songId: string, convertedSong: Song, importingUser: BaseUser, songDetails: string[]) {
   if (slhSong.SongType === SongType.Song) {
     //Needed to updat the song with the default lyric
     const songUpdateRef = db.collection(`/accounts/${accountId}/songs`);
@@ -246,10 +231,10 @@ async function addLyrics(slhSong: SLHSong, accountId: string, songId: string, co
       } as Partial<Lyric>;
 
       const addedLyricRef = lyricsRef.doc();
-      await batch.set(addedLyricRef, LyricHelper.getForAdd(lyricDocument, importingUser));
+      await addedLyricRef.set(LyricHelper.getForAdd(lyricDocument, importingUser));
 
       convertedSong.defaultLyricForUser.push({ uid: importingUser.uid, lyricId: addedLyricRef.id });
-      await batch.update(songUpdateRef.doc(songId), convertedSong);
+      await songUpdateRef.doc(songId).update(convertedSong);
 
       songDetails.push(`Adding ${lyricName} lyrics for song with name ${slhSong.Name}`);
       documentLyricCreated = true;
@@ -271,12 +256,12 @@ async function addLyrics(slhSong: SLHSong, accountId: string, songId: string, co
       } as Partial<Lyric>;
 
       const addedLyricRef = lyricsRef.doc();
-      await batch.set(addedLyricRef, LyricHelper.getForAdd(lyric, importingUser));
+      await addedLyricRef.set(LyricHelper.getForAdd(lyric, importingUser));
       songDetails.push(`Adding ${lyricName} lyrics for song with name ${slhSong.Name}`);
 
       if (documentLyricCreated == false) {
         convertedSong.defaultLyricForUser.push({ uid: importingUser.uid, lyricId: addedLyricRef.id });
-        await batch.update(songUpdateRef.doc(songId), convertedSong);
+        await songUpdateRef.doc(songId).update(convertedSong);
       }
     }
   }
