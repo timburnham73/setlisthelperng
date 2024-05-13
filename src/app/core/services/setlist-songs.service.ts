@@ -187,7 +187,11 @@ export class SetlistSongService {
     const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
     const setlistSongsRef = this.db.collection(dbPath);
 
-    return from(setlistSongsRef.doc(setlistSongId).update(setlisSongForUpdate));
+    return from(setlistSongsRef.doc(setlistSongId).update(setlisSongForUpdate)).pipe(
+      tap(
+        this.updateSetlistSongStatistics(accountId, setlistId!)
+      )
+    );
   }
 
   removeSetlistSong(

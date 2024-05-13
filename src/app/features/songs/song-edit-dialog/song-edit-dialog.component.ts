@@ -20,6 +20,8 @@ import { NgIf } from '@angular/common';
 import { SetlistSong, SetlistSongHelper } from 'src/app/core/model/setlist-song';
 import { SetlistSongService } from 'src/app/core/services/setlist-songs.service';
 import { MatDivider } from '@angular/material/divider';
+import { SetlistService } from 'src/app/core/services/setlist.service';
+import { Setlist } from 'src/app/core/model/setlist';
 
 @Component({
   selector: 'app-song-edit-dialog',
@@ -36,12 +38,14 @@ export class SongEditDialogComponent {
   song: Song | SetlistSong | undefined;
   accountId: string | undefined;
   setlistId: string | undefined;
+  setlist: Setlist;
   songForm: FormGroup;
   get name() { return this.songForm.get('name'); }
 
   constructor(
     public dialogRef: MatDialogRef<SongEditDialogComponent>,
     private songService: SongService,
+    private setlistService: SetlistService,
     private setlistSongService: SetlistSongService,
     private authService: AuthenticationService,
     @Inject(MAT_DIALOG_DATA) public data: SongEdit,
@@ -55,6 +59,18 @@ export class SongEditDialogComponent {
 
     this.accountId = this.data.accountId;
     this.setlistId = this.data.setlistId;
+    if(this.accountId && this.setlistId){
+      this.setlistService.getSetlist(this.accountId, this.setlistId).pipe(first())
+      .subscribe((setlist) => {
+        if (setlist) {
+          this.setlist = setlist;
+        }
+      });
+
+      
+    }
+
+    this.setlistService
 
     this.authService.user$.subscribe((user) => {
       if (user && user.uid) {
@@ -126,14 +142,14 @@ export class SongEditDialogComponent {
     } else {
       //If this is a seltist song a seuqence number will be passed in with no songId. 
       if ((this.song as SetlistSong)?.sequenceNumber) {
-        // this.addSong()
-        //   .pipe(
-        //     concatMap((song) => {
-        //       return this.addSetlistSong(song.id)
-        //     }),
-        //     tap((result) => this.dialogRef.close(result))
-        //   )
-        //   .subscribe();
+        this.addSong()
+          .pipe(
+            concatMap((song) => {
+              return this.addSetlistSong(song.id)
+            }),
+            tap((result) => this.dialogRef.close(result))
+          )
+          .subscribe();
       }
       else {
         this.addSong()
@@ -174,17 +190,17 @@ export class SongEditDialogComponent {
     return this.songService.updateSong(this.accountId!, modifiedSong?.id!, modifiedSong, this.currentUser);
   }
 
-  // addSetlistSong(songId) {
-  //   const modifiedSong = { ...this.song, songId: songId, ...this.songForm.value } as SetlistSong;
-  //   return this.setlistSongService.addSetlistSong(modifiedSong, this.accountId!, this.setlistId!, this.currentUser)
-  //     .pipe(
-  //       catchError((err) => {
-  //         console.log(err);
-  //         alert('Could not add song.');
-  //         return throwError(() => new Error(err));
-  //       })
-  //     );
-  // }
+  addSetlistSong(songId) {
+    const modifiedSong = { ...this.song, songId: songId, ...this.songForm.value } as SetlistSong;
+    return this.setlistSongService.addSetlistSong(modifiedSong, this.accountId!, this.setlist!, this.currentUser)
+      .pipe(
+        catchError((err) => {
+          console.log(err);
+          alert('Could not add song.');
+          return throwError(() => new Error(err));
+        })
+      );
+  }
 
   addSong() {
     const modifiedSong = { ...this.song, ...this.songForm.value } as Song;
