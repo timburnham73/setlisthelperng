@@ -28,9 +28,9 @@
           }
           <span class="spacer"></span>
           <form class="search-form">
-            <mat-form-field subscriptSizing="dynamic">
+            <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
               <mat-label>Search</mat-label>
-              <input type="text" matInput 
+              <input type="text" matInput (keyup)="search(input.value)" #input
                      placeholder="Search">
             </mat-form-field>
           </form>
@@ -41,7 +41,7 @@
           </mat-spinner>
         </div>
         <div class="table-container" *ngIf="!loading">
-          <table mat-table [dataSource]="dataSource" matSort class="song-table">
+          <table mat-table [dataSource]="filteredSongs" matSort class="song-table">
             <!-- Name Column -->
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>

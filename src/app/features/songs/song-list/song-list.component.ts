@@ -49,7 +49,8 @@ export class SongListComponent implements OnInit {
   selectedAccount$!: Observable<Account>;
   currentUser: any;
   displayedColumns: string[] = [ 'name', 'artist', 'genre', 'key', 'tempo', 'timeSignature', 'songLength', 'lyrics', 'setlists', 'remove'];
-  dataSource : Song[];
+  allSongs : Song[];
+  filteredSongs : Song[];
   accountId: string;
   showRemove = false;
   @ViewChild(MatSort, { static: true })
@@ -83,7 +84,7 @@ export class SongListComponent implements OnInit {
           finalize(() => this.loading = false)
         )
         .subscribe((songs) => {
-          this.dataSource =  songs;
+          this.allSongs = this.filteredSongs = songs;
         });
     }
   }
@@ -94,6 +95,10 @@ export class SongListComponent implements OnInit {
     //this.dataSource.sort = this.sort;
   }
 
+  search(search: string){
+    this.filteredSongs = this.allSongs.filter((song) => song.name.toLowerCase().includes(search));
+  }
+
   loadMore(){
     this.lastPageLoaded++;
     this.loading = true;
@@ -102,7 +107,7 @@ export class SongListComponent implements OnInit {
           finalize(() => this.loading = false)
         )
         .subscribe((songs) => {
-          this.dataSource =  this.dataSource.concat(songs);
+          this.allSongs =  this.allSongs.concat(songs);
         });
   }
 

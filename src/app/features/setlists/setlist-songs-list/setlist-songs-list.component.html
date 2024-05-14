@@ -6,15 +6,15 @@
         <mat-toolbar>
           <span class="spacer"></span>
           <form class="search-form">
-            <mat-form-field subscriptSizing="dynamic">
+            <mat-form-field  appearance="outline" subscriptSizing="dynamic">
               <mat-label>Search</mat-label>
-              <input type="text" matInput placeholder="Search" />
+              <input type="text" matInput placeholder="Search" (keyup)="search(input.value)" #input />
             </mat-form-field>
           </form>
         </mat-toolbar>
         <div class="table-container">
-          <table cdkDropList [cdkDropListData]="dsSongs.data" [cdkDropListConnectedTo]="[setlistSongList]" mat-table
-            [dataSource]="dsSongs" matSort #songList="cdkDropList">
+          <table cdkDropList [cdkDropListData]="filteredSongs" [cdkDropListConnectedTo]="[setlistSongList]" mat-table
+            [dataSource]="filteredSongs" matSort #songList="cdkDropList">
             <!-- Name Column -->
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>

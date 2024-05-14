@@ -83,7 +83,8 @@ export class SetlistSongsListComponent {
     "remove"
   ];
   dsSetlistSongs = new MatTableDataSource<SetlistSong>();
-  dsSongs = new MatTableDataSource<Song>();
+  filteredSongs: Song[];
+  allSongs: Song[];
   accountId?: string;
   setlist?: Setlist;
   setlistSongCount: number;
@@ -125,7 +126,7 @@ export class SetlistSongsListComponent {
 
       //Get the songs for the song picker
       this.songService.getSongs(this.accountId).subscribe((songs) => {
-        this.dsSongs = new MatTableDataSource(songs);
+        this.allSongs = this.filteredSongs = songs;
       });
 
       //Get the setlist songs
@@ -144,6 +145,10 @@ export class SetlistSongsListComponent {
     }
   }
 
+  search(search: string){
+    this.filteredSongs = this.allSongs.filter((song) => song.name.toLowerCase().includes(search));
+  }
+  
   //Events ////////////////
   //Adds a song after the selected row. If no row is selected
   onAddSetlistSong(row: Song, sequenceNumberToInsert?: number): void {
