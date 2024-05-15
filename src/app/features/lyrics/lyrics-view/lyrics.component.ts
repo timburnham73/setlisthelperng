@@ -22,6 +22,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import ChordSheetJS, { HtmlTableFormatter } from 'chordsheetjs';
 
 @Component({
     selector: "app-lyrics",
@@ -48,6 +49,7 @@ export class LyricsComponent {
   setlistId?: string;
   song?: Song;
   selectedLyric?: Lyric;
+  parsedLyric?: any;
 
   defaultLyricId: string | undefined;
   isDefaultLyric = false;
@@ -111,6 +113,12 @@ export class LyricsComponent {
           
           this.selectedLyric = this.getSelectedLyric(lyrics);
           this.isDefaultLyric = this.isDefaultLyricSelected();
+          const parser = new ChordSheetJS.ChordProParser();
+          const lyric = parser.parse(this.selectedLyric?.lyrics!);
+          const formatter = new ChordSheetJS.HtmlDivFormatter();
+          const cssSheet = formatter.defaultCss;
+          this.parsedLyric = formatter.format(lyric);
+          
 
           this.loading = false;
           this.lyricVersionValue = this.selectedLyric?.id || "add";
