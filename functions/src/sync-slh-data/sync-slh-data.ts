@@ -252,6 +252,7 @@ async function addLyrics(slhSong: SLHSong, accountId: string, songId: string, co
         youTubeUrl: convertedSong.youTubeUrl,
         songId: songId,
         lyrics: slhSong.Lyrics,
+        transpose: slhSong.Transpose,
         audioLocation: slhSong.IosAudioLocation ? slhSong.IosAudioLocation : slhSong.SongLocation,
       } as Partial<Lyric>;
 
@@ -293,7 +294,7 @@ async function getSongs(accessToken: string) {
   // const orderByColumnName = 'name';
   // const orderByColumDirection = "asc";
   const jwt = accessToken;
-  const songsUrl = actionUrl //+ `?start=${startIndex}&records=${numberOfSongsToGet}&orderbycol=${orderByColumnName}&orderbydirection=${orderByColumDirection}`;
+  const songsUrl = actionUrl;//+ `?start=${startIndex}&records=${numberOfSongsToGet}&orderbycol=${orderByColumnName}&orderbydirection=${orderByColumDirection}`;
 
   const headers: Headers = new Headers()
   headers.set('Content-Type', 'application/json')
@@ -308,6 +309,7 @@ async function getSongs(accessToken: string) {
   // Send the request and print the response
   const response = await fetch(request);
   const data = await response.json();
+  functions.logger.debug("Songs downloaded data", data);
   return data as SLHSong[];
 }
 

@@ -142,7 +142,7 @@ export const AccoutImport_OnAdd_StartSLHSync =
   functions
     .runWith({
       timeoutSeconds: 300,
-      memory: "128MB"
+      memory: "256MB"
     })
     .firestore.document("accounts/{accountId}/imports/{importId}")
     .onCreate(async (snap, context) => {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewEncapsulation } from "@angular/core";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Title } from "@angular/platform-browser";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
@@ -22,12 +22,15 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import ChordSheetJS, { HtmlTableFormatter } from 'chordsheetjs';
+import { parse } from "path";
 
 @Component({
     selector: "app-lyrics",
     templateUrl: "./lyrics.component.html",
     styleUrls: ["./lyrics.component.css"],
     standalone: true,
+    encapsulation: ViewEncapsulation.None,
     imports: [
         MatCardModule,
         MatToolbarModule,
@@ -48,6 +51,8 @@ export class LyricsComponent {
   setlistId?: string;
   song?: Song;
   selectedLyric?: Lyric;
+  parsedLyric?: string;
+  
 
   defaultLyricId: string | undefined;
   isDefaultLyric = false;
@@ -58,6 +63,8 @@ export class LyricsComponent {
   currentUser: any;
   loading = false;
 
+  isTransposing = false;
+  isFormatting = false;
   constructor(
     private activeRoute: ActivatedRoute,
     private titleService: Title,
@@ -112,10 +119,27 @@ export class LyricsComponent {
           this.selectedLyric = this.getSelectedLyric(lyrics);
           this.isDefaultLyric = this.isDefaultLyricSelected();
 
+          const parser = new ChordSheetJS.ChordProParser();
+          const lyric = parser.parse(this.selectedLyric?.lyrics!);
+          if(this.selectedLyric?.transpose !== 0){
+            this.getFormattedLyric(lyric.transpose(this.selectedLyric?.transpose!));
+          }
+          else{
+            this.getFormattedLyric(lyric);
+          }
+
           this.loading = false;
           this.lyricVersionValue = this.selectedLyric?.id || "add";
         });
     }
+  }
+
+  private getFormattedLyric(lyricToParse) {
+    const formatter = new ChordSheetJS.HtmlTableFormatter();
+    lyricToParse.lines.find(line => line);
+
+    const formattedLyric = formatter.format(lyricToParse);
+    this.parsedLyric = formattedLyric.replace('null', '');
   }
 
   private getDefaultLyricId(){
@@ -145,6 +169,36 @@ export class LyricsComponent {
       return selectedLyric ? selectedLyric : lyrics[0];
     }
     return lyrics[0];
+  }
+
+  onFormatLyrics(){
+    this.isFormatting = !this.isFormatting;
+  }
+
+  onTranspose(){
+    this.isTransposing = !this.isTransposing;
+  }
+  onTransposeLyric(transposeDown: boolean){
+    if(this.selectedLyric){
+      let transposeNumber = this.selectedLyric!.transpose
+      if(!transposeNumber){
+        transposeNumber = 0;
+      }
+      if(transposeDown){
+        transposeNumber += -1;
+      }
+      else{
+        transposeNumber += 1;
+      }
+
+      this.selectedLyric!.transpose = transposeNumber;
+      this.lyricsService.updateLyric(this.accountId!, this.songId!, this.selectedLyric, this.currentUser);
+      
+      const parser = new ChordSheetJS.ChordProParser();
+      const lyric = parser.parse(this.selectedLyric?.lyrics!);
+      this.getFormattedLyric(lyric.transpose(transposeNumber));
+    
+    }
   }
 
   onAddLyric(event?) {

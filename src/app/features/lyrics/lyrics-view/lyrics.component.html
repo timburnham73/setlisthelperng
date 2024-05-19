@@ -12,6 +12,25 @@
           </button>
           
           <h4>{{ song?.name }}</h4>
+          <button mat-button 
+            aria-label="Toggle Transpose" 
+            title="Toggle Transpose" 
+            (click)="onTranspose()">
+              <mat-icon>sync_alt</mat-icon>
+              <span fxShow fxHide.xs>
+                Transpose
+              </span>
+          </button>
+          <button mat-button 
+            aria-label="Toggle Transpose" 
+            title="Toggle Transpose" 
+            (click)="onFormatLyrics()">
+              <mat-icon>format_color_text</mat-icon>
+              <span fxShow fxHide.xs>
+                Format
+              </span>
+          </button>
+          
           <span class="spacer"></span>
           @if(!isDefaultLyric){
             <button mat-button 
@@ -47,6 +66,48 @@
           </ng-container>
           
         </mat-toolbar>
+        @if(isFormatting){
+          <mat-toolbar >
+            <h4>Format</h4>
+            <button mat-icon-button 
+              aria-label="Transpose lyric one step down." 
+              title="Transpose lyric one step down." 
+              (click)="onTransposeLyric(true)">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <button mat-icon-button 
+              aria-label="Transpose lyric one step up." 
+              title="Transpose lyric one step up." 
+              (click)="onTransposeLyric(false)">
+                <mat-icon>add</mat-icon>
+              </button>
+            <span class="spacer"></span>
+            
+            
+          </mat-toolbar>
+          }
+        @if(isTransposing){
+        <mat-toolbar >
+          <h4>Transpose</h4>
+          
+          <button mat-icon-button 
+            aria-label="Transpose lyric one step down." 
+            title="Transpose lyric one step down." 
+            (click)="onTransposeLyric(true)">
+              <mat-icon>remove</mat-icon>
+            </button>
+          <button mat-icon-button 
+            aria-label="Transpose lyric one step up." 
+            title="Transpose lyric one step up." 
+            (click)="onTransposeLyric(false)">
+              <mat-icon>add</mat-icon>
+          </button>
+          <h5>{{selectedLyric?.transpose ?? 0 }}</h5>
+          <span class="spacer"></span>
+          
+          
+        </mat-toolbar>
+        }
         <mat-card>
           <mat-card-content class="lyrics-view">
             <div class="spinner-container" *ngIf="loading">
@@ -57,7 +118,7 @@
             <ng-container *ngIf="!loading">
             <span *ngIf="!selectedLyric"> <a href="#" (click)="onAddLyric($event)">Click here to create lyric version.</a></span>
             <span *ngIf="!selectedLyric?.lyrics">The lyrics are empty.</span>
-            <pre *ngIf="selectedLyric?.lyrics">{{selectedLyric?.lyrics}}</pre>
+            <div *ngIf="selectedLyric?.lyrics"  [innerHtml]="parsedLyric" ></div>
             </ng-container>
           </mat-card-content>
         </mat-card>
