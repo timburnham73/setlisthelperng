@@ -1,6 +1,6 @@
 import { Timestamp } from "@angular/fire/firestore";
 import { Base } from "./base";
-import { BaseUser } from "./user";
+import { BaseUser, UserHelper } from "./user";
 
 export interface Lyric extends Base {
   name: string;
@@ -15,6 +15,7 @@ export interface Lyric extends Base {
   defaultLyricForUser: string[];
   documentLocation: string;
   audioLocation: string;
+  transpose: number;
 }
 
 export interface AccountLyric extends Lyric {
@@ -46,9 +47,10 @@ export class LyricHelper {
       defaultLyricForUser: data.defaultLyricForUser ?? [],
       createdByUser: data.createdByUser ?? editingUser,
       dateCreated: data.dateCreated ?? Timestamp.now(),
-      lastUpdatedByUser: editingUser,
+      lastUpdatedByUser : UserHelper.getForUpdate(editingUser),
       documentLocation: data.documentLocation ?? "",
-      audioLocation: data.audioLocation ?? ""
+      audioLocation: data.audioLocation ?? "", 
+      transpose: data.transpose ?? 0
 
     };
   }

@@ -12,6 +12,7 @@ export interface Lyric extends Base {
   youTubeUrl: string;
   songId: string;
   lyrics: string;
+  transpose: number;
   documentLocation: string;
   audioLocation: string;
 }
@@ -46,7 +47,8 @@ export class LyricHelper {
       dateCreated: data.dateCreated ?? Timestamp.now(),
       lastUpdatedByUser: editingUser,
       documentLocation: data.documentLocation ?? "",
-      audioLocation: data.audioLocation ?? ""
+      audioLocation: data.audioLocation ?? "",
+      transpose: data.transpose ?? 0
     };
   }
 }
