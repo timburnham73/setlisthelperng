@@ -797,3 +797,10 @@ p .mat-mdc-icon {
 [dir='rtl'] .mat-calendar-body-label {
   text-align: right;
 }
+
+.vl {
+  border-left: 2px solid lightgray;
+  margin-left: 5px;
+  padding-right: 5px;
+  height: 30px;
+}

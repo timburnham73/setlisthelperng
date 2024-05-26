@@ -2,6 +2,10 @@
   flex: 1 1 auto;
 }
 
+pr-2{
+  padding-right: 50px;
+}
+
 li.break {
   list-style: none;
   color: #999;
@@ -37,5 +41,9 @@ li.break {
 }
 
 .lyrics {
-  font-size: medium;
+  font-size: large;
+}
+
+.toolbar-item{
+  padding-right: 10px;
 }

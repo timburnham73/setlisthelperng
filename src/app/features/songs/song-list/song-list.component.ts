@@ -100,11 +100,11 @@ export class SongListComponent implements OnInit {
   }
 
   sortChange(sortState: Sort) {
-    if (sortState.direction) {
-      this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
-    } else {
-      this._liveAnnouncer.announce('Sorting cleared');
-    }
+    // if (sortState.direction) {
+    //   this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
+    // } else {
+    //   this._liveAnnouncer.announce('Sorting cleared');
+    // }
   }
 
   loadMore(){

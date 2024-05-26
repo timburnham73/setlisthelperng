@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild, ViewEncapsulation } from "@angular/core";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Title } from "@angular/platform-browser";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
@@ -24,11 +24,13 @@ import { MatCardModule } from "@angular/material/card";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import ChordSheetJS, { HtmlTableFormatter } from 'chordsheetjs';
 import { parse } from "path";
+import { LyricFormat, LyricFormatHelper, fontSizes, fonts, lyricParts } from "src/app/core/model/lyric-format";
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
 
 @Component({
     selector: "app-lyrics",
     templateUrl: "./lyrics.component.html",
-    styleUrls: ["./lyrics.component.css"],
+    styleUrls: ["./lyrics.component.scss"],
     standalone: true,
     encapsulation: ViewEncapsulation.None,
     imports: [
@@ -36,15 +38,19 @@ import { parse } from "path";
         MatToolbarModule,
         MatProgressSpinnerModule,
         MatButtonModule,
+        MatButtonToggleModule,
         MatIconModule,
         NgIf,
         MatFormFieldModule,
         MatSelectModule,
         NgFor,
-        MatOptionModule,
+        MatOptionModule
     ],
 })
-export class LyricsComponent {
+export class LyricsComponent implements AfterViewInit {
+  @ViewChild('lyricSection') lyricSection;
+  @ViewChild('toggleFontStyle') toggleFontStyle;
+  
   accountId?: string;
   songId?: string;
   lyricId?: string;
@@ -53,9 +59,21 @@ export class LyricsComponent {
   selectedLyric?: Lyric;
   parsedLyric?: string;
   
+  selectedFontStyle: string[] = [];
+  selectedFont: string = "Courier New";
+  fonts = fonts;
 
+  selectedLyricPart: string = "chord";
+  lyricParts = lyricParts;
+  
+
+  selectedFontSize: string = "medium";
+  fontSizes = fontSizes;
+
+  lyricFormat: LyricFormat;
   defaultLyricId: string | undefined;
   isDefaultLyric = false;
+  
   
   lyricVersionValue = "add";
   lyrics: Lyric[];
@@ -65,6 +83,8 @@ export class LyricsComponent {
 
   isTransposing = false;
   isFormatting = false;
+
+
   constructor(
     private activeRoute: ActivatedRoute,
     private titleService: Title,
@@ -73,7 +93,8 @@ export class LyricsComponent {
     private store: Store,
     private router: Router,
     public dialog: MatDialog,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private renderer: Renderer2
   ) {
     const selectedAccount = this.store.selectSnapshot(
       AccountState.selectedAccount
@@ -91,6 +112,14 @@ export class LyricsComponent {
     activeRoute.params.subscribe(val => {
       this.initLyrics();
     });
+  }
+
+  ngAfterViewInit(){
+    setTimeout(() => {
+      this.updateToolbarFromLyricFont();
+      
+    this.updateFormat();
+    }, 100);
   }
 
   private initLyrics() {
@@ -116,18 +145,20 @@ export class LyricsComponent {
         .subscribe((lyrics) => {
           this.lyrics = lyrics;
           
+          this.lyricFormat = LyricFormatHelper.getDefaultFormat();
           this.selectedLyric = this.getSelectedLyric(lyrics);
           this.isDefaultLyric = this.isDefaultLyricSelected();
-
-          const parser = new ChordSheetJS.ChordProParser();
-          const lyric = parser.parse(this.selectedLyric?.lyrics!);
-          if(this.selectedLyric?.transpose !== 0){
-            this.getFormattedLyric(lyric.transpose(this.selectedLyric?.transpose!));
+          if(this.selectedLyric){
+              const parser = new ChordSheetJS.ChordProParser();
+              const lyric = parser.parse(this.selectedLyric?.lyrics!);
+              if(this.selectedLyric?.transpose !== 0){
+                this.getFormattedLyric(lyric.transpose(this.selectedLyric?.transpose!));
+              }
+              else{
+                this.getFormattedLyric(lyric);
+              }
           }
-          else{
-            this.getFormattedLyric(lyric);
-          }
-
+          
           this.loading = false;
           this.lyricVersionValue = this.selectedLyric?.id || "add";
         });
@@ -141,6 +172,8 @@ export class LyricsComponent {
     const formattedLyric = formatter.format(lyricToParse);
     this.parsedLyric = formattedLyric.replace('null', '');
   }
+
+  
 
   private getDefaultLyricId(){
     if (this.song?.defaultLyricForUser) {
@@ -178,6 +211,7 @@ export class LyricsComponent {
   onTranspose(){
     this.isTransposing = !this.isTransposing;
   }
+  
   onTransposeLyric(transposeDown: boolean){
     if(this.selectedLyric){
       let transposeNumber = this.selectedLyric!.transpose
@@ -237,13 +271,110 @@ export class LyricsComponent {
     
   }
 
-  onSetDefault(event: Event){
+  onSetDefaultUser(event: Event){
     this.songService.setDefaultLyricForUser(this.accountId!, this.songId!, this.song!, this.selectedLyric?.id!, this.currentUser).subscribe(
       () => {
         this.isDefaultLyric = true;
         this.defaultLyricId = this.selectedLyric?.id;
       }
     );
+  }
+
+  onSelectFont(fontname: string) {
+    this.lyricFormat.font = fontname;
+    this.updateFormat();
+  }
+  
+  onSelectLyricPart(fontname: string) {
+    this.updateToolbarFromLyricFont();
+  }
+
+  //Bold, Italic, or Underline
+  onFormatToggleStyle(selectedFontStyle){
+    console.log(selectedFontStyle);
+    const lyricPart = this.lyricFormat.lyricPartFormat.find(lyricPart => this.selectedLyricPart === lyricPart.lyricPart);
+    if(lyricPart){
+      lyricPart.isBold = selectedFontStyle.find(fontStyle => fontStyle === "bold") ? true : false;
+      lyricPart.isItalic = selectedFontStyle.find(fontStyle => fontStyle === "italic") ? true : false;
+      lyricPart.isUnderlined = selectedFontStyle.find(fontStyle => fontStyle === "underline") ? true : false;
+    }
+    this.updateFormat();
+  }
+
+  onFormatLyricPart(lyricPart: string, formatItem: string, value: string | boolean){
+    this.updateFormat();
+  }
+
+  onSelectFontSize(fontSize: string) {
+    const lyricPart = this.lyricFormat.lyricPartFormat.find(lyricPart => this.selectedLyricPart === lyricPart.lyricPart);
+    if(lyricPart){
+      lyricPart.fontSize = fontSize;
+    }
+    this.updateFormat();
+  }
+
+  //All lyric parts set the html for them here.
+  updateFormat(){
+    const chordSheetElement = this.lyricSection.nativeElement.getElementsByClassName("chord-sheet");
+    //Set overall font family.
+    this.renderer.setStyle(chordSheetElement[0], "font-family", this.lyricFormat.font);
+
+    const titlePart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "title");
+    const titleElements = this.lyricSection.nativeElement.getElementsByTagName('h1')
+    this.formatLyricPart(titleElements, titlePart);
+
+    const subTitlePart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "subtitle");
+    const subTitleElements = this.lyricSection.nativeElement.getElementsByTagName('h2')
+    this.formatLyricPart(subTitleElements, subTitlePart);
+    
+    const chordPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "chord");
+    const chordElements = this.lyricSection.nativeElement.getElementsByClassName("chord");
+    this.formatLyricPart(chordElements, chordPart);
+
+    const lyricPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "lyric");
+    const lyricElements = this.lyricSection.nativeElement.getElementsByClassName("lyrics");
+    this.formatLyricPart(lyricElements, lyricPart);
+
+    const commentPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "comment");
+    const commentElements = this.lyricSection.nativeElement.getElementsByClassName("comment");
+    this.formatLyricPart(commentElements, commentPart);
+  }
+
+  //Updates a lyric part html styles (lyrics, chords, title, ...) 
+  formatLyricPart(elements, lyricPart){
+    for(const element of elements){
+      const innerText = element.innerText;
+      if(innerText){
+        element.style.fontWeight = lyricPart?.isBold ? 'bold' : 'normal' ;
+        element.style.fontStyle = lyricPart?.isItalic ? 'italic' : '' ;
+        element.style.textDecoration = lyricPart?.isUnderlined ? 'underline' : '' ;
+        element.style.fontSize = lyricPart?.fontSize;
+      }
+    }
+  }
+
+  //When the lyric part changes in the dropdown this function will up date the state of the toolbar.
+  private updateToolbarFromLyricFont() {
+    const selectedLyricPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === this.selectedLyricPart);
+    const newSelectedForntStyle: string[] = [];
+    if (selectedLyricPart) {
+      if(selectedLyricPart.isBold){
+        newSelectedForntStyle.push('bold');
+      }
+      if(selectedLyricPart.isItalic){
+        newSelectedForntStyle.push('italic');
+      }
+      if(selectedLyricPart.isUnderlined){
+        newSelectedForntStyle.push('underline');
+      }
+      //Setting bold, italic, and/or underline
+      this.selectedFontStyle = newSelectedForntStyle;
+      //Font size for the lyric part. 
+      this.selectedFontSize = selectedLyricPart.fontSize;
+    }
+    
+    //Global font name
+    this.selectedFont = this.lyricFormat.font;
   }
 
   onSelectLyric(value: string) {
