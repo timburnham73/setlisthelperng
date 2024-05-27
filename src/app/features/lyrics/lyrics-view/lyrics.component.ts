@@ -26,6 +26,7 @@ import ChordSheetJS, { HtmlTableFormatter } from 'chordsheetjs';
 import { parse } from "path";
 import { LyricFormat, LyricFormatHelper, fontSizes, fonts, lyricParts } from "src/app/core/model/lyric-format";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
+import { ChordProParser } from "src/app/core/services/ChordProParser";
 
 @Component({
     selector: "app-lyrics",
@@ -118,7 +119,7 @@ export class LyricsComponent implements AfterViewInit {
     setTimeout(() => {
       this.updateToolbarFromLyricFont();
       
-    this.updateFormat();
+      this.updateFormat();
     }, 100);
   }
 
@@ -149,14 +150,8 @@ export class LyricsComponent implements AfterViewInit {
           this.selectedLyric = this.getSelectedLyric(lyrics);
           this.isDefaultLyric = this.isDefaultLyricSelected();
           if(this.selectedLyric){
-              const parser = new ChordSheetJS.ChordProParser();
-              const lyric = parser.parse(this.selectedLyric?.lyrics!);
-              if(this.selectedLyric?.transpose !== 0){
-                this.getFormattedLyric(lyric.transpose(this.selectedLyric?.transpose!));
-              }
-              else{
-                this.getFormattedLyric(lyric);
-              }
+              const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.selectedLyric?.transpose!);
+              this.parsedLyric = parser.parseChordPro();
           }
           
           this.loading = false;
@@ -164,16 +159,6 @@ export class LyricsComponent implements AfterViewInit {
         });
     }
   }
-
-  private getFormattedLyric(lyricToParse) {
-    const formatter = new ChordSheetJS.HtmlTableFormatter();
-    lyricToParse.lines.find(line => line);
-
-    const formattedLyric = formatter.format(lyricToParse);
-    this.parsedLyric = formattedLyric.replace('null', '');
-  }
-
-  
 
   private getDefaultLyricId(){
     if (this.song?.defaultLyricForUser) {
@@ -228,10 +213,13 @@ export class LyricsComponent implements AfterViewInit {
       this.selectedLyric!.transpose = transposeNumber;
       this.lyricsService.updateLyric(this.accountId!, this.songId!, this.selectedLyric, this.currentUser);
       
-      const parser = new ChordSheetJS.ChordProParser();
-      const lyric = parser.parse(this.selectedLyric?.lyrics!);
-      this.getFormattedLyric(lyric.transpose(transposeNumber));
+      const parser =  new ChordProParser(this.selectedLyric?.lyrics!, transposeNumber);
+      this.parsedLyric = parser.parseChordPro();
     
+      setTimeout(() => {
+        this.updateFormat();
+      }, 100);
+      
     }
   }
 
@@ -315,16 +303,13 @@ export class LyricsComponent implements AfterViewInit {
 
   //All lyric parts set the html for them here.
   updateFormat(){
-    const chordSheetElement = this.lyricSection.nativeElement.getElementsByClassName("chord-sheet");
-    //Set overall font family.
-    this.renderer.setStyle(chordSheetElement[0], "font-family", this.lyricFormat.font);
-
+    
     const titlePart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "title");
-    const titleElements = this.lyricSection.nativeElement.getElementsByTagName('h1')
+    const titleElements = this.lyricSection.nativeElement.getElementsByClassName('title')
     this.formatLyricPart(titleElements, titlePart);
 
     const subTitlePart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "subtitle");
-    const subTitleElements = this.lyricSection.nativeElement.getElementsByTagName('h2')
+    const subTitleElements = this.lyricSection.nativeElement.getElementsByClassName('subtitle')
     this.formatLyricPart(subTitleElements, subTitlePart);
     
     const chordPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "chord");
@@ -332,12 +317,16 @@ export class LyricsComponent implements AfterViewInit {
     this.formatLyricPart(chordElements, chordPart);
 
     const lyricPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "lyric");
-    const lyricElements = this.lyricSection.nativeElement.getElementsByClassName("lyrics");
+    const lyricElements = this.lyricSection.nativeElement.getElementsByClassName("lyric");
     this.formatLyricPart(lyricElements, lyricPart);
 
     const commentPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "comment");
     const commentElements = this.lyricSection.nativeElement.getElementsByClassName("comment");
     this.formatLyricPart(commentElements, commentPart);
+
+    const songPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "song-part");
+    const songPartElements = this.lyricSection.nativeElement.getElementsByClassName("song-part");
+    this.formatLyricPart(songPartElements, songPart);
   }
 
   //Updates a lyric part html styles (lyrics, chords, title, ...) 
