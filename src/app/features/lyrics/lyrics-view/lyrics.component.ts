@@ -27,6 +27,8 @@ import { parse } from "path";
 import { LyricFormat, LyricFormatHelper, fontSizes, fonts, lyricParts } from "src/app/core/model/lyric-format";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { ChordProParser } from "src/app/core/services/ChordProParser";
+import { LyricDisplaySetting } from "src/app/core/model/LyricDisplaySetting";
+import { SafeHtml } from "src/app/shared/pipes/safe-html.pipe";
 
 @Component({
     selector: "app-lyrics",
@@ -45,7 +47,8 @@ import { ChordProParser } from "src/app/core/services/ChordProParser";
         MatFormFieldModule,
         MatSelectModule,
         NgFor,
-        MatOptionModule
+        MatOptionModule,
+        SafeHtml
     ],
 })
 export class LyricsComponent implements AfterViewInit {
@@ -84,8 +87,7 @@ export class LyricsComponent implements AfterViewInit {
 
   isTransposing = false;
   isFormatting = false;
-
-
+  
   constructor(
     private activeRoute: ActivatedRoute,
     private titleService: Title,
@@ -117,9 +119,9 @@ export class LyricsComponent implements AfterViewInit {
 
   ngAfterViewInit(){
     setTimeout(() => {
-      this.updateToolbarFromLyricFont();
+      //this.updateToolbarFromLyricFont();
       
-      this.updateFormat();
+      //this.updateFormat();
     }, 100);
   }
 
@@ -150,7 +152,7 @@ export class LyricsComponent implements AfterViewInit {
           this.selectedLyric = this.getSelectedLyric(lyrics);
           this.isDefaultLyric = this.isDefaultLyricSelected();
           if(this.selectedLyric){
-              const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.selectedLyric?.transpose!);
+              const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric?.transpose!);
               this.parsedLyric = parser.parseChordPro();
           }
           
@@ -213,8 +215,9 @@ export class LyricsComponent implements AfterViewInit {
       this.selectedLyric!.transpose = transposeNumber;
       this.lyricsService.updateLyric(this.accountId!, this.songId!, this.selectedLyric, this.currentUser);
       
-      const parser =  new ChordProParser(this.selectedLyric?.lyrics!, transposeNumber);
+      const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, transposeNumber);
       this.parsedLyric = parser.parseChordPro();
+      
     
       setTimeout(() => {
         this.updateFormat();

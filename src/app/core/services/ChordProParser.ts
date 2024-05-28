@@ -5,6 +5,13 @@ import { Chord } from 'chordsheetjs';
 import { ChordproEnum } from './ChordProEnum';
 
 import _ from "lodash";
+import { LyricFormat } from '../model/lyric-format';
+import { LyricFormatSongPart } from '../model/lyric-format-songpart';
+
+interface LyricPartStyle {
+  name: string;
+  style: string;
+}
 
 export class ChordProParser {
   private chordProString: string;
@@ -13,13 +20,44 @@ export class ChordProParser {
   private showTempo: boolean;
   private inHighlight: boolean;
   private transpose: number;
-  constructor(chordProString: string, transpose = 0) {
+  private lyricFormat: LyricFormat;
+  private lyricPartStyles: LyricPartStyle[] = [];
+
+  constructor(chordProString: string, lyricFormat: LyricFormat, transpose = 0) {
     this.chordProString = chordProString;
     this.inTab = false;
     this.inHighlight = false;
     this.showKey = true;
     this.showTempo = true;
     this.transpose = transpose;
+    this.lyricFormat = lyricFormat;
+
+    this.generateLyricPartStyle();
+  }
+  generateLyricPartStyle() {
+    for(const lyricPart of this.lyricFormat.lyricPartFormat){
+      const chordStyle = {
+        name: lyricPart.lyricPart,
+        style: this.getStyleForLyricPart(lyricPart)
+      }
+      this.lyricPartStyles.push(chordStyle);
+    }
+  }
+
+  getStyleForLyricPart(lyricPart: LyricFormatSongPart) {
+    let style: string[] = []; 
+    if(lyricPart?.isBold) {
+      style.push("font-weight: bold");
+    }
+    if(lyricPart?.isItalic) {
+      style.push("font-style: italic");
+    }
+    if(lyricPart?.isUnderlined) {
+      style.push("text-decoration: bold");
+    }
+    style.push(`font-size: ${lyricPart?.fontSize}`);
+        
+    return style.join(';');
   }
 
   parseChordPro() {
@@ -52,15 +90,17 @@ export class ChordProParser {
           let title = lyricLine.substring(0, 7) === '{title:' ? lyricLine.substring(7) : lyricLine; //Remove {title:
           title = title.substring(0, 3) === '{t:' ? title.substring(3) : title;
           if (_.size(title) > 0) {
-            parsedSong += '<div class="title" id=\'anchor1\' class=\'anchor\'>' + title + '</div>\n';
+            const titleStyle = this.lyricPartStyles.find(style => style.name === "title")?.style ?? '';
+            parsedSong += `<div class="title2" style="${titleStyle}" id=\'anchor1\' class=\'anchor\'>${title}</div>\n`;
           }
           break;
         case ChordproEnum.subtitle:
           lyricLine = lyricLine.slice(0, -1); //remove end
-          let subtitle = lyricLine.substring(0, 10) === '{subtitle:' ? lyricLine.substring(10) : lyricLine; //Remove {title:
+          let subtitle = lyricLine.substring(0, 10) === '{subtitle:' ? lyricLine.substring(10) : lyricLine; 
           subtitle = subtitle.substring(0, 4) === '{st:' ? subtitle.substring(4) : subtitle;
           if (_.size(subtitle) > 0) {
-            parsedSong += '<div class="subtitle" id=\'anchor1\' class=\'anchor\'>' + subtitle + '</div>\n';
+            const subtitleStyle = this.lyricPartStyles.find(style => style.name === "subtitle")?.style ?? '';
+            parsedSong += `<div class="subtitle" style="${subtitleStyle}" id=\'anchor1\' class=\'anchor\'>${subtitle}</div>\n`;
           }
           break;
         case ChordproEnum.comment:
@@ -68,12 +108,13 @@ export class ChordProParser {
           let comment = lyricLine.substring(0, 9) === '{comment:' ? lyricLine.substring(9) : lyricLine;
           comment = comment.substring(0, 3) === '{c:' ? comment.substring(3) : comment;
           if (_.size(comment) > 0) {
-            parsedSong += '<div class="comment">' + comment + '</div>\n';
+            const commentStyle = this.lyricPartStyles.find(style => style.name === "comment")?.style ?? '';
+            parsedSong += `<div style="${commentStyle}" class="comment">${comment}</div>\n`;
           }
           break;
         case ChordproEnum.key:
           lyricLine = lyricLine.slice(0, -1); //remove end
-          const key = lyricLine.substring(0, 5) === '{key:' ? lyricLine.substring(5) : lyricLine; //Remove {title:
+          const key = lyricLine.substring(0, 5) === '{key:' ? lyricLine.substring(5) : lyricLine; 
           songKey = key;
           break;
         case ChordproEnum.tempo:
@@ -315,7 +356,8 @@ export class ChordProParser {
           // Chord
           const chord1 = Chord.parse(chord);
           const chord2 = chord1?.transpose(this.transpose);
-          chordRow += `<span style='display: inline' class='chord'>` + chord2?.toString() + `</span>${chordSpacesAfter}`;
+          const chordStyle = this.lyricPartStyles.find(style => style.name === "chord")?.style ?? '';
+          chordRow += `<span style='display: inline;${chordStyle}' class='chord'>` + chord2?.toString() + `</span>${chordSpacesAfter}`;
 
         }
         /*if(chordSplit.length == 2){

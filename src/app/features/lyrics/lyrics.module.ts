@@ -5,6 +5,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { LyricsComponent } from './lyrics-view/lyrics.component';
 import { LyricsEditComponent } from './lyrics-edit/lyrics-edit.component';
 import { LyricAddDialogComponent } from './lyric-add-dialog/lyric-add-dialog.component';
+import { SafeHtml } from 'src/app/shared/pipes/safe-html.pipe';
 
 @NgModule({
     imports: [
@@ -13,7 +14,8 @@ import { LyricAddDialogComponent } from './lyric-add-dialog/lyric-add-dialog.com
         SharedModule,
         LyricsComponent,
         LyricsEditComponent,
-        LyricAddDialogComponent
+        LyricAddDialogComponent,
+        SafeHtml
     ]
 })
 export class LyricsModule { }

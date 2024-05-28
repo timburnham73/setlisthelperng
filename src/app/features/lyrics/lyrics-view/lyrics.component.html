@@ -128,7 +128,7 @@
               <span *ngIf="!selectedLyric"> <a href="#" (click)="onAddLyric($event)">Click here to create lyric
                   version.</a></span>
               <span *ngIf="!selectedLyric?.lyrics">The lyrics are empty.</span>
-              <div #lyricSection *ngIf="selectedLyric?.lyrics" [innerHtml]="parsedLyric"></div>
+              <div #lyricSection *ngIf="selectedLyric?.lyrics" [innerHtml]="parsedLyric ?? '' | safeHtml"></div>
             </ng-container>
           </mat-card-content>
         </mat-card>
