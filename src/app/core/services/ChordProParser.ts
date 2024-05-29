@@ -53,7 +53,7 @@ export class ChordProParser {
       style.push("font-style: italic");
     }
     if(lyricPart?.isUnderlined) {
-      style.push("text-decoration: bold");
+      style.push("text-decoration: underline");
     }
     style.push(`font-size: ${lyricPart?.fontSize}`);
         
@@ -124,8 +124,9 @@ export class ChordProParser {
           console.log(tempo);
           break;
         case ChordproEnum.startofchorus:
+          const songPartStyle = this.lyricPartStyles.find(style => style.name === "song-part")?.style ?? '';
           parsedSong += '<div class=\'chorus\' style=\'margin: 15px;border-left: white 1px solid;\'>\n';
-          parsedSong += '<span class="song-part">Chorus</span>\n';
+          parsedSong += `<span style="${songPartStyle}" class="song-part">Chorus</span>\n`;
           break;
         case ChordproEnum.endofchorus:
           parsedSong += '</div>';
@@ -172,8 +173,8 @@ export class ChordProParser {
     if (_.size(parsedSong) > 0) {
       //parsedSong = this.GetLyricSegment(Lyrics, "", showChords, showLyrics ,printsettings));
     }
-
-    return parsedSong;
+    const lyricFontStyle = `font-family: ${this.lyricFormat.font};`;
+    return `<div style="${lyricFontStyle}">${parsedSong}</div>`;
   }
 
   testForSongPart(lyricLine) {
@@ -381,7 +382,8 @@ export class ChordProParser {
         } else if (inHighlight === true) {
           lyric += '</span>';
         }
-        const formattedLyricText = '<td><div class="lyric">' + lyric + '</div></td>';
+        const lyricStyle = this.lyricPartStyles.find(style => style.name === "lyric")?.style ?? '';
+        const formattedLyricText = `<td><div style="${lyricStyle}" class="lyric">${lyric}</div></td>`;
 
         lyricRow += formattedLyricText;
 
@@ -441,7 +443,8 @@ export class ChordProParser {
     lyricLine = lyricLine.trim();
     lyricLine = lyricLine.substring(1); //remove start
     lyricLine = lyricLine.slice(0, -1); //remove end
-    const returnLine = '<span class="song-part">' + lyricLine + '</span>\n';
+    const songPartStyle = this.lyricPartStyles.find(style => style.name === "song-part")?.style ?? '';
+    const returnLine = `<span style="${songPartStyle}" class="song-part">${lyricLine}</span>\n`;
     return returnLine;
   }
 

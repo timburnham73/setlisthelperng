@@ -4,7 +4,8 @@ export const lyricParts = [
     { name: "Title", value: 'title' }, 
     { name: "Subtitle", value: 'subtitle' }, 
     { name: "Chords", value: 'chord' }, 
-    { name: "Lyrics", value: 'lyric' }
+    { name: "Lyrics", value: 'lyric' },
+    { name: "Song Part", value: 'song-part' }
 ];
 
 export const fonts = [

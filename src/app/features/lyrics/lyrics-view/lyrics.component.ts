@@ -51,7 +51,7 @@ import { SafeHtml } from "src/app/shared/pipes/safe-html.pipe";
         SafeHtml
     ],
 })
-export class LyricsComponent implements AfterViewInit {
+export class LyricsComponent {
   @ViewChild('lyricSection') lyricSection;
   @ViewChild('toggleFontStyle') toggleFontStyle;
   
@@ -64,10 +64,10 @@ export class LyricsComponent implements AfterViewInit {
   parsedLyric?: string;
   
   selectedFontStyle: string[] = [];
-  selectedFont: string = "Courier New";
+  selectedFont: string = "Arial";
   fonts = fonts;
 
-  selectedLyricPart: string = "chord";
+  selectedLyricPart: string = "lyric";
   lyricParts = lyricParts;
   
 
@@ -117,14 +117,6 @@ export class LyricsComponent implements AfterViewInit {
     });
   }
 
-  ngAfterViewInit(){
-    setTimeout(() => {
-      //this.updateToolbarFromLyricFont();
-      
-      //this.updateFormat();
-    }, 100);
-  }
-
   private initLyrics() {
     this.loading = true;
     const accountId = this.activeRoute.snapshot.paramMap.get("accountid");
@@ -156,12 +148,48 @@ export class LyricsComponent implements AfterViewInit {
               this.parsedLyric = parser.parseChordPro();
           }
           
+          this.updateToolbarFromLyricFont();
           this.loading = false;
           this.lyricVersionValue = this.selectedLyric?.id || "add";
         });
     }
   }
 
+  onAddLyric(event?) {
+    event?.preventDefault();
+    const accountLyric = {
+      accountId: this.accountId,
+      songId: this.songId,
+      createdByUserId: this.currentUser.uid,
+    };
+    const dialogRef = this.dialog.open(LyricAddDialogComponent, {
+      data: { accountLyric: accountLyric, countOfLyrics: this.lyrics.length },
+      panelClass: "dialog-responsive",
+    });
+
+    dialogRef.afterClosed().subscribe((result: Lyric) => {
+      if (result) {
+        this.selectedLyric = result;
+        this.onEditLyric();
+      }{
+        this.lyricVersionValue = this.selectedLyric?.id || "add";
+      }
+    });
+  }
+
+  onEditLyric() {
+    if(this.lyricId){
+        this.router.navigate([`../${this.selectedLyric?.id}/edit`], {
+          relativeTo: this.activeRoute,
+        });
+      }
+      else{
+        this.router.navigate([`${this.selectedLyric?.id}/edit`], {
+          relativeTo: this.activeRoute,
+        });
+      }
+  }
+  
   private getDefaultLyricId(){
     if (this.song?.defaultLyricForUser) {
       return this.song?.defaultLyricForUser.find((userLyric) => userLyric.uid === this.currentUser.uid)?.lyricId;
@@ -218,48 +246,7 @@ export class LyricsComponent implements AfterViewInit {
       const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, transposeNumber);
       this.parsedLyric = parser.parseChordPro();
       
-    
-      setTimeout(() => {
-        this.updateFormat();
-      }, 100);
-      
     }
-  }
-
-  onAddLyric(event?) {
-    event?.preventDefault();
-    const accountLyric = {
-      accountId: this.accountId,
-      songId: this.songId,
-      createdByUserId: this.currentUser.uid,
-    };
-    const dialogRef = this.dialog.open(LyricAddDialogComponent, {
-      data: { accountLyric: accountLyric, countOfLyrics: this.lyrics.length },
-      panelClass: "dialog-responsive",
-    });
-
-    dialogRef.afterClosed().subscribe((result: Lyric) => {
-      if (result) {
-        this.selectedLyric = result;
-        this.onEditLyric();
-      }{
-        this.lyricVersionValue = this.selectedLyric?.id || "add";
-      }
-    });
-  }
-
-  onEditLyric() {
-    if(this.lyricId){
-        this.router.navigate([`../${this.selectedLyric?.id}/edit`], {
-          relativeTo: this.activeRoute,
-        });
-      }
-      else{
-        this.router.navigate([`${this.selectedLyric?.id}/edit`], {
-          relativeTo: this.activeRoute,
-        });
-      }
-    
   }
 
   onSetDefaultUser(event: Event){
@@ -271,29 +258,27 @@ export class LyricsComponent implements AfterViewInit {
     );
   }
 
-  onSelectFont(fontname: string) {
-    this.lyricFormat.font = fontname;
-    this.updateFormat();
-  }
-  
   onSelectLyricPart(fontname: string) {
     this.updateToolbarFromLyricFont();
   }
 
+  onSelectFont(fontname: string) {
+    this.lyricFormat.font = fontname;
+    const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric!.transpose);
+    this.parsedLyric = parser.parseChordPro();
+  }
+  
   //Bold, Italic, or Underline
   onFormatToggleStyle(selectedFontStyle){
-    console.log(selectedFontStyle);
     const lyricPart = this.lyricFormat.lyricPartFormat.find(lyricPart => this.selectedLyricPart === lyricPart.lyricPart);
     if(lyricPart){
       lyricPart.isBold = selectedFontStyle.find(fontStyle => fontStyle === "bold") ? true : false;
       lyricPart.isItalic = selectedFontStyle.find(fontStyle => fontStyle === "italic") ? true : false;
       lyricPart.isUnderlined = selectedFontStyle.find(fontStyle => fontStyle === "underline") ? true : false;
     }
-    this.updateFormat();
-  }
 
-  onFormatLyricPart(lyricPart: string, formatItem: string, value: string | boolean){
-    this.updateFormat();
+    const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric!.transpose);
+    this.parsedLyric = parser.parseChordPro();
   }
 
   onSelectFontSize(fontSize: string) {
@@ -301,48 +286,8 @@ export class LyricsComponent implements AfterViewInit {
     if(lyricPart){
       lyricPart.fontSize = fontSize;
     }
-    this.updateFormat();
-  }
-
-  //All lyric parts set the html for them here.
-  updateFormat(){
-    
-    const titlePart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "title");
-    const titleElements = this.lyricSection.nativeElement.getElementsByClassName('title')
-    this.formatLyricPart(titleElements, titlePart);
-
-    const subTitlePart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "subtitle");
-    const subTitleElements = this.lyricSection.nativeElement.getElementsByClassName('subtitle')
-    this.formatLyricPart(subTitleElements, subTitlePart);
-    
-    const chordPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "chord");
-    const chordElements = this.lyricSection.nativeElement.getElementsByClassName("chord");
-    this.formatLyricPart(chordElements, chordPart);
-
-    const lyricPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "lyric");
-    const lyricElements = this.lyricSection.nativeElement.getElementsByClassName("lyric");
-    this.formatLyricPart(lyricElements, lyricPart);
-
-    const commentPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "comment");
-    const commentElements = this.lyricSection.nativeElement.getElementsByClassName("comment");
-    this.formatLyricPart(commentElements, commentPart);
-
-    const songPart = this.lyricFormat.lyricPartFormat.find(lyricPart => lyricPart.lyricPart === "song-part");
-    const songPartElements = this.lyricSection.nativeElement.getElementsByClassName("song-part");
-    this.formatLyricPart(songPartElements, songPart);
-  }
-
-  //Updates a lyric part html styles (lyrics, chords, title, ...) 
-  formatLyricPart(elements, lyricPart){
-    for(const element of elements){
-      const innerText = element.innerText;
-      if(innerText){
-        element.style.fontWeight = lyricPart?.isBold ? 'bold' : 'normal' ;
-        element.style.fontStyle = lyricPart?.isItalic ? 'italic' : '' ;
-        element.style.textDecoration = lyricPart?.isUnderlined ? 'underline' : '' ;
-        element.style.fontSize = lyricPart?.fontSize;
-      }
-    }
+    const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric!.transpose);
+    this.parsedLyric = parser.parseChordPro();
   }
 
   //When the lyric part changes in the dropdown this function will up date the state of the toolbar.
