@@ -1,6 +1,7 @@
 import { Timestamp } from "@angular/fire/firestore";
 import { Base } from './base';
 import { BaseUser, UserHelper } from "./user";
+import { LyricFormat } from "./lyric-format";
 
 export interface Account extends Base{
     name: string;
@@ -10,6 +11,7 @@ export interface Account extends Base{
     importToken: string; 
     countOfSetlists: number;
     countOfSongs: number;
+    formatSettings: LyricFormat;
 }
 
 export class AccountHelper{
@@ -34,7 +36,8 @@ export class AccountHelper{
           lastUpdatedByUser: user,
           importToken: data.importToken ?? "",
           countOfSetlists: data.countOfSetlists ?? 0,
-          countOfSongs: data.countOfSongs ?? 0
+          countOfSongs: data.countOfSongs ?? 0,
+          formatSettings: data.formatSettings ?? 0
         };
       }
 }

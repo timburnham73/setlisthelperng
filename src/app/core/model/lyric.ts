@@ -1,6 +1,14 @@
 import { Timestamp } from "@angular/fire/firestore";
 import { Base } from "./base";
 import { BaseUser, UserHelper } from "./user";
+import { LyricFormat } from "./lyric-format";
+
+//The scope of where to load the saved lyric format
+export enum FormatScope {
+  LYRIC,
+  USER,
+  ACCOUNT
+} 
 
 export interface Lyric extends Base {
   name: string;
@@ -16,6 +24,8 @@ export interface Lyric extends Base {
   documentLocation: string;
   audioLocation: string;
   transpose: number;
+  formatScope?: FormatScope;
+  formatSettings?: LyricFormat;
 }
 
 export interface AccountLyric extends Lyric {
@@ -50,7 +60,9 @@ export class LyricHelper {
       lastUpdatedByUser : UserHelper.getForUpdate(editingUser),
       documentLocation: data.documentLocation ?? "",
       audioLocation: data.audioLocation ?? "", 
-      transpose: data.transpose ?? 0
+      transpose: data.transpose ?? 0,
+      formatScope: data.formatScope ?? FormatScope.ACCOUNT,
+      formatSettings: data.formatSettings ?? undefined
 
     };
   }

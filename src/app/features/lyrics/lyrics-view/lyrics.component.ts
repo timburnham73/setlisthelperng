@@ -3,14 +3,14 @@ import { MatTableDataSource as MatTableDataSource } from "@angular/material/tabl
 import { Title } from "@angular/platform-browser";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { Store } from "@ngxs/store";
-import { AccountLyric, Lyric } from "src/app/core/model/lyric";
+import { AccountLyric, FormatScope, Lyric } from "src/app/core/model/lyric";
 import { LyricsService } from "src/app/core/services/lyrics.service";
 import { SongService } from "src/app/core/services/song.service";
 import { AccountState } from "src/app/core/store/account.state";
 import { LyricAddDialogComponent } from "../lyric-add-dialog/lyric-add-dialog.component";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { Song } from "src/app/core/model/song";
-import { take } from "rxjs";
+import { switchMap, take } from "rxjs";
 import { FormControl } from "@angular/forms";
 import { AuthenticationService } from "src/app/core/services/auth.service";
 import { MatOptionModule } from "@angular/material/core";
@@ -29,6 +29,12 @@ import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { ChordProParser } from "src/app/core/services/ChordProParser";
 import { LyricDisplaySetting } from "src/app/core/model/LyricDisplaySetting";
 import { SafeHtml } from "src/app/shared/pipes/safe-html.pipe";
+import { MatMenu, MatMenuModule } from "@angular/material/menu";
+import { UserService } from "src/app/core/services/user.service";
+import { user } from "@angular/fire/auth";
+import { User, UserHelper } from "src/app/core/model/user";
+import { AccountService } from "src/app/core/services/account.service";
+import { Account } from "src/app/core/model/account";
 
 @Component({
     selector: "app-lyrics",
@@ -48,6 +54,7 @@ import { SafeHtml } from "src/app/shared/pipes/safe-html.pipe";
         MatSelectModule,
         NgFor,
         MatOptionModule,
+        MatButtonModule, MatMenuModule,
         SafeHtml
     ],
 })
@@ -56,6 +63,7 @@ export class LyricsComponent {
   @ViewChild('toggleFontStyle') toggleFontStyle;
   
   accountId?: string;
+  selectedAccount: Account;
   songId?: string;
   lyricId?: string;
   setlistId?: string;
@@ -74,7 +82,6 @@ export class LyricsComponent {
   selectedFontSize: string = "medium";
   fontSizes = fontSizes;
 
-  lyricFormat: LyricFormat;
   defaultLyricId: string | undefined;
   isDefaultLyric = false;
   
@@ -82,30 +89,41 @@ export class LyricsComponent {
   lyricVersionValue = "add";
   lyrics: Lyric[];
   lyricVersions = new FormControl("");
-  currentUser: any;
+  currentUser: User;
   loading = false;
 
   isTransposing = false;
   isFormatting = false;
+
+  lyricFormat: LyricFormat;
+  formatScope: FormatScope;
+  FormatScopeType = FormatScope;
   
   constructor(
     private activeRoute: ActivatedRoute,
     private titleService: Title,
     private lyricsService: LyricsService,
     private songService: SongService,
+    private userService: UserService,
+    private accountService: AccountService,
     private store: Store,
     private router: Router,
     public dialog: MatDialog,
     private authService: AuthenticationService,
-    private renderer: Renderer2
+    
   ) {
-    const selectedAccount = this.store.selectSnapshot(
+    this.selectedAccount = this.store.selectSnapshot(
       AccountState.selectedAccount
     );
 
-    this.authService.user$.subscribe((user) => {
+    this.authService.user$.pipe(
+    switchMap((user) =>
+      this.userService.getUserById(user.uid)
+    ))
+    .subscribe((user) => {
       if (user && user.uid) {
         this.currentUser = user;
+        this.initLyrics();
       }
     });
 
@@ -113,7 +131,7 @@ export class LyricsComponent {
     //Normally navigating to the same component is not supported. 
     //I added the onSameUrlNavigation: 'reload' on the router config.
     activeRoute.params.subscribe(val => {
-      this.initLyrics();
+      
     });
   }
 
@@ -139,22 +157,27 @@ export class LyricsComponent {
         .pipe(take(1))
         .subscribe((lyrics) => {
           this.lyrics = lyrics;
-          
-          this.lyricFormat = LyricFormatHelper.getDefaultFormat();
-          this.selectedLyric = this.getSelectedLyric(lyrics);
           this.isDefaultLyric = this.isDefaultLyricSelected();
+
+          this.selectedLyric = this.getSelectedLyric(lyrics);
+
+          //Create a function to select 
+          const lyricFormatWithScope = this.lyricsService.getLyricFormat(this.selectedAccount, this.currentUser, this.selectedLyric!);
+          this.formatScope = lyricFormatWithScope.formatScope;
+          this.lyricFormat = lyricFormatWithScope.lyricFormat;
+          this.updateToolbarFromLyricFont();
+
+
           if(this.selectedLyric){
               const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric?.transpose!);
               this.parsedLyric = parser.parseChordPro();
           }
           
-          this.updateToolbarFromLyricFont();
           this.loading = false;
           this.lyricVersionValue = this.selectedLyric?.id || "add";
         });
     }
   }
-
   onAddLyric(event?) {
     event?.preventDefault();
     const accountLyric = {
@@ -241,6 +264,7 @@ export class LyricsComponent {
       }
 
       this.selectedLyric!.transpose = transposeNumber;
+      this.selectedLyric.formatSettings = this.lyricFormat;
       this.lyricsService.updateLyric(this.accountId!, this.songId!, this.selectedLyric, this.currentUser);
       
       const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, transposeNumber);
@@ -262,10 +286,16 @@ export class LyricsComponent {
     this.updateToolbarFromLyricFont();
   }
 
+  onSelectFormatScope(formatScope: FormatScope){
+    this.formatScope = formatScope;
+    this.saveFormatSettings();
+  }
+
   onSelectFont(fontname: string) {
     this.lyricFormat.font = fontname;
     const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric!.transpose);
     this.parsedLyric = parser.parseChordPro();
+    this.saveFormatSettings();
   }
   
   //Bold, Italic, or Underline
@@ -279,6 +309,8 @@ export class LyricsComponent {
 
     const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric!.transpose);
     this.parsedLyric = parser.parseChordPro();
+
+    this.saveFormatSettings();
   }
 
   onSelectFontSize(fontSize: string) {
@@ -288,6 +320,46 @@ export class LyricsComponent {
     }
     const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric!.transpose);
     this.parsedLyric = parser.parseChordPro();
+
+    this.saveFormatSettings();
+  }
+
+  private saveFormatSettings() {
+    if(this.formatScope === FormatScope.LYRIC) {
+      if(this.selectedLyric){
+        this.selectedLyric.formatSettings = this.lyricFormat;
+        this.lyricsService.updateLyric(this.accountId!, this.songId!, this.selectedLyric!, this.currentUser);
+      }
+    }
+    else if(this.formatScope === FormatScope.USER) {
+      this.clearLyricFormatSettings();
+      //set the User formatSettings
+      this.currentUser.formatSettings = this.lyricFormat;
+      if (this.currentUser.id) {
+        this.userService.updateUser(this.currentUser.id, UserHelper.getForUpdate(this.currentUser));
+      }
+    }
+    else if(this.formatScope === FormatScope.ACCOUNT){
+      this.clearLyricFormatSettings();
+      this.clearUserFormatSettings();
+      this.selectedAccount.formatSettings = this.lyricFormat;
+      this.accountService.updateAccount(this.selectedAccount.id!, this.currentUser, this.selectedAccount);
+    }
+  }
+
+  private clearLyricFormatSettings(){
+    //Remove the lyric formatSettings if it was set previously. 
+    if(this.selectedLyric && this.selectedLyric.formatSettings){
+      this.lyricsService.deleteFormatSettingsUser(this.accountId!, this.songId!, this.selectedLyric!.id!);
+    }
+  }
+  private clearUserFormatSettings(){
+    //Remove format settings for the user. 
+    if(this.currentUser.formatSettings){
+      if (this.currentUser.id) {
+        this.userService.deleteFormatSettingsUser(this.currentUser.id);
+      }
+    }
   }
 
   //When the lyric part changes in the dropdown this function will up date the state of the toolbar.

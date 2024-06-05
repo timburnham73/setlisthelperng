@@ -69,16 +69,13 @@
             <mat-error >Contact the user and make sure the email is valid and the user has registerd with Setlist Songs.</mat-error>
           </mat-form-field>
           <button
+            mat-icon-button
+            mat-fab
+            color="primary"
             class="email-button"
             [disabled]="email?.errors?.email || email?.pristine"
             (click)="onAdd()"
-            mat-raised-button
-            color="primary"
-            mat-button
-            matSuffix
-            mat-stroked-button
-            aria-label="add"
-            
+            aria-label="Add User"
           >
             <mat-icon>add</mat-icon>
           </button>

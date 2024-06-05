@@ -10,11 +10,13 @@ import {
   take,
   tap,
 } from "rxjs";
-import { Lyric, LyricHelper } from "../model/lyric";
+import { FormatScope, Lyric, LyricHelper } from "../model/lyric";
 import { SongService } from "./song.service";
 import { increment } from "firebase/firestore";
 import { Song } from "../model/song";
-import { BaseUser } from "../model/user";
+import { BaseUser, User } from "../model/user";
+import { Account } from "../model/account";
+import { LyricFormatHelper, LyricFormatWithScope } from "../model/lyric-format";
 
 @Injectable({
   providedIn: "root",
@@ -103,6 +105,12 @@ export class LyricsService {
     );
   }
 
+  deleteFormatSettingsUser(accountId: string, songId: string, lyricId: string): any {
+    const dbPath = `/accounts/${accountId}/songs/${songId}/lyrics`;
+    const lyricRef = this.db.collection(dbPath);
+    return from(lyricRef.doc(lyricId).update( {formatSettings: null}));
+  }
+
   updateLyric(
     accountId: string,
     songId: string,
@@ -114,5 +122,22 @@ export class LyricsService {
     const lyricRef = this.db.collection(dbPath);
 
     return from(lyricRef.doc(lyric.id).update(lyricForUpdate));
+  }
+
+  getLyricFormat(account: Account, user: User, selectedLyric: Lyric) : LyricFormatWithScope {
+    
+    if (selectedLyric.formatSettings) {
+      return {formatScope: FormatScope.LYRIC, lyricFormat: selectedLyric.formatSettings};
+    }
+    //If the user has format settings then the are using the settings for their account only
+    else if(user.formatSettings){
+      return {formatScope: FormatScope.USER, lyricFormat: user.formatSettings};
+    }
+    else if(account.formatSettings){
+      return {formatScope: FormatScope.ACCOUNT, lyricFormat: account.formatSettings}
+    }
+    else {
+      return {formatScope: FormatScope.ACCOUNT, lyricFormat: LyricFormatHelper.getDefaultFormat()};
+    }
   }
 }

@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
-import { Observable, throwError } from "rxjs";
+import { Observable, from, throwError } from "rxjs";
 import { AngularFireAuth } from "@angular/fire/compat/auth";
 import { catchError, map } from "rxjs/operators";
 import { Router } from "@angular/router";
 import { UserRoles } from "../model/user-roles";
 import { AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
-import { User } from "../model/user";
+import { User, UserHelper } from "../model/user";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { JwtToken } from "../model/JwtToken";
 
@@ -28,6 +28,15 @@ export class UserService {
   addUser(authUser: any): any {
     const userToAdd : User = {uid: authUser.uid, displayName: authUser.displayName ?? '', photoUrl: authUser.photoUrl ?? '', email: authUser.email ?? '' }
     return this.userRef.add(userToAdd);
+  }
+
+  deleteFormatSettingsUser(id: string): any {
+    return from(this.db.collection(this.dbPath).doc(id).update( {formatSettings: null}));
+  }
+
+  updateUser(id: string, user: User): any {
+    const userToUpdate : User = UserHelper.getForUpdate(user);
+    return from(this.userRef.doc(id).update(userToUpdate));
   }
 
   getUserById(uid: string): Observable<User>{

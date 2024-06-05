@@ -1,3 +1,5 @@
+
+import { FormatScope } from "./lyric";
 import { LyricFormatSongPart } from "./lyric-format-songpart"
 
 export const lyricParts = [
@@ -31,6 +33,11 @@ export const fontSizes = [
 export interface LyricFormat {
     font: string;
     lyricPartFormat: LyricFormatSongPart[];
+}
+
+export interface LyricFormatWithScope {
+    formatScope: FormatScope;
+    lyricFormat: LyricFormat;
 }
 
 export class LyricFormatHelper {

@@ -14,6 +14,7 @@ th.mat-sort-header-sorted {
     display: flex;
     align-items: flex-start;
   }
+  
   .email-button{
     margin-left: 10px;
     height: 52px;
