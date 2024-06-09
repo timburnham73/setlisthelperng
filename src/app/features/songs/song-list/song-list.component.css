@@ -14,8 +14,12 @@ th.mat-sort-header-sorted {
     height: calc(100vh - 140px);
 }
 
+.mobile-card-container {
+    max-height: calc(100vh - 150    Qpx);
+    overflow: auto;
+}
 .table-container {
-    max-height: calc(100vh - 215px);;
+    max-height: calc(100vh - 190px);
     min-width: 300px;
     overflow: auto;
 }

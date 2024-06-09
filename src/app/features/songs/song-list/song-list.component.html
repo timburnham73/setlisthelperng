@@ -123,25 +123,27 @@
             </span>
           </button>
         </mat-toolbar>
-        <mat-card-content *ngFor="let song of filteredSongs" (click)="onViewLyrics($event, song)">
-          <div class="py-12 px-1 b-b-1">
-            <div class="flex align-items-center w-100">
-              <div class="w-100">
-                <p><b>{{song.name}}</b></p>
-                <p>{{song.artist}}</p>
-              </div>
-              <div class="w-100">
-                <div class="flex justify-content-end mr-5">
-                  <button mat-icon-button aria-label="Edit Song" (click)="onEditSong(song)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
+        <div class="mobile-card-container">
+          <mat-card-content *ngFor="let song of filteredSongs" (click)="onViewLyrics($event, song)">
+            <div class="py-12 px-1 b-b-1">
+              <div class="flex align-items-center w-100">
+                <div class="w-100">
+                  <p><b>{{song.name}}</b></p>
+                  <p>{{song.artist}}</p>
+                </div>
+                <div class="w-100">
+                  <div class="flex justify-content-end mr-1">
+                    <button mat-icon-button aria-label="Edit Song" (click)="onEditSong(song)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </div>
+
                 </div>
 
               </div>
-
             </div>
-          </div>
-        </mat-card-content>
+          </mat-card-content>
+        </div>
       </mat-side-nav>
     </mat-card>
 
