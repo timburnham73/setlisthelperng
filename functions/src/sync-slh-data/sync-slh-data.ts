@@ -110,8 +110,8 @@ export const startSync = async (jwtToken: string, accountId: string, accountImpo
       songDetails.push(`Added tags to Song ${convertedSong.name}: ${tagNames.join(',')}`);
     }
     
-    let docRef = songsRef.doc();
-    docRef.set(convertedSong);
+    let docRef = await songsRef.doc();
+    await docRef.set(convertedSong);
     
     //Add the song ids to a map so we can find the song below in the setlist songs and associate the firebase id.
     mapSongIdToFirebaseSongId.push({SongId: slhSong.SongId, FireBaseSongId: docRef.id });
@@ -309,7 +309,6 @@ async function getSongs(accessToken: string) {
   // Send the request and print the response
   const response = await fetch(request);
   const data = await response.json();
-  functions.logger.debug("Songs downloaded data", data);
   return data as SLHSong[];
 }
 

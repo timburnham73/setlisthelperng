@@ -161,6 +161,7 @@ export class LyricsComponent {
 
           this.selectedLyric = this.getSelectedLyric(lyrics);
 
+          
           //Create a function to select 
           const lyricFormatWithScope = this.lyricsService.getLyricFormat(this.selectedAccount, this.currentUser, this.selectedLyric!);
           this.formatScope = lyricFormatWithScope.formatScope;
@@ -168,7 +169,7 @@ export class LyricsComponent {
           this.updateToolbarFromLyricFont();
 
 
-          if(this.selectedLyric){
+          if(this.selectedLyric && this.selectedLyric.lyrics){
               const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric?.transpose!);
               this.parsedLyric = parser.parseChordPro();
           }

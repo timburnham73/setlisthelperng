@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/angular-material-template",
+            "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -28,6 +28,7 @@
             ],
             "styles": [
               "src/styles.scss",
+              "node_modules/primeflex/primeflex.min.css",
               "node_modules/firebaseui/dist/firebaseui.css"
             ],
             "scripts": [],
@@ -42,8 +43,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "2mb"
+                  "maximumWarning": "4mb",
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -101,6 +102,7 @@
             ],
             "styles": [
               "src/styles.scss",
+              "node_modules/primeflex/primeflex.min.css",
               "node_modules/firebaseui/dist/firebaseui.css"
             ],
             "scripts": []

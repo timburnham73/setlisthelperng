@@ -125,8 +125,7 @@ export class LyricsService {
   }
 
   getLyricFormat(account: Account, user: User, selectedLyric: Lyric) : LyricFormatWithScope {
-    
-    if (selectedLyric.formatSettings) {
+    if (selectedLyric && selectedLyric.formatSettings) {
       return {formatScope: FormatScope.LYRIC, lyricFormat: selectedLyric.formatSettings};
     }
     //If the user has format settings then the are using the settings for their account only
