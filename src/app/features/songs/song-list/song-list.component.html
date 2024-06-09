@@ -1,37 +1,36 @@
-<div class="container" fxLayout="row" fxLayoutAlign="center none">
+<div class="container" fxLayout="row" fxLayout.lt-md="column" fxLayoutAlign="center none">
   <div fxFlex="95%">
 
     <mat-card>
-      <mat-card-content class="card-content">
-        <mat-toolbar  >
+      <mat-card-content class="card-content" fxHide fxShow.gt-sm>
+        <mat-toolbar fxHide fxShow.gt-sm>
           @if(!showRemove){
-            <button mat-button aria-label="Add Song or Break" aria-label="Add Song" (click)="onAddSong()">
-              <mat-icon>add</mat-icon>
-              <span fxShow fxHide.xs>
-                Add
-              </span>
-            </button>
-            <button mat-button aria-label="Add Multiple" title="Add Multiple" (click)="onAddMultipleSongs()">
-              <mat-icon>playlist_add</mat-icon>
-              <span fxShow fxHide.xs>
-                Add Multiple
-              </span>
-            </button>
-            <button mat-button aria-label="Remove Song" (click)="onEnableDeleteMode()">
-              <mat-icon>delete</mat-icon>
-              <span>Delete</span>
-            </button>
+          <button mat-button aria-label="Add Song or Break" aria-label="Add Song" (click)="onAddSong()">
+            <mat-icon>add</mat-icon>
+            <span fxShow fxHide.xs>
+              Add
+            </span>
+          </button>
+          <button mat-button aria-label="Add Multiple" title="Add Multiple" (click)="onAddMultipleSongs()">
+            <mat-icon>playlist_add</mat-icon>
+            <span fxShow fxHide.xs>
+              Add Multiple
+            </span>
+          </button>
+          <button mat-button aria-label="Remove Song" (click)="onEnableDeleteMode()">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
           } @else {
-            <button mat-icon-button aria-label="Stop Remove Song" (click)="onEnableDeleteMode()">
-              <mat-icon>arrow_back</mat-icon>
-            </button>
+          <button mat-icon-button aria-label="Stop Remove Song" (click)="onEnableDeleteMode()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
           }
           <span class="spacer"></span>
           <form class="search-form">
             <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
               <mat-label>Search</mat-label>
-              <input type="text" matInput (keyup)="search(input.value)" #input
-                     placeholder="Search">
+              <input type="text" matInput (keyup)="search(input.value)" #input placeholder="Search">
             </mat-form-field>
           </form>
         </mat-toolbar>
@@ -41,7 +40,7 @@
           </mat-spinner>
         </div>
         <div class="table-container" *ngIf="!loading">
-          <table mat-table [dataSource]="filteredSongs" matSort class="song-table"  (matSortChange)="sortChange($event)">
+          <table mat-table [dataSource]="filteredSongs" matSort class="song-table" (matSortChange)="sortChange($event)">
             <!-- Name Column -->
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
@@ -53,13 +52,13 @@
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Artist </th>
               <td mat-cell *matCellDef="let element"> {{element.artist}} </td>
             </ng-container>
-          
+
             <!-- Genre Column -->
             <ng-container matColumnDef="genre">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Genre </th>
               <td mat-cell *matCellDef="let element"> {{element.genre}} </td>
             </ng-container>
-          
+
             <!-- Key Column -->
             <ng-container matColumnDef="key">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Key </th>
@@ -75,15 +74,17 @@
             <!-- Song Length Column -->
             <ng-container matColumnDef="timeSignature">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Time Signature </th>
-              <td mat-cell *matCellDef="let element"> {{element.beatValue ? element.beatValue + '/' + element.noteValue : ''}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.beatValue ? element.beatValue + '/' + element.noteValue
+                : ''}} </td>
             </ng-container>
 
             <!-- Song Length Column -->
             <ng-container matColumnDef="songLength">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Song Length </th>
-              <td mat-cell *matCellDef="let element"> {{element.lengthMin ? element.lengthMin + ':' + element.lengthSec?.toString().padStart(2, '0') : ''}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.lengthMin ? element.lengthMin + ':' +
+                element.lengthSec?.toString().padStart(2, '0') : ''}} </td>
             </ng-container>
-            
+
             <ng-container matColumnDef="lyrics">
               <th mat-header-cell [hidden]="showRemove" *matHeaderCellDef>Lyrics</th>
               <td mat-cell [hidden]="showRemove" *matCellDef="let element">
@@ -94,7 +95,8 @@
             <ng-container matColumnDef="setlists">
               <th mat-header-cell [hidden]="showRemove" *matHeaderCellDef>Setlists</th>
               <td mat-cell [hidden]="showRemove" *matCellDef="let element">
-                <a title="{{getSetlistNames(element)}}" href="#" (click)="onViewSetlists($event, element)">{{getSetlistCount(element)}}</a>
+                <a title="{{getSetlistNames(element)}}" href="#"
+                  (click)="onViewSetlists($event, element)">{{getSetlistCount(element)}}</a>
               </td>
             </ng-container>
 
@@ -107,11 +109,40 @@
               </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" ></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row (dblclick)="onEditSong(row)" *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
         </div>
       </mat-card-content>
+      <mat-side-nav fxHide fxShow.lt-md>
+        <mat-toolbar>
+          <button mat-button aria-label="Add Song or Break" aria-label="Add Song" (click)="onAddSong()">
+            <mat-icon>add</mat-icon>
+            <span fxShow fxHide.xs>
+              Add
+            </span>
+          </button>
+        </mat-toolbar>
+        <mat-card-content *ngFor="let song of filteredSongs" (click)="onViewLyrics($event, song)">
+          <div class="py-12 px-1 b-b-1">
+            <div class="flex align-items-center w-100">
+              <div class="w-100">
+                <p><b>{{song.name}}</b></p>
+                <p>{{song.artist}}</p>
+              </div>
+              <div class="w-100">
+                <div class="flex justify-content-end mr-5">
+                  <button mat-icon-button aria-label="Edit Song" (click)="onEditSong(song)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-side-nav>
     </mat-card>
 
   </div>

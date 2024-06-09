@@ -18,7 +18,7 @@ import { LyricAddDialogComponent } from '../../lyrics/lyric-add-dialog/lyric-add
 import { AccountLyric, Lyric } from 'src/app/core/model/lyric';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
@@ -36,13 +36,29 @@ import {
 } from '@angular/material/dialog';
 import { CONFIRM_DIALOG_RESULT, ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
 import { SetlistRef } from 'functions/src/model/setlist';
+import { FlexLayoutModule, FlexModule } from 'ngx-flexible-layout';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
     selector: 'app-song-list',
     templateUrl: './song-list.component.html',
     styleUrls: ['./song-list.component.css'],
     standalone: true,
-    imports: [MatCardModule, MatToolbarModule, MatButtonModule, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, NgIf, MatProgressSpinnerModule, MatTableModule, MatSortModule]
+    imports: [MatCardModule, 
+      MatToolbarModule, 
+      MatButtonModule, 
+      MatIconModule, 
+      FormsModule, 
+      MatFormFieldModule, 
+      MatInputModule, 
+      NgIf, 
+      NgFor,
+      MatProgressSpinnerModule, 
+      MatTableModule, 
+      MatSortModule,
+      MatSidenav,
+      FlexModule,
+      FlexLayoutModule]
 })
 export class SongListComponent implements OnInit {
   @Select(AccountState.selectedAccount) 
