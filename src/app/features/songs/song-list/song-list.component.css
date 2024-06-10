@@ -15,7 +15,7 @@ th.mat-sort-header-sorted {
 }
 
 .mobile-card-container {
-    max-height: calc(100vh - 150    Qpx);
+    max-height: calc(100vh - 150px);
     overflow: auto;
 }
 .table-container {
@@ -78,8 +78,4 @@ th.mat-sort-header-sorted {
 
 .spinner-container mat-spinner {
     margin: 130px auto 0 auto;
-}
-
-.search-field{
-    width: 400px;
 }

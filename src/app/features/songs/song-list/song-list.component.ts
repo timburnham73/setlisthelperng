@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource as MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { NGXLogger } from 'ngx-logger';
@@ -69,6 +69,7 @@ export class SongListComponent implements OnInit {
   filteredSongs : Song[];
   accountId: string;
   showRemove = false;
+  showFind = false;
   @ViewChild(MatSort, { static: true })
   sort: MatSort = new MatSort;
   loading = false;
@@ -155,6 +156,10 @@ export class SongListComponent implements OnInit {
     });
   }
 
+  onShowFind(){
+    this.showFind = !this.showFind;
+  }
+
   onEnableDeleteMode() {
     this.showRemove = !this.showRemove;
   }
@@ -235,5 +240,29 @@ export class SongListComponent implements OnInit {
       return song.setlists.map((setlist: SetlistRef) => setlist.name).join(', ');
     }
     return 0;
+  }
+
+  getSongLength(song){
+    return song.lengthMin ? song.lengthMin + ':' + song.lengthSec?.toString().padStart(2, '0') : '';
+  }
+
+  getSongDetails(song){
+    const songDetails: string[] = [];
+    if(song.artist){
+      songDetails.push(song.artist)
+    }
+    if(song.genre){
+      songDetails.push(song.genre)
+    }
+    if(song.key){
+      songDetails.push(song.key)
+    }
+    if(song.tempo){
+      songDetails.push(song.tempo)
+    }
+    if(song.songLength){
+      songDetails.push(this.getSongLength(song))
+    }
+    return songDetails.join(' - ');
   }
 }

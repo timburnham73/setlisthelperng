@@ -81,8 +81,7 @@
             <!-- Song Length Column -->
             <ng-container matColumnDef="songLength">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Song Length </th>
-              <td mat-cell *matCellDef="let element"> {{element.lengthMin ? element.lengthMin + ':' +
-                element.lengthSec?.toString().padStart(2, '0') : ''}} </td>
+              <td mat-cell *matCellDef="let element"> {{ getSongLength(element) }} </td>
             </ng-container>
 
             <ng-container matColumnDef="lyrics">
@@ -116,12 +115,39 @@
       </mat-card-content>
       <mat-side-nav fxHide fxShow.lt-md>
         <mat-toolbar>
-          <button mat-button aria-label="Add Song or Break" aria-label="Add Song" (click)="onAddSong()">
+          @if(!showFind){
+          <button mat-button aria-label="Add Song" aria-label="Add Song" (click)="onAddSong()">
             <mat-icon>add</mat-icon>
             <span fxShow fxHide.xs>
               Add
             </span>
           </button>
+          <button mat-button aria-label="Remove Song" (click)="onEnableDeleteMode()">
+            <mat-icon>delete</mat-icon>
+            <span fxShow fxHide.xs>Delete</span>
+          </button>
+          <span class="spacer"></span>
+          <button mat-icon-button aria-label="Find Song" aria-label="Find Song" (click)="onShowFind()">
+            <mat-icon>search</mat-icon>
+          </button>
+          }
+          @if(showRemove){
+            <button mat-icon-button aria-label="Stop Find Song" (click)="onEnableDeleteMode()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          }
+          @if(showFind){
+            <button mat-icon-button aria-label="Stop Find Song" (click)="onShowFind()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <span class="spacer"></span>
+            <form class="search-form">
+              <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Search</mat-label>
+                <input type="text" matInput (keyup)="search(inputSearch.value)" #inputSearch autofocus placeholder="Search">
+              </mat-form-field>
+            </form>
+          }
         </mat-toolbar>
         <div class="mobile-card-container">
           <mat-card-content *ngFor="let song of filteredSongs" (click)="onViewLyrics($event, song)">
@@ -129,13 +155,20 @@
               <div class="flex align-items-center w-100">
                 <div class="w-100">
                   <p><b>{{song.name}}</b></p>
-                  <p>{{song.artist}}</p>
+                  <p>{{getSongDetails(song)}}</p>
                 </div>
                 <div class="w-100">
                   <div class="flex justify-content-end mr-1">
-                    <button mat-icon-button aria-label="Edit Song" (click)="onEditSong(song)">
-                      <mat-icon>edit</mat-icon>
-                    </button>
+                    @if(!showRemove){
+                      <button mat-icon-button aria-label="Edit Song" (click)="$event.stopPropagation(); onEditSong(song);">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                    }
+                    @else{
+                      <button mat-icon-button aria-label="Edit Song" (click)="$event.stopPropagation(); onRemoveSong($event, song)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    }
                   </div>
 
                 </div>
