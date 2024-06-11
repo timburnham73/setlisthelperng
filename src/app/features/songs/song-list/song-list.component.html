@@ -115,7 +115,7 @@
       </mat-card-content>
       <mat-side-nav fxHide fxShow.lt-md>
         <mat-toolbar>
-          @if(!showFind){
+          @if(!showFind && !showRemove){
           <button mat-button aria-label="Add Song" aria-label="Add Song" (click)="onAddSong()">
             <mat-icon>add</mat-icon>
             <span fxShow fxHide.xs>

@@ -1,5 +1,74 @@
-<div class="container" fxLayoutGap="10px grid" fxLayout="row" fxLayoutAlign="center none">
-  <div fxFlex="49%">
+<div class="container" fxLayoutGap="10px grid" fxLayout="row" fxLayoutAlign="center none" >
+  <!-- Mobile view -->
+  <div fxFlex="100%" fxHide fxShow.lt-md>
+    <mat-card>
+      <mat-side-nav fxHide fxShow.lt-md>
+        <mat-toolbar>
+          @if(!showFind && !showRemove){
+          <button mat-button aria-label="Add Setlist" aria-label="Add Setlist" (click)="onAddSetlist()">
+            <mat-icon>add</mat-icon>
+            <span fxShow fxHide.xs>
+              Add
+            </span>
+          </button>
+          <button mat-button aria-label="Remove Setlist" (click)="onEnableDeleteMode()">
+            <mat-icon>delete</mat-icon>
+            <span fxShow fxHide.xs>Delete</span>
+          </button>
+          <span class="spacer"></span>
+          <button mat-icon-button aria-label="Find Song" aria-label="Find Song" (click)="onShowFind()">
+            <mat-icon>search</mat-icon>
+          </button>
+          }
+          @if(showRemove){
+            <button mat-icon-button aria-label="Stop Find Song" (click)="onEnableDeleteMode()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          }
+          @if(showFind){
+            <button mat-icon-button aria-label="Stop Find Song" (click)="onShowFind()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <span class="spacer"></span>
+            <form class="search-form">
+              <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Search</mat-label>
+                <input type="text" matInput (keyup)="search(inputSearch.value)" #inputSearch autofocus placeholder="Search">
+              </mat-form-field>
+            </form>
+          }
+        </mat-toolbar>
+        <div class="mobile-card-container">
+          <mat-card-content *ngFor="let setlist of filteredSetlists" (click)="onViewSetlistSongs($event, setlist)">
+            <div class="py-12 px-1 b-b-1">
+              <div class="flex align-items-center w-100">
+                <div class="w-100">
+                  <p><b>{{setlist.name}}</b></p>
+                  <p>{{setlist.gigLocation}} {{ getSetlistDateInSeconds(setlist) | date:'MM/dd/yyyy h:mm a'}}</p>
+                </div>
+                <div class="w-100">
+                  <div class="flex justify-content-end mr-1">
+                    @if(!showRemove){
+                      <button mat-icon-button aria-label="Edit Setlist" (click)="$event.stopPropagation(); onEditSetlist($event, setlist);">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                    }
+                    @else{
+                      <button mat-icon-button aria-label="Edit Setlist" (click)="$event.stopPropagation(); onRemoveSetlist($event, setlist)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </div>
+      </mat-side-nav>
+    </mat-card>
+  </div>
+  <!-- desktop view -->
+  <div fxFlex="49%" fxHide fxShow.gt-sm>
     <mat-card>
       <mat-card-content class="card-content"> 
         <mat-toolbar>
@@ -95,7 +164,7 @@
   </div>
 
   <!-- Setlist Songs Grid -->
-  <div fxFlex="49%">
+  <div fxFlex="49%" fxHide fxShow.gt-sm>
     <mat-toolbar>
       <div class="header-container">
         <h2 style="float: left;">{{selectedSetlist?.name}}</h2><span style="float: left;margin-left: 15px;">{{selectedSetlist?.gigLocation}}</span>

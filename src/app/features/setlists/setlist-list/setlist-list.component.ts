@@ -54,8 +54,11 @@ export class SetlistListComponent implements OnInit {
   selectedAccount$!: Observable<Account>;
   currentUser: any;
   showRemove = false;
+  showFind = false;
   displayedColumns: string[] = ["name", "gigLocation", "gigDate", "setlistedit", "remove"];
   dataSource = new MatTableDataSource();
+  setlists: Setlist[];
+  filteredSetlists: Setlist[];
   accountId?: string;
   selectedSetlist?: Setlist;
   setlistSongs: SetlistSong[];
@@ -64,6 +67,8 @@ export class SetlistListComponent implements OnInit {
   displaySequence = 1;
   //Used for numbering the rows to skip the
   setlistBreakCount = 0;
+
+  
 
   @ViewChild(MatSort, { static: true })
   sort: MatSort = new MatSort();
@@ -94,6 +99,7 @@ export class SetlistListComponent implements OnInit {
     if (id) {
       this.accountId = id;
       this.setlistService.getSetlists(this.accountId).subscribe((setlists) => {
+        this.setlists = this.filteredSetlists = setlists;
         this.dataSource = new MatTableDataSource(setlists);
         if (setlists && setlists.length && this.selectedSetlist === undefined) {
           this.selectRow(setlists[0]);
@@ -162,6 +168,10 @@ export class SetlistListComponent implements OnInit {
     });
   }
 
+  onShowFind(){
+    this.showFind = !this.showFind;
+  }
+  
   onEnableDeleteMode() {
     this.showRemove = !this.showRemove;
   }
@@ -204,5 +214,12 @@ export class SetlistListComponent implements OnInit {
     return rowIndex + 1;
   }
 
+  search(search: string){
+    this.filteredSetlists = this.setlists.filter((setlist) => setlist.name.toLowerCase().includes(search));
+  }
+
+  getSetlistDateInSeconds(setlist: Setlist){
+    return setlist.gigDate?.seconds * 1000;
+  }
 
 }
