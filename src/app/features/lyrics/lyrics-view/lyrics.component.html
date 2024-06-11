@@ -1,156 +1,181 @@
-<div class="container" fxLayout="row" fxLayoutAlign="center none">
-  <div fxFlex="95%">
+<div fxLayout="row" fxLayoutAlign="center none">
+  <div fxFlex="100%">
+    <mat-toolbar fxflex fxlayout="row">
+      @if(isFormatting){
+      <ng-container>
+        <button mat-icon-button aria-label="Stop Formatting" (click)="onFormatLyrics()">
+          <mat-icon>arrow_back_ios</mat-icon>
+        </button>
+        <h4 class="toolbar-item">Format</h4>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Font</mat-label>
+          <mat-select [(value)]="selectedFont" (selectionChange)="onSelectFont($event.value)">
+            <mat-option *ngFor="let font of fonts" [value]="font.value">
+              <mat-label>{{font.name}}</mat-label>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <span class="vl"></span>
+
+        <mat-form-field class="toolbar-item" appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Song Part</mat-label>
+          <mat-select [(value)]="selectedLyricPart" (selectionChange)="onSelectLyricPart($event.value)">
+            <mat-option *ngFor="let lyricPart of lyricParts" [value]="lyricPart.value">
+              {{lyricPart.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div class="toolbar-item">
+          <mat-button-toggle-group name="fontStyle" [(value)]="selectedFontStyle"
+            (change)="onFormatToggleStyle(toggleFontStyle.value)" aria-label="Font Style" multiple
+            #toggleFontStyle="matButtonToggleGroup">
+            <mat-button-toggle value="bold"><mat-icon>format_bold</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="italic"><mat-icon>format_italic</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="underline"><mat-icon>format_underline</mat-icon></mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        <mat-form-field class="toolbar-item" appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Font Size</mat-label>
+          <mat-select [(value)]="selectedFontSize" (selectionChange)="onSelectFontSize($event.value)">
+            <mat-option *ngFor="let fontSize of fontSizes" [value]="fontSize.value">
+              {{fontSize.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Save lyric format setting.">
+          <mat-icon>settings</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.LYRIC)">
+            <mat-icon>article</mat-icon>
+            <span>Save for this lyric <mat-icon *ngIf="formatScope === FormatScopeType.LYRIC">check</mat-icon></span>
+
+          </button>
+          <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.USER)">
+            <mat-icon>person</mat-icon>
+            <span>Save only for me <mat-icon *ngIf="formatScope === FormatScopeType.USER">check</mat-icon></span>
+          </button>
+          <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.ACCOUNT)">
+            <mat-icon>group</mat-icon>
+            <span>Save for Account <mat-icon *ngIf="formatScope === FormatScopeType.ACCOUNT">check</mat-icon></span>
+          </button>
+        </mat-menu>
+
+      </ng-container>
+      }
+      @if(isTransposing){
+      <ng-container>
+        <button mat-icon-button aria-label="Stop Transpose" (click)="onTranspose()">
+          <mat-icon>arrow_back_ios</mat-icon>
+        </button>
+        <h4 fxHide.lt-md>Transpose</h4>
+        <button mat-icon-button aria-label="Transpose lyric one step down." title="Transpose lyric one step down."
+          (click)="onTransposeLyric(true)">
+          <mat-icon>remove</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Transpose lyric one step up." title="Transpose lyric one step up."
+          (click)="onTransposeLyric(false)">
+          <mat-icon>add</mat-icon>
+        </button>
+        <h5>{{selectedLyric?.transpose ?? 0 }}</h5>
+        <span class="spacer"></span>
+      </ng-container>
+      }
+      @if(!isFormatting && !isTransposing){
+      <ng-container>
+        <button mat-icon-button aria-label="Back to Song List" (click)="onBackToSong()">
+          <mat-icon>arrow_back_ios</mat-icon>
+        </button>
+        <h4 fxShow fxHide.lt-lg>{{ song?.name }}</h4>
+
+        <button mat-button aria-label="Edit Lyrics" title="Edit" (click)="onEditLyric()">
+          <mat-icon>edit</mat-icon>
+          <span fxShow fxHide.lt-md>
+            Edit
+          </span>
+        </button>
+
+        <button mat-button fxShow fxHide.lt-md aria-label="Toggle Transpose" title="Toggle Transpose"
+          (click)="onTranspose()">
+          <mat-icon>swap_vert</mat-icon>
+          <span fxShow fxHide.lt-md>
+            Transpose
+          </span>
+        </button>
+        <button mat-button fxShow fxHide.lt-md aria-label="Toggle Format" title="Toggle Format"
+          (click)="onFormatLyrics()">
+          <mat-icon>format_color_text</mat-icon>
+          <span fxShow fxHide.lt-md>
+            Format
+          </span>
+        </button>
+
+
+        <span class="spacer"></span>
+        @if(!isDefaultLyric){
+        <button mat-button fxShow fxHide.lt-md aria-label="Set the default lyric for this song."
+          title="Set the default lyric for this song." (click)="onSetDefaultUser($event)">
+          <mat-icon>star</mat-icon>
+          <span fxShow fxHide.lt-md>
+            Set Default
+          </span>
+        </button>
+        }
+        @else {
+        <mat-icon tabindex="0" aria-label="This is the default lyric for this song."
+          title="This is the default lyric for this song.">star</mat-icon>
+        }
+        <ng-container *ngIf="selectedLyric">
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-select [(value)]="lyricVersionValue" (selectionChange)="onSelectLyric($event.value)">
+              <mat-option *ngFor="let lyric of lyrics" [value]="lyric?.id">
+                <mat-icon *ngIf="lyric.id === defaultLyricId">star</mat-icon>
+                {{lyric.name}}
+              </mat-option>
+              <mat-option value="add">Add...</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </ng-container>
+      </ng-container>
+
+      <button mat-icon-button [matMenuTriggerFor]="moreMenu" aria-label="Show More" title="Show More">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #moreMenu="matMenu">
+        <button mat-menu-item aria-label="transpose" (click)="onTranspose()">
+          <mat-icon>swap_vert</mat-icon>
+          <span>Transpose</span>
+        </button>
+        <button mat-menu-item aria-label="Format Lyrics" (click)="onFormatLyrics()">
+          <mat-icon>format_color_text</mat-icon>
+          <span>Format</span>
+        </button>
+        @if(!isDefaultLyric){
+        <button mat-menu-item (click)="onSetDefaultUser($event)">
+          <mat-icon>group</mat-icon>
+          <span>Set as Default Lyric</span>
+        </button>
+        }
+      </mat-menu>
+      }
+
+    </mat-toolbar>
+
     <mat-card>
-      <mat-card-content>
-        <mat-toolbar fxflex fxlayout="row" fxlayoutgap="10px">
-          <button mat-icon-button aria-label="Back to Song List" (click)="onBackToSong()">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+      <mat-card-content class="lyrics-view">
+        <div class="spinner-container" *ngIf="loading">
+          <mat-spinner>
 
-          <h4>{{ song?.name }}</h4>
-          <button mat-button aria-label="Toggle Transpose" title="Toggle Transpose" (click)="onTranspose()">
-            <mat-icon>swap_vert</mat-icon>
-            <span fxShow fxHide.xs>
-              Transpose
-            </span>
-          </button>
-          <button mat-button aria-label="Toggle Format" title="Toggle Format" (click)="onFormatLyrics()">
-            <mat-icon>format_color_text</mat-icon>
-            <span fxShow fxHide.xs>
-              Format
-            </span>
-          </button>
-
-          <span class="spacer"></span>
-          @if(!isDefaultLyric){
-          <button mat-button aria-label="Set the default lyric for this song."
-            title="Set the default lyric for this song." (click)="onSetDefaultUser($event)">
-            <mat-icon>star</mat-icon>
-            <span fxShow fxHide.xs>
-              Set Default
-            </span>
-          </button>
-          }
-          @else {
-          <mat-icon tabindex="0" aria-label="This is the default lyric for this song."
-            title="This is the default lyric for this song.">star</mat-icon>
-          }
-          <ng-container *ngIf="selectedLyric">
-            <mat-form-field subscriptSizing="dynamic">
-              <mat-select [(value)]="lyricVersionValue" (selectionChange)="onSelectLyric($event.value)">
-                <mat-option *ngFor="let lyric of lyrics" [value]="lyric?.id">
-                  <mat-icon *ngIf="lyric.id === defaultLyricId">star</mat-icon>
-                  {{lyric.name}}
-                </mat-option>
-                <mat-option value="add">Add...</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <button mat-button aria-label="Edit Lyrics" title="Edit" (click)="onEditLyric()">
-              <mat-icon>edit</mat-icon>
-              <span fxShow fxHide.xs>
-                Edit
-              </span>
-            </button>
-          </ng-container>
-
-        </mat-toolbar>
-        @if(isFormatting){
-        <mat-toolbar>
-          <h4 class="toolbar-item">Format</h4>
-          <ng-container>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-              <mat-label>Font</mat-label>
-              <mat-select [(value)]="selectedFont" (selectionChange)="onSelectFont($event.value)">
-                <mat-option *ngFor="let font of fonts" [value]="font.value">
-                  <mat-label>{{font.name}}</mat-label>
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </ng-container>
-          <span class="vl"></span>
-          <ng-container>
-            <mat-form-field class="toolbar-item" appearance="outline" subscriptSizing="dynamic">
-              <mat-label>Song Part</mat-label>
-              <mat-select [(value)]="selectedLyricPart" (selectionChange)="onSelectLyricPart($event.value)">
-                <mat-option *ngFor="let lyricPart of lyricParts" [value]="lyricPart.value">
-                  {{lyricPart.name}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            
-            <div class="toolbar-item">
-            <mat-button-toggle-group name="fontStyle" [(value)]="selectedFontStyle" (change)="onFormatToggleStyle(toggleFontStyle.value)" aria-label="Font Style" multiple #toggleFontStyle="matButtonToggleGroup">
-              <mat-button-toggle value="bold"><mat-icon>format_bold</mat-icon></mat-button-toggle>
-              <mat-button-toggle value="italic"><mat-icon>format_italic</mat-icon></mat-button-toggle>
-              <mat-button-toggle value="underline"><mat-icon>format_underline</mat-icon></mat-button-toggle>
-            </mat-button-toggle-group>
-          </div>
-            
-            <mat-form-field class="toolbar-item" appearance="outline" subscriptSizing="dynamic">
-              <mat-label>Font Size</mat-label>
-              <mat-select [(value)]="selectedFontSize" (selectionChange)="onSelectFontSize($event.value)">
-                <mat-option *ngFor="let fontSize of fontSizes" [value]="fontSize.value">
-                  {{fontSize.name}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Save lyric format setting.">
-              <mat-icon>settings</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-              <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.LYRIC)">
-                <mat-icon>article</mat-icon>
-                <span>Save for this lyric <mat-icon *ngIf="formatScope === FormatScopeType.LYRIC">check</mat-icon></span>
-                
-              </button>
-              <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.USER)">
-                <mat-icon>person</mat-icon>
-                <span>Save only for me <mat-icon *ngIf="formatScope === FormatScopeType.USER">check</mat-icon></span>
-              </button>
-              <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.ACCOUNT)">
-                <mat-icon>group</mat-icon>
-                <span>Save for Account <mat-icon *ngIf="formatScope === FormatScopeType.ACCOUNT">check</mat-icon></span>
-              </button>
-            </mat-menu>
-          </ng-container>
-        </mat-toolbar>
-        }
-        @if(isTransposing){
-        <mat-toolbar>
-          <h4>Transpose</h4>
-
-          <button mat-icon-button aria-label="Transpose lyric one step down." title="Transpose lyric one step down."
-            (click)="onTransposeLyric(true)">
-            <mat-icon>remove</mat-icon>
-          </button>
-          <button mat-icon-button aria-label="Transpose lyric one step up." title="Transpose lyric one step up."
-            (click)="onTransposeLyric(false)">
-            <mat-icon>add</mat-icon>
-          </button>
-          <h5>{{selectedLyric?.transpose ?? 0 }}</h5>
-          <span class="spacer"></span>
-
-
-        </mat-toolbar>
-        }
-        <mat-card>
-          <mat-card-content class="lyrics-view">
-            <div class="spinner-container" *ngIf="loading">
-              <mat-spinner>
-
-              </mat-spinner>
-            </div>
-            <ng-container *ngIf="!loading">
-              <span *ngIf="!selectedLyric"> <a href="#" (click)="onAddLyric($event)">Click here to create lyric
-                  version.</a></span>
-              <span *ngIf="!selectedLyric?.lyrics">The lyrics are empty.</span>
-              <div #lyricSection *ngIf="selectedLyric?.lyrics" [innerHtml]="parsedLyric ?? '' | safeHtml"></div>
-            </ng-container>
-          </mat-card-content>
-        </mat-card>
+          </mat-spinner>
+        </div>
+        <ng-container *ngIf="!loading">
+          <span *ngIf="!selectedLyric"> <a href="#" (click)="onAddLyric($event)">Click here to create lyric
+              version.</a></span>
+          <span *ngIf="!selectedLyric?.lyrics">The lyrics are empty.</span>
+          <div #lyricSection *ngIf="selectedLyric?.lyrics" [innerHtml]="parsedLyric ?? '' | safeHtml"></div>
+        </ng-container>
       </mat-card-content>
     </mat-card>
+
   </div>
 </div>

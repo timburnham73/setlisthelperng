@@ -35,6 +35,7 @@ import { user } from "@angular/fire/auth";
 import { User, UserHelper } from "src/app/core/model/user";
 import { AccountService } from "src/app/core/services/account.service";
 import { Account } from "src/app/core/model/account";
+import { FlexLayoutModule, FlexModule } from "ngx-flexible-layout";
 
 @Component({
     selector: "app-lyrics",
@@ -55,7 +56,9 @@ import { Account } from "src/app/core/model/account";
         NgFor,
         MatOptionModule,
         MatButtonModule, MatMenuModule,
-        SafeHtml
+        SafeHtml,
+        FlexModule,
+        FlexLayoutModule
     ],
 })
 export class LyricsComponent {
