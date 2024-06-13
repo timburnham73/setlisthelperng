@@ -56,7 +56,7 @@ export class SetlistSongService {
     )
   }
 
-  getOrderedSetlistSongs(accountId: string, setlistId: string): Observable<any> {
+  getOrderedSetlistSongs(accountId: string, setlistId: string): Observable<SetlistSong[]> {
     const dbPath = `/accounts/${accountId}/setlists/${setlistId}/songs`;
     const songsRef = this.db.collection(dbPath, (ref) =>
       ref.orderBy("sequenceNumber")

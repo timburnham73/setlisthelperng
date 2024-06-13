@@ -79,7 +79,7 @@ export class SongListComponent implements OnInit {
     private logger: NGXLogger,
     private route: ActivatedRoute,
     private titleService: Title,
-    private songService: SongService,
+    public songService: SongService,
     private store: Store,
     private authService: AuthenticationService,
     private router: Router,
@@ -240,29 +240,5 @@ export class SongListComponent implements OnInit {
       return song.setlists.map((setlist: SetlistRef) => setlist.name).join(', ');
     }
     return 0;
-  }
-
-  getSongLength(song){
-    return song.lengthMin ? song.lengthMin + ':' + song.lengthSec?.toString().padStart(2, '0') : '';
-  }
-
-  getSongDetails(song){
-    const songDetails: string[] = [];
-    if(song.artist){
-      songDetails.push(song.artist)
-    }
-    if(song.genre){
-      songDetails.push(song.genre)
-    }
-    if(song.key){
-      songDetails.push(song.key)
-    }
-    if(song.tempo){
-      songDetails.push(song.tempo)
-    }
-    if(song.songLength){
-      songDetails.push(this.getSongLength(song))
-    }
-    return songDetails.join(' - ');
   }
 }

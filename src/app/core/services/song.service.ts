@@ -133,10 +133,31 @@ export class SongService {
               countOfSongs: account.countOfSongs ? account.countOfSongs - 1 : 1,
             });
           });
-
-        
       })
-    );;
-    
+    );
+  }
+
+  getSongDetails(song){
+    const songDetails: string[] = [];
+    if(song.artist){
+      songDetails.push(song.artist)
+    }
+    if(song.genre){
+      songDetails.push(song.genre)
+    }
+    if(song.key){
+      songDetails.push(song.key)
+    }
+    if(song.tempo){
+      songDetails.push(song.tempo)
+    }
+    if(song.songLength){
+      songDetails.push(this.getSongLength(song))
+    }
+    return songDetails.join(' - ');
+  }
+
+  getSongLength(song){
+    return song.lengthMin ? song.lengthMin + ':' + song.lengthSec?.toString().padStart(2, '0') : '';
   }
 }

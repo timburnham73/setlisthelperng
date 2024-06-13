@@ -1,0 +1,28 @@
+<div mat-dialog-content>
+  <mat-card-content
+    *ngFor="let song of filteredSongs"
+    (click)="onCheckSong(song)"
+  >
+    <div class="py-12 px-1 b-b-1">
+      <div class="flex align-items-center w-100">
+        <div class="w-100">
+          <p>
+            <b>{{ song.name }}</b>
+          </p>
+          <p>{{ songService.getSongDetails(song) }}</p>
+        </div>
+        <div class="w-100">
+          <div class="flex justify-content-end mr-1">
+            <button mat-icon-button aria-label="Edit Song">
+              <mat-icon>check</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+  <div mat-dialog-actions>
+    <button mat-button (click)="dialogRef.close()">Cancel</button>
+    <button mat-raised-button class="mat-primary" (click)="onAdd()">Add</button>
+  </div>
+</div>

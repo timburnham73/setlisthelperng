@@ -81,7 +81,7 @@
             <!-- Song Length Column -->
             <ng-container matColumnDef="songLength">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Song Length </th>
-              <td mat-cell *matCellDef="let element"> {{ getSongLength(element) }} </td>
+              <td mat-cell *matCellDef="let element"> {{ songService.getSongLength(element) }} </td>
             </ng-container>
 
             <ng-container matColumnDef="lyrics">
