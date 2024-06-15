@@ -104,7 +104,7 @@ export class SetlistSongsListComponent {
     private titleService: Title,
     private setlistSongsService: SetlistSongService,
     private setlistService: SetlistService,
-    private songService: SongService,
+    public songService: SongService,
     private store: Store,
     private authService: AuthenticationService,
     private router: Router,

@@ -23,6 +23,7 @@ import { AccountState } from 'src/app/core/store/account.state';
 export class SongSelectorComponent {
   currentUser: User;
   accountId: string;
+  setlistId: string;
   allSongs: Song[];
   filteredSongs: Song[];
   setlistSongIds: string[];
@@ -46,25 +47,22 @@ export class SongSelectorComponent {
     const selectedAccount = this.store.selectSnapshot(
       AccountState.selectedAccount
     );
-    const accountId = this.route.snapshot.paramMap.get("accountid");
-    const setlistId = this.route.snapshot.paramMap.get("setlistid");
-    if (accountId && setlistId) {
-      this.accountId = accountId;
-
+    this.accountId = this.data.accountId;
+    this.setlistId = this.data.setlistId;
+    
       //Get the songs for the song picker
       this.songService.getSongs(this.accountId).subscribe((songs) => {
         this.allSongs = this.filteredSongs = songs;
       });
 
       //Get the setlist songs
-      if (setlistId) {
+      if (this.setlistId) {
         this.setlistSongsService
-          .getOrderedSetlistSongs(this.accountId, setlistId)
+          .getOrderedSetlistSongs(this.accountId, this.setlistId)
           .subscribe((setlistSongs) => {
             this.setlistSongIds = setlistSongs.map(setlistSong => setlistSong.songId);
           });
       }
-    }
   }
 
   onCheckSong(song: Song){

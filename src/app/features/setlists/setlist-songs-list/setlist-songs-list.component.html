@@ -1,6 +1,35 @@
 <div class="container" fxLayoutGap="5px grid" fxLayout="row" fxLayoutAlign="center none">
+  <!-- Mobile Layout container -->
+  <div class="mobile-card-container">
+    <mat-card-content *ngFor="let song of filteredSongs" (click)="onViewLyrics($event, song)">
+      <div class="py-12 px-1 b-b-1">
+        <div class="flex align-items-center w-100">
+          <div class="w-100">
+            <p><b>{{song.name}}</b></p>
+            <p>{{songService.getSongDetails(song)}}</p>
+          </div>
+          <div class="w-100">
+            <div class="flex justify-content-end mr-1">
+              @if(!showRemove){
+                <button mat-icon-button aria-label="Edit Song" (click)="$event.stopPropagation(); onEditSong(song);">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              @else{
+                <button mat-icon-button aria-label="Edit Song" (click)="$event.stopPropagation(); onRemoveSong($event, song)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </mat-card-content>
+  </div>
   <!-- Songs Grid -->
-  <div fxFlex="24%">
+  <div fxFlex="24%" fxShow fxHide.lt-lg>
     <mat-card>
       <mat-card-content class="card-content">
         <mat-toolbar>
@@ -39,7 +68,7 @@
   </div>
 
   <!-- Setlist Songs Grid -->
-  <div fxFlex="74%">
+  <div fxFlex="74%" fxShow fxHide.lt-lg>
     <mat-card>
       <mat-card-header>
         <mat-card-title>
