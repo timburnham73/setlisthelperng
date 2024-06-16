@@ -21,7 +21,7 @@ import { SongService } from "src/app/core/services/song.service";
 import { AccountState } from "src/app/core/store/account.state";
 import { LyricAddDialogComponent } from "../../lyrics/lyric-add-dialog/lyric-add-dialog.component";
 import { Lyric } from "src/app/core/model/lyric";
-import { NgIf, NgClass, DatePipe } from "@angular/common";
+import { NgIf, NgClass, DatePipe, NgFor } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatSortModule } from "@angular/material/sort";
@@ -30,7 +30,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormsModule } from "@angular/forms";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
-import { FlexLayoutModule } from "ngx-flexible-layout";
+import { FlexLayoutModule, FlexModule } from "ngx-flexible-layout";
 import { CdkDragDrop, DragDropModule } from "@angular/cdk/drag-drop";
 import { drop } from "lodash-es";
 import { SongEditDialogComponent } from "../../songs/song-edit-dialog/song-edit-dialog.component";
@@ -39,6 +39,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatDivider } from "@angular/material/divider";
 import { Setlist } from "src/app/core/model/setlist";
 import { SetlistBreak } from "functions/src/model/setlist-break";
+import { SongSelectorComponent } from "../song-selector/song-selector.component";
 
 @Component({
   selector: "app-setlist-songs-list",
@@ -61,8 +62,11 @@ import { SetlistBreak } from "functions/src/model/setlist-break";
     DatePipe,
     NgIf,
     NgClass,
+    NgFor,
     DragDropModule,
-    SongEditDialogComponent
+    SongEditDialogComponent,
+    SongSelectorComponent,
+    FlexModule
   ],
 })
 export class SetlistSongsListComponent {
@@ -173,8 +177,8 @@ export class SetlistSongsListComponent {
     }
   }
 
-  onAddSong() {
-    const sequenceNumber = this.getSequenceNumberForAddOrUpdate();
+  onAddSong(songToInsertAfter?: SetlistSong) {
+    const sequenceNumber = songToInsertAfter? songToInsertAfter.sequenceNumber : this.getSequenceNumberForAddOrUpdate();
     const partialSong = { sequenceNumber: sequenceNumber, isBreak: false, saveChangesToRepertoire: true } as SetlistSong;
     if(this.setlist && this.setlist.id && this.accountId){
       const dialogRef = this.dialog.open(SongEditDialogComponent, {
@@ -184,8 +188,19 @@ export class SetlistSongsListComponent {
     }
   }
 
-  onAddBreak() {
-    const sequenceNumber = this.getSequenceNumberForAddOrUpdate();
+  onAddFromCatalog(songToInsertAfter?: SetlistSong) {
+    const sequenceNumber = songToInsertAfter? songToInsertAfter.sequenceNumber : this.getSequenceNumberForAddOrUpdate();
+    if(this.setlist && this.setlist.id && this.accountId){
+      const dialogRef = this.dialog.open(SongSelectorComponent, {
+        data: { accountId: this.accountId, setlistId: this.setlist.id, setlistsongIdToinsertAfter: sequenceNumber },
+        panelClass: "dialog-responsive",
+      });
+    }
+  }
+
+  onAddBreak(songToInsertAfter?: SetlistSong) {
+    const sequenceNumber = songToInsertAfter? songToInsertAfter.sequenceNumber : this.getSequenceNumberForAddOrUpdate();
+    
     const setlistSong = {
       sequenceNumber: sequenceNumber,
       songId: "",

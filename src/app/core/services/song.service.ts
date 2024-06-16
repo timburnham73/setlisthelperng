@@ -139,21 +139,31 @@ export class SongService {
 
   getSongDetails(song){
     const songDetails: string[] = [];
-    if(song.artist){
-      songDetails.push(song.artist)
+
+    if(song.isBreak){
+      if(song.notes){
+        songDetails.push(song.notes)
+      }
     }
-    if(song.genre){
-      songDetails.push(song.genre)
+    else{
+      if(song.artist){
+        songDetails.push(song.artist)
+      }
+      if(song.genre){
+        songDetails.push(song.genre)
+      }
+      if(song.key){
+        songDetails.push(song.key)
+      }
+      if(song.tempo){
+        songDetails.push(song.tempo)
+      }
     }
-    if(song.key){
-      songDetails.push(song.key)
-    }
-    if(song.tempo){
-      songDetails.push(song.tempo)
-    }
+    
     if(song.songLength){
       songDetails.push(this.getSongLength(song))
     }
+    
     return songDetails.join(' - ');
   }
 

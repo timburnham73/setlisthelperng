@@ -1,27 +1,84 @@
 <div class="container" fxLayoutGap="5px grid" fxLayout="row" fxLayoutAlign="center none">
   <!-- Mobile Layout container -->
-  <div class="mobile-card-container">
-    <mat-card-content *ngFor="let song of filteredSongs" (click)="onViewLyrics($event, song)">
-      <div class="py-12 px-1 b-b-1">
-        <div class="flex align-items-center w-100">
-          <div class="w-100">
-            <p><b>{{song.name}}</b></p>
-            <p>{{songService.getSongDetails(song)}}</p>
-          </div>
-          <div class="w-100">
-            <div class="flex justify-content-end mr-1">
-              @if(!showRemove){
-                <button mat-icon-button aria-label="Edit Song" (click)="$event.stopPropagation(); onEditSong(song);">
-                  <mat-icon>edit</mat-icon>
-                </button>
-              }
-              @else{
-                <button mat-icon-button aria-label="Edit Song" (click)="$event.stopPropagation(); onRemoveSong($event, song)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              }
-            </div>
+  <div fxFlex="100%" fxfill fxlayout="column" class="mobile-card-container" fxShow fxHide.gt-md>
+    <mat-toolbar>
+      @if(showRemove === false) {
+      <button mat-button aria-label="Add Song or Break" [matMenuTriggerFor]="addSong">
+        <mat-icon>add</mat-icon>
+      </button>
+      <mat-menu #addSong="matMenu" xPosition="after" yPosition="above" [overlapTrigger]="false">
 
+        <a mat-menu-item (click)="onAddSong()">
+          <span>Add New Song</span>
+        </a>
+
+        <a mat-menu-item (click)="onAddBreak()">
+          <span>Add Break</span>
+        </a>
+        <a mat-menu-item (click)="onAddFromCatalog()">
+          <span>Add From Catalog</span>
+        </a>
+      </mat-menu>
+      <button mat-button aria-label="Print Setlist" (click)="onPrintSetlist()">
+        <mat-icon>print</mat-icon>
+      </button>
+      <button mat-button aria-label="Remove Song" (click)="onEnableDeleteMode()">
+        <span>Delete</span>
+      </button>
+      
+      } @else {
+      <button mat-icon-button aria-label="Stop Remove Song" (click)="onEnableDeleteMode()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      }
+    </mat-toolbar>
+    <mat-card-content *ngFor="let song of dsSetlistSongs.data" (click)="onViewLyrics($event, song)">
+      
+      <div class="grid b-b-1" [ngClass]="{ setbreak: song.isBreak }">
+        <div class="col-1">
+          <div class="text-center pt-3 top-50 font-bold">
+            {{
+            song.isBreak === true
+            ? incrementSetBreakCount(
+            dsSetlistSongs.filteredData.indexOf(song)
+            )
+            : getSequenceNumber(
+            dsSetlistSongs.filteredData.indexOf(song)
+            )
+            }}
+          </div>
+        </div>
+        <div class="col-10 pt-3">
+          <div><b>{{song.name}}</b></div>
+          <div>{{songService.getSongDetails(song)}}</div>
+        </div>
+        <div class="col-1">
+          <div class="flex justify-content-end">
+            @if(!showRemove){
+              <button mat-icon-button aria-label="Add Song or Break" (click)="$event.stopPropagation()" [matMenuTriggerFor]="songMoremenu">
+                <mat-icon>expand_circle_down</mat-icon>
+              </button>
+              <mat-menu #songMoremenu="matMenu" xPosition="after" yPosition="above" [overlapTrigger]="false">
+                <a mat-menu-item (click)="onEditSong(song)">
+                  <span>Edit...</span>
+                </a>
+                <a mat-menu-item (click)="onAddSong(song)">
+                  <span>Add New Song...</span>
+                </a>
+        
+                <a mat-menu-item (click)="onAddBreak(song)">
+                  <span>Add Break...</span>
+                </a>
+                <a mat-menu-item (click)="onAddFromCatalog(song)">
+                  <span>Add From Catalog...</span>
+                </a>
+              </mat-menu>
+            }
+            @else{
+              <button mat-icon-button aria-label="Edit Song" (click)="$event.stopPropagation(); onRemoveSong($event, song)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
           </div>
 
         </div>
