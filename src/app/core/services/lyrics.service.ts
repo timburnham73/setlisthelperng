@@ -16,7 +16,7 @@ import { increment } from "firebase/firestore";
 import { Song } from "../model/song";
 import { BaseUser, User } from "../model/user";
 import { Account } from "../model/account";
-import { LyricFormatHelper, LyricFormatWithScope } from "../model/lyric-format";
+import { LyricFormat, LyricFormatHelper, LyricFormatWithScope } from "../model/lyric-format";
 
 @Injectable({
   providedIn: "root",
@@ -124,9 +124,9 @@ export class LyricsService {
     return from(lyricRef.doc(lyric.id).update(lyricForUpdate));
   }
 
-  getLyricFormat(account: Account, user: User, selectedLyric: Lyric) : LyricFormatWithScope {
-    if (selectedLyric && selectedLyric.formatSettings) {
-      return {formatScope: FormatScope.LYRIC, lyricFormat: selectedLyric.formatSettings};
+  getLyricFormat(account: Account, user: User, lyricFormat?: LyricFormat) : LyricFormatWithScope {
+    if (lyricFormat) {
+      return {formatScope: FormatScope.LYRIC, lyricFormat: lyricFormat};
     }
     //If the user has format settings then the are using the settings for their account only
     else if(user.formatSettings){

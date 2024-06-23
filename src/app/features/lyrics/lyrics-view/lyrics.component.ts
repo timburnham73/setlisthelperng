@@ -24,7 +24,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import ChordSheetJS, { HtmlTableFormatter } from 'chordsheetjs';
 import { parse } from "path";
-import { LyricFormat, LyricFormatHelper, fontSizes, fonts, lyricParts } from "src/app/core/model/lyric-format";
+import { LyricFormat, LyricFormatHelper, LyricFormatWithScope, fontSizes, fonts, lyricParts } from "src/app/core/model/lyric-format";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { ChordProParser } from "src/app/core/services/ChordProParser";
 import { LyricDisplaySetting } from "src/app/core/model/LyricDisplaySetting";
@@ -36,6 +36,7 @@ import { User, UserHelper } from "src/app/core/model/user";
 import { AccountService } from "src/app/core/services/account.service";
 import { Account } from "src/app/core/model/account";
 import { FlexLayoutModule, FlexModule } from "ngx-flexible-layout";
+import { LyricsFormatDialogComponent } from "../lyrics-format-dialog/lyrics-format-dialog.component";
 
 @Component({
     selector: "app-lyrics",
@@ -55,7 +56,8 @@ import { FlexLayoutModule, FlexModule } from "ngx-flexible-layout";
         MatSelectModule,
         NgFor,
         MatOptionModule,
-        MatButtonModule, MatMenuModule,
+        MatButtonModule,
+        MatMenuModule,
         SafeHtml,
         FlexModule,
         FlexLayoutModule
@@ -100,6 +102,7 @@ export class LyricsComponent {
 
   lyricFormat: LyricFormat;
   formatScope: FormatScope;
+  //Used in the UI so the FormatScope enum can be used
   FormatScopeType = FormatScope;
   
   constructor(
@@ -166,7 +169,7 @@ export class LyricsComponent {
 
           
           //Create a function to select 
-          const lyricFormatWithScope = this.lyricsService.getLyricFormat(this.selectedAccount, this.currentUser, this.selectedLyric!);
+          const lyricFormatWithScope = this.lyricsService.getLyricFormat(this.selectedAccount, this.currentUser, this.selectedLyric!.formatSettings);
           this.formatScope = lyricFormatWithScope.formatScope;
           this.lyricFormat = lyricFormatWithScope.lyricFormat;
           this.updateToolbarFromLyricFont();
@@ -248,6 +251,29 @@ export class LyricsComponent {
 
   onFormatLyrics(){
     this.isFormatting = !this.isFormatting;
+  }
+  
+  onFormatMobileLyrics(){
+    const lyricFormats = {
+      formatScope: this.formatScope,
+      lyricFormat: this.lyricFormat
+    } as LyricFormatWithScope;
+
+    const dialogRef = this.dialog.open(LyricsFormatDialogComponent, {
+      data: lyricFormats ,
+      panelClass: "dialog-responsive",
+    });
+
+    dialogRef.afterClosed().subscribe((result: LyricFormatWithScope) => {
+      if (result) {
+        this.formatScope = result.formatScope;
+        this.lyricFormat = result.lyricFormat;
+        this.saveFormatSettings();
+
+        const parser =  new ChordProParser(this.selectedLyric?.lyrics!, this.lyricFormat, this.selectedLyric!.transpose);
+        this.parsedLyric = parser.parseChordPro();
+      }
+    });
   }
 
   onTranspose(){

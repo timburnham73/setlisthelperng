@@ -195,6 +195,11 @@ export class SetlistSongsListComponent {
         data: { accountId: this.accountId, setlistId: this.setlist.id, setlistsongIdToinsertAfter: sequenceNumber },
         panelClass: "dialog-responsive",
       });
+
+      dialogRef.afterClosed().subscribe((data) => {
+        console.log(data);
+      }); 
+
     }
   }
 

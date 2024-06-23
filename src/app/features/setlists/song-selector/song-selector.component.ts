@@ -117,7 +117,7 @@ export class SongSelectorComponent {
   }
 
   onAdd() {
-
+    this.dialogRef.close(this.checkedSongIds);
   }
 
   search(search: string) {

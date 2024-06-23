@@ -1,0 +1,83 @@
+<form class="dialog-form">
+    <div mat-dialog-content>
+        <p>Format Lyrics</p>
+        <p>
+            <button mat-button [matMenuTriggerFor]="menu" aria-label="Save lyric format setting.">
+                @if(formatScope === FormatScopeType.ACCOUNT){
+                    Save for Account
+                }
+                @else if(formatScope === FormatScopeType.USER){
+                    Save for me
+                }
+                @else{
+                    Save for this lyric
+                }
+                <mat-icon>settings</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.LYRIC)">
+                    <mat-icon>article</mat-icon>
+                    <span>Save for this lyric <mat-icon
+                            *ngIf="formatScope === FormatScopeType.LYRIC">check</mat-icon></span>
+
+                </button>
+                <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.USER)">
+                    <mat-icon>person</mat-icon>
+                    <span>Save only for me <mat-icon
+                            *ngIf="formatScope === FormatScopeType.USER">check</mat-icon></span>
+                </button>
+                <button mat-menu-item (click)="onSelectFormatScope(FormatScopeType.ACCOUNT)">
+                    <mat-icon>group</mat-icon>
+                    <span>Save for Account <mat-icon
+                            *ngIf="formatScope === FormatScopeType.ACCOUNT">check</mat-icon></span>
+                </button>
+            </mat-menu>
+        </p>
+        <p>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Font</mat-label>
+                <mat-select [(value)]="selectedFont" (selectionChange)="onSelectFont($event.value)">
+                    <mat-option *ngFor="let font of fonts" [value]="font.value">
+                        <mat-label>{{font.name}}</mat-label>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field class="toolbar-item" appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Song Part</mat-label>
+                <mat-select [(value)]="selectedLyricPart" (selectionChange)="onSelectLyricPart($event.value)">
+                    <mat-option *ngFor="let lyricPart of lyricParts" [value]="lyricPart.value">
+                        {{lyricPart.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-button-toggle-group name="fontStyle" [(value)]="selectedFontStyle"
+                (change)="onFormatToggleStyle(toggleFontStyle.value)" aria-label="Font Style" multiple
+                #toggleFontStyle="matButtonToggleGroup">
+                <mat-button-toggle value="bold"><mat-icon>format_bold</mat-icon></mat-button-toggle>
+                <mat-button-toggle value="italic"><mat-icon>format_italic</mat-icon></mat-button-toggle>
+                <mat-button-toggle value="underline"><mat-icon>format_underline</mat-icon></mat-button-toggle>
+            </mat-button-toggle-group>
+        </p>
+        <p>
+            <mat-form-field class="toolbar-item" appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Font Size</mat-label>
+                <mat-select [(value)]="selectedFontSize" (selectionChange)="onSelectFontSize($event.value)">
+                    <mat-option *ngFor="let fontSize of fontSizes" [value]="fontSize.value">
+                        {{fontSize.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </p>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-button (click)="onNoClick()">Cancel</button>
+        <button mat-raised-button class="mat-primary" (click)="onSave()">
+            Save
+
+        </button>
+    </div>
+</form>
