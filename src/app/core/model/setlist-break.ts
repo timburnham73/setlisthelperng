@@ -8,6 +8,7 @@ export interface SetlistBreak extends Base {
    songId: string;
    isBreak: boolean;
    name: string;
+   notes: string;
    lengthMin: number;
    lengthSec: number;
    totalTimeInSeconds: number;
@@ -28,7 +29,8 @@ export class SetlistBreakHelper {
          totalTimeInSeconds: setlistBreak.totalTimeInSeconds ?? 0,
          countOfSongs: setlistBreak.countOfSongs ?? 0,
          lengthMin: setlistBreak.lengthMin ?? 10,
-         lengthSec: setlistBreak.lengthSec ?? 0
+         lengthSec: setlistBreak.lengthSec ?? 0,
+         notes: setlistBreak.notes ?? ''
       };
    }
 }

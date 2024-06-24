@@ -155,6 +155,22 @@ export class SetlistSongsListComponent {
   
   //Events ////////////////
   //Adds a song after the selected row. If no row is selected
+  onAddSetlistSongs(songs: Song[]): void {
+    const startingSequenceNumber = this.getSequenceNumberForAddOrUpdate();
+    
+    if(this.setlist && this.setlist.id){
+      this.setlistSongsService.addSetlistSongs(
+        startingSequenceNumber,
+        setlistSong,
+        this.accountId!,
+        this.setlist,
+        this.currentUser
+        )
+        .pipe(first())
+        .subscribe();
+    }
+  }
+  
   onAddSetlistSong(row: Song, sequenceNumberToInsert?: number): void {
     const sequenceNumber = sequenceNumberToInsert !== undefined ? sequenceNumberToInsert! : this.getSequenceNumberForAddOrUpdate();
     const setlistSong = {
@@ -206,7 +222,7 @@ export class SetlistSongsListComponent {
   onAddBreak(songToInsertAfter?: SetlistSong) {
     const sequenceNumber = songToInsertAfter? songToInsertAfter.sequenceNumber : this.getSequenceNumberForAddOrUpdate();
     
-    const setlistSong = {
+    const setlistBreak = {
       sequenceNumber: sequenceNumber,
       songId: "",
       isBreak: true,
@@ -218,7 +234,7 @@ export class SetlistSongsListComponent {
       this.setlistSongsService.addSetlistBreak(
         this.accountId,
         this.setlist,
-        setlistSong,
+        setlistBreak,
         this.currentUser,
       )
         .pipe(first())
