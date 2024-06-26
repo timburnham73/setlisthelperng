@@ -59,7 +59,7 @@ export class SongSelectorComponent {
   allSongs: Song[];
   filteredSongs: Song[];
   setlistSongIds: string[];
-  checkedSongIds: string[] = [];
+  checkedSongIds: Song[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<SongSelectorComponent>,
@@ -100,18 +100,18 @@ export class SongSelectorComponent {
 
   shouldShowcheck(song){
     if(song.id){
-      return this.checkedSongIds.find(songId => songId === song.id);
+      return this.checkedSongIds.find(s => s.id === song.id);
     }
     return false;
   }
   onCheckSong(song: Song) {
     if(song.id){
-      const index = this.checkedSongIds.findIndex(songId => songId === song.id);
+      const index = this.checkedSongIds.findIndex(s => s.id === song.id);
       if(index > -1){
         this.checkedSongIds.splice(index, 1);
       }
       else{
-        this.checkedSongIds.push(song.id);
+        this.checkedSongIds.push(song);
       }
     }
   }

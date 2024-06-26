@@ -156,9 +156,10 @@ export class SetlistSongService {
     editingUser: BaseUser
   ): any {
     const setlistSongsForadd: SetlistSong[] = [];
+    let sequenceNumberForNewSongs = sequenceNumberToInsert;
     for(const songToAdd of songsToAdd){
       const setlistSongToAdd = {
-        sequenceNumber: sequenceNumberToInsert++,
+        sequenceNumber: sequenceNumberForNewSongs++,
         ...songToAdd
       } as SetlistSong;
       const songForAdd = SetlistSongHelper.getForUpdate(setlistSongToAdd, editingUser);
